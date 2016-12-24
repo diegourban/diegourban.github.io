@@ -1,7 +1,7 @@
 <?php
 
 	// Mail settings
-	$to      = "web-master72@yandex.ru";
+	$to      = "diego.urban88@gmail.com";
 	$subject = "Contact Form";
 
 	// You can put here your email
