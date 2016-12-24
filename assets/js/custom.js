@@ -66,22 +66,6 @@
 		});
 
 		/* ---------------------------------------------- /*
-		 * Count to
-		/* ---------------------------------------------- */
-
-		$('#stats').waypoint(function() {
-			$('.timer').each(function() {
-				counter = $(this).attr('data-count'),
-				$(this).delay(6000).countTo({
-					from: 0,
-					to: counter,
-					speed: 3000,// Stats Counter Speed
-					refreshInterval: 50,
-				});
-			});
-		 }, { offset: '70%', triggerOnce: true });
-
-		/* ---------------------------------------------- /*
 		 * WOW Animation When You Scroll
 		/* ---------------------------------------------- */
 
@@ -89,17 +73,6 @@
 			mobile: false
 		});
 		wow.init();
-
-		/* ---------------------------------------------- /*
-		 * Owl slider
-		/* ---------------------------------------------- */
-
-		$("#owl-clients").owlCarousel({
-			items : 4,
-			slideSpeed : 300,
-			paginationSpeed : 400,
-			autoPlay: 5000
-		});
 
 		/* ---------------------------------------------- /*
 		 * Rotate
@@ -110,34 +83,6 @@
 			separator: "|",
 			speed: 3000
 		});
-
-		/* ---------------------------------------------- /*
-		 * Portfolio pop up
-		/* ---------------------------------------------- */
-
-		$('#portfolio').magnificPopup({
-			delegate: 'a.pop-up',
-			type: 'image',
-			gallery: {
-				enabled: true,
-				navigateByImgClick: true,
-				preload: [0,1]
-			},
-			image: {
-				titleSrc: 'title',
-				tError: 'The image could not be loaded.',
-			}
-		});
-
-		$('.video-pop-up').magnificPopup({
-			type: 'iframe'
-		});
-
-		/* ---------------------------------------------- /*
-		 * A jQuery plugin for fluid width video embeds
-		/* ---------------------------------------------- */
-
-		$(".video").fitVids();
 
 		/* ---------------------------------------------- /*
 		 * Contact form ajax
