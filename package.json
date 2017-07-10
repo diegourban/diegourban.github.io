@@ -1,0 +1,27 @@
+{
+  "name": "personal-page",
+  "version": "1.0.0",
+  "description": "Personal Page source",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diegourban/personal-page.git"
+  },
+  "author": "Diego Leonardo Urban",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/diegourban/personal-page/issues"
+  },
+  "homepage": "https://github.com/diegourban/personal-page#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-uglify": "^2.0.0"
+  }
+}
