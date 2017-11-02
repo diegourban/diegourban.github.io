@@ -14,8 +14,7 @@
 ## Usage
 
 #### Folder structure:
-* `/MStone-1.4.2` - contains the original theme;
-* `/src` - contains the personal page source code based on the original thame and adapted to my needs;
+* `/src` - contains the personal page source code based on the original theme and adapted to my needs;
 
 Make the changes at `/src` folder, run `gulp` to copy and minify the content from src to dist
 
