@@ -1,0 +1,2 @@
+FROM heavydemo:base
+COPY out/app.jsa /app/app.jsa
