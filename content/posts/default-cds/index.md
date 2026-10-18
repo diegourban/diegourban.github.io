@@ -1,7 +1,7 @@
 ---
 title: "Is anything switching off your JVM's free startup optimisation?"
 date: 2026-10-18
-draft: true
+draft: false
 description: "Removing a leftover -Xshare:off: what the default CDS archive does and doesn't buy a Spring Boot 4 app on JDK 25, measured across four GCs."
 tags: ["java", "jvm", "cds", "spring-boot", "performance", "startup"]
 ShowToc: true
