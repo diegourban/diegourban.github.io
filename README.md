@@ -1,24 +1,52 @@
-# Personal Page
+# diegourban.github.io
 
-## Installation
+Site estático em [Hugo](https://gohugo.io/) com o tema [PaperMod](https://github.com/adityatelange/hugo-PaperMod), publicado em <https://diegourban.github.io/> pelo GitHub Pages a cada push no `master`.
 
-1. `npm install --global gulp-cli` - to install gulp globally; (If you have previously installed a version of gulp globally, please run `npm rm --global gulp` to make sure your old version doesn't collide with gulp-cli)
+Cada post que traz números tem os scripts e os dados brutos em `benchmarks/<slug>/`, para qualquer leitor reproduzir.
 
-2. `npm install` - to install the dependencies;
+## Estrutura
 
-3. Install NGINX;
+| Caminho | O que é |
+|---|---|
+| `hugo.toml` | Configuração do site: título, menu, links sociais, opções do tema |
+| `content/posts/<slug>/index.md` | Um post (page bundle: imagens do post ficam na mesma pasta) |
+| `content/about.md` | Página "About" |
+| `benchmarks/<slug>/` | Scripts e dados brutos de cada post; ficam no repositório, não no site |
+| `archetypes/default.md` | Modelo de front matter para posts novos |
+| `themes/PaperMod/` | O tema, como submódulo git fixado num commit |
+| `.github/workflows/hugo.yml` | Build e deploy no GitHub Pages |
 
-4. Add the following configuration file to NGINX:
-  * `diegourban.github.io.conf` - is the nginx configuration file, it defines two servers to evaluate both versions of the page: src and dist;
+## Dia a dia
 
-## Usage
+```bash
+git clone --recurse-submodules git@github.com:diegourban/diegourban.github.io.git
+hugo server --buildDrafts                 # preview em http://localhost:1313, recarrega ao salvar
+hugo new content posts/meu-post/index.md  # novo post, já com draft: true
+hugo --gc --minify                        # build de produção em public/ (rascunhos ficam de fora)
+```
 
-#### Folder structure:
-* `/src` - contains the personal page source code based on the original theme and adapted to my needs;
+Um post só é publicado quando o front matter muda para `draft: false` e o commit chega ao `master`.
 
-Make the changes at `/src` folder, run `gulp` to copy and minify the content from src to dist
+Num repositório público, o texto de um rascunho fica visível no GitHub mesmo com `draft: true`. Rascunhos que ainda não podem ser lidos ficam num branch local até estarem prontos.
 
-* `http://localhost:4040` - to src version;
-* `http://localhost:5050` - to dist version;
+Use SSH para o push: o token HTTPS do `gh` recusa push de arquivos em `.github/workflows/` sem o escopo `workflow`.
 
-`gulp update` - to update the repo files from dist.
+## Publicação
+
+O GitHub Pages usa **Settings → Pages → Source = GitHub Actions**. O workflow builda com Hugo e publica a cada push no `master`, ou manualmente em **Actions → Deploy Hugo site to Pages → Run workflow**.
+
+Domínio próprio (opcional): **Settings → Pages → Custom domain**, mais um registro `CNAME` no seu DNS apontando para `diegourban.github.io`.
+
+O site anterior (um currículo de 2017 em Bootstrap) continua no histórico do `master`.
+
+## Atualizar o tema
+
+O PaperMod está fixado no commit `d376885` (2026-08-02). A última tag, v8.0 (2024), não funciona no Hugo 0.168. Para atualizar:
+
+```bash
+git -C themes/PaperMod fetch && git -C themes/PaperMod checkout <commit>
+hugo server --buildDrafts   # confira se nada quebrou
+git add themes/PaperMod && git commit -m "Update PaperMod"
+```
+
+Mantenha a versão do Hugo no workflow (`HUGO_VERSION`) igual à da sua máquina (`hugo version`).

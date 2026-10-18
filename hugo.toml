@@ -1,0 +1,70 @@
+# baseURL is overridden in CI by the GitHub Pages workflow (--baseURL).
+baseURL = "https://example.com/"
+locale = "en-US"
+title = "Diego Urban"
+theme = "PaperMod"
+enableRobotsTXT = true
+enableGitInfo = true
+pagination.pagerSize = 10
+
+[params]
+  env = "production"
+  description = "JVM, Spring and platform engineering, measured."
+  author = "Diego Leonardo Urban"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  TocOpen = false
+  ShowShareButtons = false
+  ShowRssButtonInSectionTermList = true
+  # Every post links to its source data in this repo. Set to your GitHub repo.
+  editPost.URL = "https://github.com/diegourban/diegourban.github.io/tree/master/content"
+  editPost.Text = "Source"
+  editPost.appendFilePath = true
+
+  [params.homeInfoParams]
+    Title = "Hi, I'm Diego"
+    Content = "Platform and JVM engineer. I write about startup time, memory and the flags nobody can explain. Every benchmark here ships with its scripts and raw data."
+
+  [[params.socialIcons]]
+    name = "linkedin"
+    url = "https://www.linkedin.com/in/diegoleonardourban"
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/diegourban"
+  [[params.socialIcons]]
+    name = "rss"
+    url = "/index.xml"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]   # JSON feeds the search page
+
+[[menu.main]]
+  identifier = "posts"
+  name = "Posts"
+  url = "/posts/"
+  weight = 10
+[[menu.main]]
+  identifier = "archives"
+  name = "Archive"
+  url = "/archives/"
+  weight = 20
+[[menu.main]]
+  identifier = "search"
+  name = "Search"
+  url = "/search/"
+  weight = 30
+[[menu.main]]
+  identifier = "about"
+  name = "About"
+  url = "/about/"
+  weight = 40
+
+[markup.goldmark.renderer]
+  unsafe = false
+[markup.highlight]
+  noClasses = false
+  style = "monokai"
