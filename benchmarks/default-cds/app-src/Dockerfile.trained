@@ -1,0 +1,4 @@
+FROM gcr.io/distroless/java25-debian13:latest
+WORKDIR /app
+COPY ext/ /app/
+RUN ["java","-XX:+UseZGC","-XX:ArchiveClassesAtExit=/app/app.jsa","-Dspring.context.exit=onRefresh","-jar","/app/cdsdemo-0.0.1-SNAPSHOT.jar"]

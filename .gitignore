@@ -2,3 +2,10 @@
 /resources/_gen/
 .hugo_build.lock
 .DS_Store
+
+# Benchmark sources: keep only source, never build output or caches
+.gradle/
+build/
+bin/
+*.jar
+*.jsa
