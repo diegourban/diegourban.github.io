@@ -12,3 +12,13 @@
 <script src="{{ $charts.RelPermalink }}" integrity="{{ $charts.Data.Integrity }}"></script>
 <script>CPCharts.renderAll({{ $data }});</script>
 {{- end }}
+
+{{- /* GoatCounter page views and click events: production builds only, so `hugo server` never counts. */ -}}
+{{- with site.Params.goatcounter.code }}
+{{- if hugo.IsProduction }}
+{{- $gc := resources.Get "js/vendor/goatcounter-count.v5.js" | fingerprint "sha384" }}
+{{- $events := resources.Get "js/analytics.js" | minify | fingerprint "sha384" }}
+<script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="{{ $gc.RelPermalink }}" integrity="{{ $gc.Data.Integrity }}"></script>
+<script src="{{ $events.RelPermalink }}" integrity="{{ $events.Data.Integrity }}" defer></script>
+{{- end }}
+{{- end }}

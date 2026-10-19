@@ -49,6 +49,22 @@ python3 make_charts.py   # charts.json
 ./make_cover.sh          # cover.png
 ```
 
+## SEO and analytics
+
+- **Structured data:** `layouts/_partials/templates/schema_json.html` overrides PaperMod's. The home page is a `WebSite` + `Person` (from `[params.schema]` in `hugo.toml`), posts are `BlogPosting`s whose author and publisher point at that `Person`, and a page with `schemaType: "ProfilePage"` (About) is a `ProfilePage`.
+- **Kept out of search and the sitemap:** `/search/` and the tag pages (`content/tags/_index.md`). Once tags group several posts each, delete the `cascade` there.
+- **Social images:** posts set `cover` (with `relative: true`); everything else falls back to `static/site-card.png`, rendered by `scripts/make_site_card.sh`.
+- **Page views:** [GoatCounter](https://www.goatcounter.com/), cookieless, dashboard at <https://diegourban.goatcounter.com>. `count.v5.js` is self-hosted and loaded in production builds only, so `hugo server` never counts. `assets/js/analytics.js` adds click events: `source`, `benchmarks` and `outbound`.
+- **Where readers come from:** tag every link you share with `?ref=`, so sources stay separate even when the browser hides the referrer:
+
+  | Where | Link |
+  |---|---|
+  | LinkedIn | `https://diegourban.github.io/posts/<slug>/?ref=linkedin` |
+  | dev.to | `?ref=devto` |
+  | Java Annotated Monthly | `?ref=jam` |
+  | JVM Weekly | `?ref=jvmweekly` |
+  | foojay.io | `?ref=foojay` |
+
 ## Publishing
 
 GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.

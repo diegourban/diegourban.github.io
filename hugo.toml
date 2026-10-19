@@ -24,6 +24,8 @@ pagination.pagerSize = 10
   editPost.URL = "https://github.com/diegourban/diegourban.github.io/tree/master/content"
   editPost.Text = "Source"
   editPost.appendFilePath = true
+  # Social preview image for pages without their own cover (scripts/make_site_card.sh renders it).
+  images = ["site-card.png"]
 
   [params.homeInfoParams]
     Title = "Hi, I'm Diego"
@@ -38,6 +40,20 @@ pagination.pagerSize = 10
   [[params.socialIcons]]
     name = "rss"
     url = "/index.xml"
+
+  # Structured data (layouts/_partials/templates/schema_json.html): the Person behind the site.
+  [params.schema]
+    alternateName = "Diego Urban"
+    jobTitle = "Software Engineer"
+    sameAs = ["https://www.linkedin.com/in/diegoleonardourban", "https://github.com/diegourban"]
+
+  # Cookieless page views (layouts/_partials/extend_footer.html); counted in production builds only.
+  [params.goatcounter]
+    code = "diegourban"
+
+# Tags only: no categories (an empty /categories/ page is thin content for search engines).
+[taxonomies]
+  tag = "tags"
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]   # JSON feeds the search page
