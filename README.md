@@ -1,52 +1,52 @@
 # diegourban.github.io
 
-Site estático em [Hugo](https://gohugo.io/) com o tema [PaperMod](https://github.com/adityatelange/hugo-PaperMod), publicado em <https://diegourban.github.io/> pelo GitHub Pages a cada push no `master`.
+A static site built with [Hugo](https://gohugo.io/) and the [PaperMod](https://github.com/adityatelange/hugo-PaperMod) theme, published to <https://diegourban.github.io/> by GitHub Pages on every push to `master`.
 
-Cada post que traz números tem os scripts e os dados brutos em `benchmarks/<slug>/`, para qualquer leitor reproduzir.
+Every post with numbers ships its scripts and raw data in `benchmarks/<slug>/`, so any reader can reproduce them.
 
-## Estrutura
+## Layout
 
-| Caminho | O que é |
+| Path | What it is |
 |---|---|
-| `hugo.toml` | Configuração do site: título, menu, links sociais, opções do tema |
-| `content/posts/<slug>/index.md` | Um post (page bundle: imagens do post ficam na mesma pasta) |
-| `content/about.md` | Página "About" |
-| `benchmarks/<slug>/` | Scripts e dados brutos de cada post; ficam no repositório, não no site |
-| `archetypes/default.md` | Modelo de front matter para posts novos |
-| `themes/PaperMod/` | O tema, como submódulo git fixado num commit |
-| `.github/workflows/hugo.yml` | Build e deploy no GitHub Pages |
+| `hugo.toml` | Site configuration: title, menu, social links, theme options |
+| `content/posts/<slug>/index.md` | A post (page bundle: the post's images live in the same folder) |
+| `content/about.md` | The About page |
+| `benchmarks/<slug>/` | Scripts and raw data for each post; kept in the repo, not on the site |
+| `archetypes/default.md` | Front matter template for new posts |
+| `themes/PaperMod/` | The theme, as a git submodule pinned to a commit |
+| `.github/workflows/hugo.yml` | Build and deploy to GitHub Pages |
 
-## Dia a dia
+## Day to day
 
 ```bash
 git clone --recurse-submodules git@github.com:diegourban/diegourban.github.io.git
-hugo server --buildDrafts                 # preview em http://localhost:1313, recarrega ao salvar
-hugo new content posts/meu-post/index.md  # novo post, já com draft: true
-hugo --gc --minify                        # build de produção em public/ (rascunhos ficam de fora)
+hugo server --buildDrafts                 # preview at http://localhost:1313, reloads on save
+hugo new content posts/my-post/index.md   # new post, starts as draft: true
+hugo --gc --minify                        # production build into public/ (drafts are left out)
 ```
 
-Um post só é publicado quando o front matter muda para `draft: false` e o commit chega ao `master`.
+A post is published only when its front matter changes to `draft: false` and the commit reaches `master`.
 
-Num repositório público, o texto de um rascunho fica visível no GitHub mesmo com `draft: true`. Rascunhos que ainda não podem ser lidos ficam num branch local até estarem prontos.
+In a public repository, a draft's text is visible on GitHub even with `draft: true`. Drafts that aren't ready to be read stay on a local branch until they are.
 
-Use SSH para o push: o token HTTPS do `gh` recusa push de arquivos em `.github/workflows/` sem o escopo `workflow`.
+Push over SSH: the `gh` HTTPS token rejects pushes that touch `.github/workflows/` unless it has the `workflow` scope.
 
-## Publicação
+## Publishing
 
-O GitHub Pages usa **Settings → Pages → Source = GitHub Actions**. O workflow builda com Hugo e publica a cada push no `master`, ou manualmente em **Actions → Deploy Hugo site to Pages → Run workflow**.
+GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.
 
-Domínio próprio (opcional): **Settings → Pages → Custom domain**, mais um registro `CNAME` no seu DNS apontando para `diegourban.github.io`.
+Custom domain (optional): **Settings → Pages → Custom domain**, plus a `CNAME` record in your DNS pointing to `diegourban.github.io`.
 
-O site anterior (um currículo de 2017 em Bootstrap) continua no histórico do `master`.
+The previous site (a 2017 Bootstrap CV page) is still in the history of `master`.
 
-## Atualizar o tema
+## Updating the theme
 
-O PaperMod está fixado no commit `d376885` (2026-08-02). A última tag, v8.0 (2024), não funciona no Hugo 0.168. Para atualizar:
+PaperMod is pinned to commit `d376885` (2026-08-02). Its latest tag, v8.0 (2024), doesn't work with Hugo 0.168. To update:
 
 ```bash
 git -C themes/PaperMod fetch && git -C themes/PaperMod checkout <commit>
-hugo server --buildDrafts   # confira se nada quebrou
+hugo server --buildDrafts   # check nothing broke
 git add themes/PaperMod && git commit -m "Update PaperMod"
 ```
 
-Mantenha a versão do Hugo no workflow (`HUGO_VERSION`) igual à da sua máquina (`hugo version`).
+Keep the Hugo version in the workflow (`HUGO_VERSION`) the same as on your machine (`hugo version`).
