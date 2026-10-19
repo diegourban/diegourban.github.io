@@ -1,0 +1,117 @@
+{{- /* Site override of PaperMod's schema_json.html for a personal blog:
+  home = WebSite + Person (one @id the posts reuse); pages with schemaType "ProfilePage" = ProfilePage;
+  posts keep PaperMod's BlogPosting with author and publisher pointing at the same Person. */ -}}
+{{- $personID := printf "%s#person" site.Home.Permalink }}
+{{- $person := dict
+  "@type" "Person"
+  "@id" $personID
+  "name" site.Params.author
+  "alternateName" site.Params.schema.alternateName
+  "url" site.Home.Permalink
+  "jobTitle" site.Params.schema.jobTitle
+  "sameAs" site.Params.schema.sameAs }}
+{{ if .IsHome }}
+<script type="application/ld+json">
+{{ dict "@context" "https://schema.org" "@graph" (slice
+  (dict
+    "@type" "WebSite"
+    "@id" (printf "%s#website" site.Home.Permalink)
+    "name" site.Title
+    "url" site.Home.Permalink
+    "description" (site.Params.description | plainify)
+    "inLanguage" site.Language.Lang
+    "author" (dict "@id" $personID)
+    "publisher" (dict "@id" $personID))
+  $person) | jsonify | safeJS }}
+</script>
+{{- else if (or .IsPage .IsSection) }}
+{{/* BreadcrumbList */}}
+{{- $url := replace .Parent.Permalink ( printf "%s" site.Home.Permalink) "" }}
+{{- $lang_url := strings.TrimPrefix ( printf "%s/" .Lang) $url }}
+{{- $bc_list := (split $lang_url "/")}}
+
+{{- $scratch := newScratch }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+  {{- range $index, $element := $bc_list }}
+
+    {{- $scratch.Add "path" (printf "%s/" $element ) | safeJS }}
+    {{- $bc_pg := site.GetPage ($scratch.Get "path") -}}
+
+    {{- if (and ($bc_pg) (gt (len . ) 0))}}
+    {{- if (and $index)}}, {{end }}
+    {
+      "@type": "ListItem",
+      "position": {{ add 1 $index  }},
+      "name": {{ $bc_pg.Name }},
+      "item": {{ $bc_pg.Permalink | safeHTML }}
+    }
+    {{- end }}
+
+  {{- end }}
+  {{- /*  self-page addition  */ -}}
+  {{- if (ge (len $bc_list) 2) }}, {{end }}
+    {
+      "@type": "ListItem",
+      "position": {{len $bc_list}},
+      "name": {{ .Name }},
+      "item": {{ .Permalink | safeHTML }}
+    }
+  ]
+}
+</script>
+{{- if eq .Params.schemaType "ProfilePage" }}
+<script type="application/ld+json">
+{{ dict "@context" "https://schema.org" "@type" "ProfilePage"
+  "url" .Permalink
+  "name" (.Title | plainify)
+  "dateModified" .Lastmod
+  "mainEntity" $person | jsonify | safeJS }}
+</script>
+{{- else if .IsPage }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ .Title | plainify}},
+  "name": "{{ .Title | plainify }}",
+  "description": {{ with .Description | plainify }}{{ . }}{{ else }}{{ .Summary | plainify  }}{{ end -}},
+  "keywords": [
+    {{- if .Params.keywords }}
+    {{ range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }}
+    {{- else }}
+    {{ range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }}
+    {{- end }}
+  ],
+  "articleBody": {{ .Content | safeJS | htmlUnescape | plainify }},
+  "wordCount" : "{{ .WordCount }}",
+  "inLanguage": {{ .Language.Lang | default "en-us" }},
+  {{ if .Params.cover.image -}}
+  "image":
+    {{- if (ne .Params.cover.relative true) -}}
+    {{ .Params.cover.image | absURL }},
+    {{- else -}}
+    {{ (path.Join .RelPermalink .Params.cover.image ) | absURL }},
+    {{- end}}
+  {{- else }}
+    {{- $images := partial "templates/_funcs/get-page-images" . -}}
+    {{- with index $images 0 -}}
+  "image": {{ .Permalink }},
+    {{- end }}
+  {{- end -}}
+  "datePublished": {{ .PublishDate }},
+  "dateModified": {{ .Lastmod }},
+  "author": {{ $person | jsonify | safeJS }},
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ .Permalink | safeHTML }}
+  },
+  "publisher": {{ dict "@id" $personID | jsonify | safeJS }}
+}
+</script>
+{{- end }}{{/* .IsPage end */}}
+
+{{- end -}}
