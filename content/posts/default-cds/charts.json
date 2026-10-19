@@ -1,0 +1,425 @@
+{
+ "generated_by": "benchmarks/default-cds/make_charts.py",
+ "seed": 20261019,
+ "pooled": {
+  "faster": 39,
+  "n": 50,
+  "shift_label": "2.0%",
+  "ci_label": "1.0% to 2.8%"
+ },
+ "rows": [
+  {
+   "setup": "ZGC",
+   "startup": {
+    "off": "1.99",
+    "cds": "1.94"
+   },
+   "diffs": [
+    {
+     "v": -88.0,
+     "label": "−88"
+    },
+    {
+     "v": -15.0,
+     "label": "−15"
+    },
+    {
+     "v": -30.0,
+     "label": "−30"
+    },
+    {
+     "v": 4.0,
+     "label": "+4"
+    },
+    {
+     "v": -10.0,
+     "label": "−10"
+    },
+    {
+     "v": 158.0,
+     "label": "+158"
+    },
+    {
+     "v": -36.0,
+     "label": "−36"
+    },
+    {
+     "v": -78.0,
+     "label": "−78"
+    },
+    {
+     "v": 112.0,
+     "label": "+112"
+    },
+    {
+     "v": -65.0,
+     "label": "−65"
+    }
+   ],
+   "shift": {
+    "v": -20.0,
+    "label": "−20"
+   },
+   "ci": {
+    "lo": -51.5,
+    "hi": 48.5,
+    "label": "−52 to +49"
+   },
+   "faster": 7,
+   "n": 10,
+   "p": "0.492",
+   "memory": {
+    "anon": {
+     "off": "173",
+     "cds": "166",
+     "shift": -7.2,
+     "label": "−7.2"
+    },
+    "file": {
+     "shift": 3.0,
+     "label": "+3.0"
+    },
+    "metaspace": {
+     "off": "82.7",
+     "cds": "72.3",
+     "label": "−10.4"
+    }
+   }
+  },
+  {
+   "setup": "G1",
+   "startup": {
+    "off": "1.89",
+    "cds": "1.87"
+   },
+   "diffs": [
+    {
+     "v": -29.0,
+     "label": "−29"
+    },
+    {
+     "v": -61.0,
+     "label": "−61"
+    },
+    {
+     "v": -44.0,
+     "label": "−44"
+    },
+    {
+     "v": -6.0,
+     "label": "−6"
+    },
+    {
+     "v": -37.0,
+     "label": "−37"
+    },
+    {
+     "v": -174.0,
+     "label": "−174"
+    },
+    {
+     "v": -31.0,
+     "label": "−31"
+    },
+    {
+     "v": -180.0,
+     "label": "−180"
+    },
+    {
+     "v": -40.0,
+     "label": "−40"
+    },
+    {
+     "v": 14.0,
+     "label": "+14"
+    }
+   ],
+   "shift": {
+    "v": -40.5,
+    "label": "−41"
+   },
+   "ci": {
+    "lo": -105.5,
+    "hi": -21.5,
+    "label": "−106 to −22"
+   },
+   "faster": 9,
+   "n": 10,
+   "p": "0.006",
+   "memory": {
+    "anon": {
+     "off": "214",
+     "cds": "209",
+     "shift": -7.3,
+     "label": "−7.3"
+    },
+    "file": {
+     "shift": 3.4,
+     "label": "+3.4"
+    },
+    "metaspace": {
+     "off": "82.3",
+     "cds": "72.4",
+     "label": "−9.9"
+    }
+   }
+  },
+  {
+   "setup": "Parallel",
+   "startup": {
+    "off": "1.84",
+    "cds": "1.79"
+   },
+   "diffs": [
+    {
+     "v": -32.0,
+     "label": "−32"
+    },
+    {
+     "v": -52.0,
+     "label": "−52"
+    },
+    {
+     "v": -65.0,
+     "label": "−65"
+    },
+    {
+     "v": -75.0,
+     "label": "−75"
+    },
+    {
+     "v": 163.0,
+     "label": "+163"
+    },
+    {
+     "v": -13.0,
+     "label": "−13"
+    },
+    {
+     "v": 22.0,
+     "label": "+22"
+    },
+    {
+     "v": 78.0,
+     "label": "+78"
+    },
+    {
+     "v": -61.0,
+     "label": "−61"
+    },
+    {
+     "v": -89.0,
+     "label": "−89"
+    }
+   ],
+   "shift": {
+    "v": -26.5,
+    "label": "−27"
+   },
+   "ci": {
+    "lo": -63.0,
+    "hi": 44.0,
+    "label": "−63 to +44"
+   },
+   "faster": 7,
+   "n": 10,
+   "p": "0.492",
+   "memory": {
+    "anon": {
+     "off": "258",
+     "cds": "251",
+     "shift": -6.0,
+     "label": "−6.0"
+    },
+    "file": {
+     "shift": 3.0,
+     "label": "+3.0"
+    },
+    "metaspace": {
+     "off": "82.5",
+     "cds": "72.5",
+     "label": "−10.0"
+    }
+   }
+  },
+  {
+   "setup": "Serial",
+   "startup": {
+    "off": "1.88",
+    "cds": "1.81"
+   },
+   "diffs": [
+    {
+     "v": -68.0,
+     "label": "−68"
+    },
+    {
+     "v": -74.0,
+     "label": "−74"
+    },
+    {
+     "v": -64.0,
+     "label": "−64"
+    },
+    {
+     "v": -38.0,
+     "label": "−38"
+    },
+    {
+     "v": -41.0,
+     "label": "−41"
+    },
+    {
+     "v": -188.0,
+     "label": "−188"
+    },
+    {
+     "v": -49.0,
+     "label": "−49"
+    },
+    {
+     "v": -135.0,
+     "label": "−135"
+    },
+    {
+     "v": -90.0,
+     "label": "−90"
+    },
+    {
+     "v": -59.0,
+     "label": "−59"
+    }
+   ],
+   "shift": {
+    "v": -69.0,
+    "label": "−69"
+   },
+   "ci": {
+    "lo": -114.5,
+    "hi": -53.0,
+    "label": "−115 to −53"
+   },
+   "faster": 10,
+   "n": 10,
+   "p": "0.002",
+   "memory": {
+    "anon": {
+     "off": "204",
+     "cds": "199",
+     "shift": -5.4,
+     "label": "−5.4"
+    },
+    "file": {
+     "shift": 3.0,
+     "label": "+3.0"
+    },
+    "metaspace": {
+     "off": "82.6",
+     "cds": "72.5",
+     "label": "−10.1"
+    }
+   }
+  },
+  {
+   "setup": "Heavy app (ZGC)",
+   "startup": {
+    "off": "4.43",
+    "cds": "4.50"
+   },
+   "diffs": [
+    {
+     "v": 248.0,
+     "label": "+248"
+    },
+    {
+     "v": -100.0,
+     "label": "−100"
+    },
+    {
+     "v": -54.0,
+     "label": "−54"
+    },
+    {
+     "v": 436.0,
+     "label": "+436"
+    },
+    {
+     "v": -58.0,
+     "label": "−58"
+    },
+    {
+     "v": 122.0,
+     "label": "+122"
+    },
+    {
+     "v": -176.0,
+     "label": "−176"
+    },
+    {
+     "v": -145.0,
+     "label": "−145"
+    },
+    {
+     "v": 76.0,
+     "label": "+76"
+    },
+    {
+     "v": -145.0,
+     "label": "−145"
+    }
+   ],
+   "shift": {
+    "v": -11.5,
+    "label": "−12"
+   },
+   "ci": {
+    "lo": -117.0,
+    "hi": 145.5,
+    "label": "−117 to +146"
+   },
+   "faster": 6,
+   "n": 10,
+   "p": "0.980",
+   "memory": {
+    "anon": {
+     "off": "218",
+     "cds": "216",
+     "shift": -1.9,
+     "label": "−1.9"
+    },
+    "file": {
+     "shift": 3.0,
+     "label": "+3.0"
+    },
+    "metaspace": {
+     "off": "104.0",
+     "cds": "94.2",
+     "label": "−9.8"
+    }
+   }
+  }
+ ],
+ "coverage": [
+  {
+   "app": "Small app",
+   "shared": 1439,
+   "loaded": 15313,
+   "shared_label": "1,439",
+   "loaded_label": "15,313",
+   "pct_label": "9.4%"
+  },
+  {
+   "app": "Heavy app",
+   "shared": 1459.0,
+   "loaded": 18877.0,
+   "shared_label": "1,459",
+   "loaded_label": "18,877",
+   "pct_label": "7.7%"
+  }
+ ],
+ "aria": {
+  "paired-shift": "Removing -Xshare:off made startup faster in 39 of 50 paired boots. Serial was faster in all 10 rounds; the ZGC and heavy-app intervals still cross zero.",
+  "memory-change": "Private memory fell by 5.4 to 7.3 MB per JVM on the small app, while file-backed memory rose by about 3 MB: the mapped archive.",
+  "class-coverage": "The default archive supplied 1,439 of 15,313 classes on the small app and 1,459 of 18,877 on the heavy app."
+ }
+}
