@@ -1,0 +1,14 @@
+{{- /* Loads D3 and the chart code only on pages that use the chart shortcode. */ -}}
+{{- if .HasShortcode "chart" }}
+{{- $data := .Resources.Get "charts.json" | transform.Unmarshal }}
+{{- $d3 := resources.Get "js/vendor/d3-7.9.0.min.js" | fingerprint "sha512" }}
+{{- $charts := slice
+  (resources.Get "js/charts/common.js")
+  (resources.Get "js/charts/paired-shift.js")
+  (resources.Get "js/charts/memory-change.js")
+  (resources.Get "js/charts/class-coverage.js")
+  | resources.Concat "js/charts.js" | minify | fingerprint "sha512" }}
+<script src="{{ $d3.RelPermalink }}" integrity="{{ $d3.Data.Integrity }}"></script>
+<script src="{{ $charts.RelPermalink }}" integrity="{{ $charts.Data.Integrity }}"></script>
+<script>CPCharts.renderAll({{ $data }});</script>
+{{- end }}

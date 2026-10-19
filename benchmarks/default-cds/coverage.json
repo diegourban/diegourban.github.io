@@ -1,0 +1,27 @@
+{
+ "method": "default CDS, ZGC, -Xlog:class+load until Spring context refresh",
+ "small_app": [
+  {
+   "shared": 1439,
+   "loaded": 15311
+  },
+  {
+   "shared": 1439,
+   "loaded": 15323
+  },
+  {
+   "shared": 1439,
+   "loaded": 15313
+  }
+ ],
+ "heavy_app": [
+  {
+   "shared": 1459,
+   "loaded": 18873
+  },
+  {
+   "shared": 1459,
+   "loaded": 18881
+  }
+ ]
+}

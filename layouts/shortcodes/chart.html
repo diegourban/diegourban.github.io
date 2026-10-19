@@ -1,0 +1,13 @@
+{{- /* A D3 chart drawn from the page bundle's charts.json.
+  Usage: {{< chart "paired-shift" >}}Caption, in markdown.{{< /chart >}}
+  The aria-label and the no-JavaScript text both come from charts.json "aria", so they carry the same numbers. */ -}}
+{{- $name := .Get 0 -}}
+{{- $data := .Page.Resources.Get "charts.json" | transform.Unmarshal -}}
+{{- $aria := index $data.aria $name -}}
+<figure class="cp-chart">
+  <div class="cp-plot" data-chart="{{ $name }}" role="img" aria-label="{{ $aria }}"></div>
+  <noscript><p class="cp-noscript">{{ $aria }}</p></noscript>
+  {{- with .Inner }}
+  <figcaption>{{ . | $.Page.RenderString }}</figcaption>
+  {{- end }}
+</figure>

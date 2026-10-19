@@ -1,0 +1,26 @@
+{{- /* The post's results table, rendered from the same charts.json as the charts so the numbers always agree. */ -}}
+{{- $data := .Page.Resources.Get "charts.json" | transform.Unmarshal -}}
+<table class="cp-results-table">
+  <thead>
+    <tr>
+      <th>Setup</th>
+      <th>Startup, flag on → removed (median)</th>
+      <th>Paired shift (95% CI)</th>
+      <th>Faster with CDS</th>
+      <th>Private memory (RssAnon)</th>
+      <th>Metaspace</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{- range $data.rows }}
+    <tr>
+      <td>{{ .setup }}</td>
+      <td>{{ .startup.off }} → {{ .startup.cds }} s</td>
+      <td>{{ .shift.label }} ms ({{ .ci.label }})</td>
+      <td>{{ .faster }}/{{ .n }}</td>
+      <td>{{ .memory.anon.off }} → {{ .memory.anon.cds }} MB</td>
+      <td>{{ .memory.metaspace.off }} → {{ .memory.metaspace.cds }} MB</td>
+    </tr>
+    {{- end }}
+  </tbody>
+</table>

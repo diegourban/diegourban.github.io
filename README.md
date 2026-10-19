@@ -31,6 +31,24 @@ In a public repository, a draft's text is visible on GitHub even with `draft: tr
 
 Push over SSH: the `gh` HTTPS token rejects pushes that touch `.github/workflows/` unless it has the `workflow` scope.
 
+## Charts
+
+Posts draw charts with [D3](https://d3js.org/) 7.9.0, self-hosted in `assets/js/vendor/` and loaded only on pages that use the `chart` shortcode.
+
+- **Data:** each post's generator (e.g. `benchmarks/default-cds/make_charts.py`) computes every displayed number from the raw results, rounds it half away from zero, and writes `content/posts/<slug>/charts.json`.
+- **Charts:** `{{</* chart "name" */>}}Caption{{</* /chart */>}}` places a chart; its code lives in `assets/js/charts/<name>.js` and registers with `CPCharts.register`. Add new chart files to the list in `layouts/_partials/extend_footer.html`.
+- **Tables:** `{{</* results-table */>}}` renders the default-CDS results table from the same `charts.json`, so the table and the charts never disagree.
+- **Without JavaScript:** each chart shows its `aria` sentence from `charts.json` instead.
+- **Social card:** `benchmarks/default-cds/make_cover.sh` renders `cover.png` (1200×630) with headless Chrome.
+
+To refresh the default-CDS post after changing its data:
+
+```bash
+cd benchmarks/default-cds
+python3 make_charts.py   # charts.json
+./make_cover.sh          # cover.png
+```
+
 ## Publishing
 
 GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.

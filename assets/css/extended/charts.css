@@ -1,0 +1,94 @@
+/* D3 charts (layouts/shortcodes/chart.html). Text and surfaces reuse PaperMod's theme variables;
+   series colors come from the validated reference palette, stepped for each mode. */
+.cp-chart {
+    --c-s1: #2a78d6;
+    --c-s2: #eb6834;
+    --c-rest: rgb(226, 226, 222);
+    --c-ink: var(--primary);
+    --c-ink2: var(--secondary);
+    --c-grid: var(--border);
+    --c-surface: var(--theme);
+    margin: 28px 0;
+}
+
+:root[data-theme="dark"] .cp-chart {
+    --c-s1: #3987e5;
+    --c-s2: #d95926;
+    --c-rest: rgb(65, 66, 68);
+}
+
+.cp-chart .cp-plot {
+    position: relative;
+    min-height: 120px;
+}
+
+.cp-chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-family: inherit;
+}
+
+/* Beats PaperMod's bold `.md-content figure>figcaption`: captions are prose, not headings. */
+.md-content .cp-chart > figcaption,
+.cp-chart > figcaption {
+    margin: 10px 0 0;
+    color: var(--secondary);
+    font-size: 0.9em;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.cp-chart figcaption code {
+    white-space: nowrap;
+}
+
+.cp-chart figcaption p {
+    margin: 0;
+}
+
+.cp-chart .cp-noscript {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    background: var(--code-bg);
+    color: var(--secondary);
+}
+
+/* SVG text: text tokens only, never the series color */
+.cp-chart .cp-t-title { fill: var(--c-ink); font-size: 16px; font-weight: 700; }
+.cp-chart .cp-t-sub { fill: var(--c-ink2); font-size: 13px; }
+.cp-chart .cp-t-lab { fill: var(--c-ink); font-size: 14px; font-weight: 600; }
+.cp-chart .cp-t-val { fill: var(--c-ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+.cp-chart .cp-t-val2 { fill: var(--c-ink2); font-size: 12px; font-variant-numeric: tabular-nums; }
+.cp-chart .cp-t-tick { fill: var(--c-ink2); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* SVG marks: hairline grid, 2px lines, filled dots with a 2px surface ring */
+.cp-chart .cp-grid { stroke: var(--c-grid); stroke-width: 1; }
+.cp-chart .cp-zero { stroke: var(--c-ink2); stroke-width: 1; }
+.cp-chart .cp-ci { stroke: var(--c-ink); stroke-width: 2; stroke-linecap: round; }
+.cp-chart .cp-hl { stroke: var(--c-ink); stroke-width: 3; stroke-linecap: round; }
+.cp-chart .cp-dot { fill: var(--c-s1); fill-opacity: 0.85; stroke: var(--c-surface); stroke-width: 2; }
+.cp-chart .cp-bar-1 { fill: var(--c-s1); }
+.cp-chart .cp-bar-2 { fill: var(--c-s2); }
+.cp-chart .cp-bar-rest { fill: var(--c-rest); }
+
+.cp-tip {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--primary);
+    color: var(--theme);
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.cp-results-table td,
+.cp-results-table th {
+    font-variant-numeric: tabular-nums;
+}
