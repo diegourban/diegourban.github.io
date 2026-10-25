@@ -1,0 +1,6 @@
+{{- /* Visible AI disclosure note after every post (see ai_disclosure.html). */ -}}
+{{- with partial "ai_disclosure.html" . }}
+<aside class="ai-disclosure" aria-label="AI disclosure">
+  <p>{{ .text }} <a href="{{ "about/#ai-and-this-blog" | relURL }}">How I use AI</a></p>
+</aside>
+{{- end }}

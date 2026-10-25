@@ -66,6 +66,13 @@ python3 make_charts.py   # charts.json
   | JVM Weekly | `?ref=jvmweekly` |
   | foojay.io | `?ref=foojay` |
 
+## AI disclosure and training opt-out
+
+- **Every post must declare `ai_disclosure`** in its front matter: `none`, `ai-assisted` or `ai-generated` (values from the [AI Content Disclosure for HTML](https://github.com/dweekly/ai-content-disclosure) proposal). The build fails without it. `layouts/_partials/ai_disclosure.html` holds the levels and their note text.
+- The level shows as a note after the post (`extend_post_content.html`), as `<meta name="ai-disclosure">` (`extend_head.html`), and at the end of each item's summary in the RSS feed (`layouts/rss.xml`, an override of PaperMod's).
+- **Training opt-out:** `layouts/robots.txt` sends `Content-Signal: search=yes, ai-input=yes, ai-train=no` and blocks the training crawlers by name; `static/.well-known/tdmrep.json` and `<meta name="tdm-reservation" content="1">` reserve text and data mining rights (W3C TDMRep). Search and AI-answer crawlers stay allowed.
+- The About page explains the levels and the opt-out to readers.
+
 ## Publishing
 
 GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.

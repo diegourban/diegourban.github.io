@@ -1,0 +1,23 @@
+{{- /* Site override of PaperMod's robots.txt.
+  Content-Signal (Cloudflare's Content Signals Policy): search and AI answers with a link yes, training no.
+  The named groups block crawlers whose vendors document them as AI training crawlers; search and answer
+  crawlers (Googlebot, Applebot, OAI-SearchBot, Claude-SearchBot, PerplexityBot) stay allowed.
+  Google-Extended also controls grounding in the Gemini app; Google Search and AI Overviews are unaffected. */ -}}
+User-agent: *
+{{- if hugo.IsProduction | or (eq site.Params.env "production") }}
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+{{- else }}
+Disallow: /
+{{- end }}
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: {{ "sitemap.xml" | absURL }}
