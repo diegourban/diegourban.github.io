@@ -1,0 +1,6 @@
+{{- /* Machine-readable signals. ai-disclosure: "AI Content Disclosure for HTML" proposal, posts only.
+  tdm-reservation: W3C TDMRep, reserves text and data mining rights site-wide (matches /.well-known/tdmrep.json). */ -}}
+{{- with partial "ai_disclosure.html" . }}
+<meta name="ai-disclosure" content="{{ .level }}">
+{{- end }}
+<meta name="tdm-reservation" content="1">

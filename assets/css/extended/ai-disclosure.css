@@ -1,0 +1,21 @@
+/* AI disclosure note after each post (layouts/_partials/extend_post_content.html). */
+.ai-disclosure {
+    margin: 32px 0 8px;
+    padding: 12px 16px;
+    border-left: 3px solid var(--tertiary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--code-bg);
+    color: var(--secondary);
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.ai-disclosure p {
+    margin: 0;
+}
+
+.ai-disclosure a {
+    color: var(--secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

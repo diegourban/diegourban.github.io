@@ -1,0 +1,21 @@
+{{- /* AI disclosure for a post: validates front matter `ai_disclosure` and returns its level and note text.
+  Values follow the "AI Content Disclosure for HTML" proposal (github.com/dweekly/ai-content-disclosure).
+  Every regular page in the posts section must declare one; the build fails otherwise.
+  Usage: {{ $d := partial "ai_disclosure.html" . }}  ->  dict "level" "text" (empty dict for non-posts). */ -}}
+{{- $notes := dict
+  "none" "Written without AI assistance."
+  "ai-assisted" "Written by me; AI helped with editing and wording. The measurements, code and conclusions are mine."
+  "ai-generated" "Drafted with AI from my measurements and notes. I reviewed it, checked every number and command, and I'm responsible for the content."
+-}}
+{{- $result := dict -}}
+{{- if and .IsPage (eq .Section "posts") -}}
+  {{- $level := .Params.ai_disclosure -}}
+  {{- if not $level -}}
+    {{- errorf "%s: missing front matter `ai_disclosure` (one of: none, ai-assisted, ai-generated)" .File.Path -}}
+  {{- else if not (index $notes $level) -}}
+    {{- errorf "%s: invalid `ai_disclosure: %s` (one of: none, ai-assisted, ai-generated)" .File.Path $level -}}
+  {{- else -}}
+    {{- $result = dict "level" $level "text" (index $notes $level) -}}
+  {{- end -}}
+{{- end -}}
+{{- return $result -}}

@@ -5,6 +5,7 @@ draft: false
 description: "Removing a leftover -Xshare:off: what the default CDS archive does and doesn't buy a Spring Boot 4 app on JDK 25, measured across four GCs."
 tags: ["java", "jvm", "cds", "spring-boot", "performance", "startup"]
 ShowToc: true
+ai_disclosure: ai-generated
 cover:
   image: cover.png
   relative: true
