@@ -125,7 +125,3 @@ These are the same demo apps as before, on one machine (Docker Desktop on an arm
 
 - The startup and memory numbers are the AppCDS variant of [the default-CDS benchmark](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/default-cds): same runs, same pairing by round, the Hodges-Lehmann estimate with a bootstrap 95% CI (10,000 resamples, fixed seed) and exact Wilcoxon signed-rank tests (p = 0.002 in every setup, the smallest possible with ten pairs). Memory is sampled about a second after readiness. Numbers are rounded half away from zero.
 - Class counts, the mismatch tests, the build cost and the Dockerfile recipe come from [`benchmarks/appcds`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/appcds): `measure_coverage.sh`, `measure_trap.sh`, `measure_build_cost.sh` and `recipe/test.sh` (its output is in `recipe/results.txt`). Build costs are medians of 5 runs (small app) and 3 runs (heavy app); each mismatch case is a single run. `measure_trap.sh` also records the JDK build (Temurin 25.0.3+9) and the `-Xshare:on -version` check, and `measure_aot_zgc.sh` records the AOT cache on ZGC (`aot_zgc.txt`). `make_charts.py` turns the results into the numbers in the charts and the table.
-
----
-
-*Which JVM flags does your Deployment add that your image build never sees?*
