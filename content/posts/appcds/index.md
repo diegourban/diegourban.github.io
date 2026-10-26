@@ -1,7 +1,7 @@
 ---
 title: "AppCDS on JDK 25: 0.8 to 1 second off Spring Boot startup"
 date: 2026-10-26
-draft: true
+draft: false
 description: "AppCDS took 0.8 to 1 second off Spring Boot 4 startup on JDK 25. How to train the archive in your image, what it costs, and the settings that make it stop loading."
 tags: ["java", "jvm", "cds", "appcds", "spring-boot", "performance", "startup"]
 ShowToc: true
