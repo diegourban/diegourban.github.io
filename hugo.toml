@@ -49,7 +49,7 @@ pagination.pagerSize = 10
 
   # Cookieless page views (layouts/_partials/extend_footer.html); counted in production builds only.
   [params.goatcounter]
-    code = "diegourban"
+    code = "platformnotes"
 
 # Tags only: no categories (an empty /categories/ page is thin content for search engines).
 [taxonomies]
