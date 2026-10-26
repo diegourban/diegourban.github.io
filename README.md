@@ -55,7 +55,7 @@ python3 make_charts.py   # charts.json
 - **Kept out of search and the sitemap:** `/search/` and the tag pages (`content/tags/_index.md`). Once tags group several posts each, delete the `cascade` there.
 - **Social images:** posts set `cover` (with `relative: true`); everything else falls back to `static/site-card.png`, rendered by `scripts/make_site_card.sh`.
 - **Favicons:** `scripts/favicon.svg` is the source; `scripts/make_favicons.sh` renders the five files PaperMod links into `static/` (`favicon.ico` is 48×48, the size Google uses in search results).
-- **Page views:** [GoatCounter](https://www.goatcounter.com/), cookieless, dashboard at <https://diegourban.goatcounter.com>. `count.v5.js` is self-hosted and loaded in production builds only, so `hugo server` never counts. `assets/js/analytics.js` adds click events: `source`, `benchmarks` and `outbound`.
+- **Page views:** [GoatCounter](https://www.goatcounter.com/), cookieless, dashboard at <https://platformnotes.goatcounter.com>. `count.v5.js` is self-hosted and loaded in production builds only, so `hugo server` never counts. `assets/js/analytics.js` adds click events: `source`, `benchmarks` and `outbound`.
 - **Where readers come from:** tag every link you share with `?ref=`, so sources stay separate even when the browser hides the referrer:
 
   | Where | Link |
