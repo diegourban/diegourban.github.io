@@ -1,7 +1,7 @@
 # baseURL is overridden in CI by the GitHub Pages workflow (--baseURL).
 baseURL = "https://example.com/"
 locale = "en-US"
-title = "Diego Urban"
+title = "Platform Notes"
 theme = "PaperMod"
 enableRobotsTXT = true
 enableGitInfo = true
@@ -9,7 +9,7 @@ pagination.pagerSize = 10
 
 [params]
   env = "production"
-  description = "JVM, Spring and platform engineering, measured."
+  description = "Platform engineering, in practice: JVM, Spring Boot, PostgreSQL, CI/CD, caching and authorization."
   author = "Diego Leonardo Urban"
   defaultTheme = "auto"
   ShowReadingTime = true
@@ -29,7 +29,7 @@ pagination.pagerSize = 10
 
   [params.homeInfoParams]
     Title = "Hi, I'm Diego"
-    Content = "Platform and JVM engineer. I write about startup time, memory and the flags nobody can explain. Every benchmark here ships with its scripts and raw data."
+    Content = "Platform engineer. These are my notes on what I build and measure: the JVM, Spring Boot, PostgreSQL, CI/CD, caching and authorization. Every benchmark here ships with its scripts and raw data."
 
   [[params.socialIcons]]
     name = "linkedin"

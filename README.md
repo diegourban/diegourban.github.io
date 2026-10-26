@@ -1,6 +1,6 @@
-# diegourban.github.io
+# Platform Notes (platformnotes.dev)
 
-A static site built with [Hugo](https://gohugo.io/) and the [PaperMod](https://github.com/adityatelange/hugo-PaperMod) theme, published to <https://diegourban.github.io/> by GitHub Pages on every push to `master`.
+A static site built with [Hugo](https://gohugo.io/) and the [PaperMod](https://github.com/adityatelange/hugo-PaperMod) theme, published to <https://platformnotes.dev/> by GitHub Pages on every push to `master`.
 
 Every post with numbers ships its scripts and raw data in `benchmarks/<slug>/`, so any reader can reproduce them.
 
@@ -60,7 +60,7 @@ python3 make_charts.py   # charts.json
 
   | Where | Link |
   |---|---|
-  | LinkedIn | `https://diegourban.github.io/posts/<slug>/?ref=linkedin` |
+  | LinkedIn | `https://platformnotes.dev/posts/<slug>/?ref=linkedin` |
   | dev.to | `?ref=devto` |
   | Java Annotated Monthly | `?ref=jam` |
   | JVM Weekly | `?ref=jvmweekly` |
@@ -77,7 +77,11 @@ python3 make_charts.py   # charts.json
 
 GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.
 
-Custom domain (optional): **Settings → Pages → Custom domain**, plus a `CNAME` record in your DNS pointing to `diegourban.github.io`.
+**Custom domain:** `platformnotes.dev`, registered at Cloudflare.
+- **Ownership:** verified on the GitHub account (profile → Settings → Pages → verified domains) with a TXT record, so no other account can claim it.
+- **DNS, all DNS only (grey cloud):** the apex has 4 `A` records (`185.199.108.153` to `185.199.111.153`) and 4 `AAAA` records (`2606:50c0:8000::153` to `2606:50c0:8003::153`); `www` is a `CNAME` to `diegourban.github.io`. Cloudflare's proxy (orange cloud) stops GitHub from issuing the HTTPS certificate.
+- **Repo setting:** Settings → Pages → Custom domain = `platformnotes.dev`, with Enforce HTTPS on. `diegourban.github.io` redirects to it.
+- **Base URL:** the workflow takes it from Pages (`steps.pages.outputs.base_url`), so canonical URLs, the sitemap and `og:url` follow the custom domain without code changes.
 
 The previous site (a 2017 Bootstrap CV page) is still in the history of `master`.
 
