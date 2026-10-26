@@ -117,7 +117,3 @@ These are demo apps (about 15k and 19k classes), run on one machine (Docker Desk
 - The paired shift is the Hodges-Lehmann estimate over the ten rounds, and its 95% CI is a bootstrap of that estimate (10,000 resamples, fixed seed). p-values come from exact Wilcoxon signed-rank tests (Serial p = 0.002, G1 p = 0.006). Numbers are rounded half away from zero.
 - Class counts come from `-Xlog:class+load` with default CDS and ZGC, up to Spring's context refresh (`measure_coverage.sh`).
 - Scripts, raw results and both demo apps live in [`benchmarks/default-cds`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/default-cds), where `make_charts.py` computes every number in the charts and the table from the raw results.
-
----
-
-*Have you found `-Xshare:off`, or another flag nobody can explain, in your JVM options?*
