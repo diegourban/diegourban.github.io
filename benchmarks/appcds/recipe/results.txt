@@ -1,0 +1,5 @@
+image JAVA_TOOL_OPTIONS=-XX:+UseZGC (training and runtime)
+as built:                                      14686 of 15126 
+Deployment JAVA_TOOL_OPTIONS=-XX:+UseG1GC:     1438 of 15352 (warning printed)
+Deployment JAVA_TOOL_OPTIONS='-XX:+UseZGC -Xmx512m': 14686 of 15144 
+Deployment JAVA_TOOL_OPTIONS=-Xmx512m (only):  1438 of 15359 (warning printed)

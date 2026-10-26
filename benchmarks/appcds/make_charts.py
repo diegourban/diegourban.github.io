@@ -42,7 +42,7 @@ def pair(recs, block, a, b, metric):
 
 def main():
     rng = random.Random(SEED)
-    rows, pooled, table = [], [], []
+    rows, table = [], []
     for label, fname, block, p in SETUPS:
         recs = json.load(open(os.path.join(DATA, fname)))
         base, app = pair(recs, block, f"{p}_cds_default", f"{p}_appcds", "process")
@@ -50,7 +50,6 @@ def main():
         diffs = [rnd((b - a) * 1000, 3) for a, b in zip(base, app)]
         hl = hodges_lehmann(diffs)
         lo, hi = boot_hl(diffs, rng)
-        pooled += [d / (st.median(base) * 1000) for d in diffs]
 
         mem = {}
         for m in ("rss", "rss_anon", "rss_file", "metaspace"):
@@ -78,8 +77,6 @@ def main():
                       f"{num(hl, signed=True)} ms ({num(lo, signed=True)} to {num(hi, signed=True)})",
                       f"{sum(d < 0 for d in diffs)}/{len(diffs)}"])
 
-    plo, phi = boot_hl(pooled, rng)
-    phl = hodges_lehmann(pooled)
     shifts = [r["shift"]["v"] for r in rows]
 
     cov = json.load(open(os.path.join(HERE, "coverage.json")))["apps"]
@@ -109,9 +106,8 @@ def main():
         # Axis from the data: every round fits (no clipped points), zero stays visible on the right.
         "axis": {"paired-shift": {"min": 200 * math.floor(min(d["v"] for r in rows for d in r["diffs"]) / 200),
                                   "max": 200, "step": 200}},
-        "pooled": {"faster": sum(r["faster"] for r in rows), "n": sum(r["n"] for r in rows),
-                   "shift_label": num(-100 * phl, 1) + "%",
-                   "ci_label": f"{num(-100 * phi, 1)}% to {num(-100 * plo, 1)}%"},
+        # No pooled percentage: the two apps' percentages differ too much for one average to mean anything.
+        "pairs": {"faster": sum(r["faster"] for r in rows), "n": sum(r["n"] for r in rows)},
         # Saving per extra archived class (ZGC on both apps: the same GC as the coverage counts).
         "per_class_us": {
             "small_zgc": num(-rows[0]["shift"]["v"] * 1000 / (cov["small"]["appcds"]["shared"] - cov["small"]["default"]["shared"]), 1),
@@ -152,7 +148,7 @@ def main():
         json.dump(data, f, indent=1, ensure_ascii=False)
         f.write("\n")
     print(f"wrote {os.path.relpath(OUT, HERE)}")
-    print(f"pooled: {data['pooled']['shift_label']} faster, CI {data['pooled']['ci_label']}, {data['pooled']['faster']}/{data['pooled']['n']}")
+    print(f"pairs faster: {data['pairs']['faster']}/{data['pairs']['n']}")
     for r in rows:
         print(f"  {r['setup']:16} {r['shift']['label']:>7} ms ({r['rel_label']})  CI {r['ci']['label']:>18}  {r['faster']}/10  p={r['p']}  "
               f"anon {r['memory']['rss_anon']['base']}->{r['memory']['rss_anon']['app']} ({r['memory']['rss_anon']['shift']})  "

@@ -28,6 +28,10 @@ run_case() { # name gc_flag archive
     -Xshare:on -Dspring.context.exit=onRefresh -Dspring.main.banner-mode=off -Dlogging.level.root=OFF \
     -jar "$JAR" > "$TMP/$name.on" 2>&1
   echo "$?" > "$TMP/$name.on.exit"
+  # The same check with -version instead of the app: no app classpath, so even a matched archive is rejected.
+  docker run --rm --network none --entrypoint java "$IMAGE" $gc -XX:SharedArchiveFile="$jsa" \
+    -Xshare:on -version > "$TMP/$name.onversion" 2>&1
+  echo "$?" > "$TMP/$name.onversion.exit"
 }
 
 run_case matched_zgc -XX:+UseZGC /app/app-zgc.jsa
@@ -57,6 +61,9 @@ for name in ("matched_zgc", "matched_g1", "trap_zgc_archive_g1_run", "trap_g1_ar
         "xlog_cds_warnings": [l.strip() for l in cds.splitlines() if re.search(r"\[(warning|error|info)\]\[cds\].*(Unable|disabled|mismatch|different|fail)", l, re.I)],
         "xshare_on_exit_code": int(open(os.path.join(tmp, name + ".on.exit")).read().strip()),
         "xshare_on_output": [l.strip() for l in on.splitlines() if l.strip()][:3],
+        "xshare_on_with_version_exit_code": int(open(os.path.join(tmp, name + ".onversion.exit")).read().strip()),
+        "xshare_on_with_version_output": [l.strip() for l in open(os.path.join(tmp, name + ".onversion")).read().splitlines() if "cds" in l][:2],
+        "jdk_version": (version_lines[-1].strip() if version_lines else ""),
     }
 json.dump({"image": "cdsdemo:gcs", "method": "archive trained with one GC, run with another; Spring stops at context refresh", "cases": cases},
           open(out, "w"), indent=1)

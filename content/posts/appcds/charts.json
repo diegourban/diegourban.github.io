@@ -21,11 +21,9 @@
    "step": 200
   }
  },
- "pooled": {
+ "pairs": {
   "faster": 50,
-  "n": 50,
-  "shift_label": "41.7%",
-  "ci_label": "36.4% to 43.1%"
+  "n": 50
  },
  "per_class_us": {
   "small_zgc": "62.5",
@@ -578,28 +576,28 @@
   },
   "matched_g1": {
    "shared": "14,685",
-   "loaded": "15,138",
+   "loaded": "15,131",
    "xshare_on_exit": 0,
    "version_sharing": true,
    "messages": 0
   },
   "trap_zgc_archive_g1_run": {
    "shared": "1,438",
-   "loaded": "15,313",
+   "loaded": "15,318",
    "xshare_on_exit": 1,
    "version_sharing": true,
    "messages": 4
   },
   "trap_g1_archive_zgc_run": {
    "shared": "1,439",
-   "loaded": "15,318",
+   "loaded": "15,321",
    "xshare_on_exit": 1,
    "version_sharing": true,
    "messages": 5
   },
   "trap_g1_archive_g1_compact_headers": {
    "shared": "1,438",
-   "loaded": "15,328",
+   "loaded": "15,325",
    "xshare_on_exit": 1,
    "version_sharing": true,
    "messages": 4
