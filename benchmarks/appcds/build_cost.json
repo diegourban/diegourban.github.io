@@ -1,0 +1,92 @@
+{
+ "method": "docker run of the training step on the untrained base image; wall-clock seconds; archive size in bytes",
+ "small_app": {
+  "boot_only_s": 1.97,
+  "training_s": 3.6,
+  "archive_bytes": 86900736
+ },
+ "heavy_app": {
+  "training_s": 6.06,
+  "archive_bytes": 104005632
+ },
+ "raw": [
+  {
+   "label": "small_boot_only",
+   "run": 1,
+   "seconds": 1.99,
+   "archive_bytes": 0
+  },
+  {
+   "label": "small_boot_only",
+   "run": 2,
+   "seconds": 1.97,
+   "archive_bytes": 0
+  },
+  {
+   "label": "small_boot_only",
+   "run": 3,
+   "seconds": 1.95,
+   "archive_bytes": 0
+  },
+  {
+   "label": "small_boot_only",
+   "run": 4,
+   "seconds": 1.94,
+   "archive_bytes": 0
+  },
+  {
+   "label": "small_boot_only",
+   "run": 5,
+   "seconds": 2.02,
+   "archive_bytes": 0
+  },
+  {
+   "label": "small_training",
+   "run": 1,
+   "seconds": 3.64,
+   "archive_bytes": 86900736
+  },
+  {
+   "label": "small_training",
+   "run": 2,
+   "seconds": 3.57,
+   "archive_bytes": 86900736
+  },
+  {
+   "label": "small_training",
+   "run": 3,
+   "seconds": 3.66,
+   "archive_bytes": 86900736
+  },
+  {
+   "label": "small_training",
+   "run": 4,
+   "seconds": 3.6,
+   "archive_bytes": 86900736
+  },
+  {
+   "label": "small_training",
+   "run": 5,
+   "seconds": 3.6,
+   "archive_bytes": 86900736
+  },
+  {
+   "label": "heavy_training",
+   "run": 1,
+   "seconds": 6.15,
+   "archive_bytes": 104005632
+  },
+  {
+   "label": "heavy_training",
+   "run": 2,
+   "seconds": 6.06,
+   "archive_bytes": 104202240
+  },
+  {
+   "label": "heavy_training",
+   "run": 3,
+   "seconds": 6.0,
+   "archive_bytes": 104005632
+  }
+ ]
+}

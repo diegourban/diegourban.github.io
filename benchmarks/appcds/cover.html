@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- Social preview card (1200x630) for the AppCDS post. make_cover.sh inlines charts.json
+     into the DATA placeholder and screenshots this page; chart A is drawn by the site's own code. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cover</title>
+<link rel="stylesheet" href="../../assets/css/extended/charts.css">
+<style>
+  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
+          --theme: rgb(255, 255, 255); --code-bg: rgb(245, 245, 245); --radius: 8px; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 44px 56px 32px; display: flex; flex-direction: column; }
+  h1 { margin: 0; font-size: 44px; line-height: 1.12; color: var(--primary); letter-spacing: -0.5px; }
+  .key { margin: 14px 0 6px; font-size: 24px; color: var(--secondary); }
+  .key b { color: var(--primary); }
+  .chart { flex: 1; margin: 0; }
+  .site { font-size: 18px; color: var(--secondary); text-align: right; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>One training run, one second off<br>Spring Boot startup: AppCDS on JDK 25</h1>
+  <p class="key">AppCDS vs default CDS: <b id="small"></b> faster on a small app, <b id="heavy"></b> on a heavier one</p>
+  <figure class="cp-chart chart"><div class="cp-plot" data-chart="paired-shift"></div></figure>
+  <div class="site">platformnotes.dev</div>
+</div>
+<script src="../../assets/js/vendor/d3-7.9.0.min.js"></script>
+<script src="../../assets/js/charts/common.js"></script>
+<script src="../../assets/js/charts/paired-shift.js"></script>
+<script>
+  const DATA = /*DATA*/null;
+  document.getElementById("small").textContent = DATA.summary.small_ms_range;
+  document.getElementById("heavy").textContent = DATA.summary.heavy_ms;
+
+  CPCharts.renderAll(DATA);
+</script>
+</body>
+</html>

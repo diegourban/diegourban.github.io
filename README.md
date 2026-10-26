@@ -36,8 +36,9 @@ Push over SSH: the `gh` HTTPS token rejects pushes that touch `.github/workflows
 Posts draw charts with [D3](https://d3js.org/) 7.9.0, self-hosted in `assets/js/vendor/` and loaded only on pages that use the `chart` shortcode.
 
 - **Data:** each post's generator (e.g. `benchmarks/default-cds/make_charts.py`) computes every displayed number from the raw results, rounds it half away from zero, and writes `content/posts/<slug>/charts.json`.
-- **Charts:** `{{</* chart "name" */>}}Caption{{</* /chart */>}}` places a chart; its code lives in `assets/js/charts/<name>.js` and registers with `CPCharts.register`. Add new chart files to the list in `layouts/_partials/extend_footer.html`.
-- **Tables:** `{{</* results-table */>}}` renders the default-CDS results table from the same `charts.json`, so the table and the charts never disagree.
+- **Charts:** `{{</* chart "name" */>}}Caption{{</* /chart */>}}` places a chart; its code lives in `assets/js/charts/<name>.js` and registers with `CPCharts.register`. Add new chart files to the list in `layouts/_partials/extend_post_content.html`. Charts read optional `titles` and `axis` from `charts.json`, so posts can reuse them.
+- **Per-page only:** chart scripts and data are emitted in `extend_post_content.html`, never in `extend_footer.html`: PaperMod caches the whole footer by layout, so every post would get the first post's chart data.
+- **Tables:** `{{</* results-table */>}}` renders a results table from the same `charts.json`, so the table and the charts never disagree: a generic `table` (`headers`, `rows`) if present, otherwise the default-CDS columns.
 - **Without JavaScript:** each chart shows its `aria` sentence from `charts.json` instead.
 - **Social card:** `benchmarks/default-cds/make_cover.sh` renders `cover.png` (1200×630) with headless Chrome.
 

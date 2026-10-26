@@ -1,0 +1,73 @@
+{
+ "method": "ZGC; -Xlog:class+load until Spring context refresh; median of runs",
+ "apps": {
+  "small": {
+   "default": {
+    "shared": 1439,
+    "loaded": 15315,
+    "runs": [
+     [
+      1439,
+      15315
+     ],
+     [
+      1439,
+      15323
+     ],
+     [
+      1439,
+      15309
+     ]
+    ]
+   },
+   "appcds": {
+    "shared": 14686,
+    "loaded": 15130,
+    "runs": [
+     [
+      14686,
+      15130
+     ],
+     [
+      14686,
+      15128
+     ],
+     [
+      14686,
+      15130
+     ]
+    ]
+   }
+  },
+  "heavy": {
+   "default": {
+    "shared": 1459.0,
+    "loaded": 18878.0,
+    "runs": [
+     [
+      1459,
+      18881
+     ],
+     [
+      1459,
+      18875
+     ]
+    ]
+   },
+   "appcds": {
+    "shared": 17736.0,
+    "loaded": 18686.0,
+    "runs": [
+     [
+      17736,
+      18683
+     ],
+     [
+      17736,
+      18689
+     ]
+    ]
+   }
+  }
+ }
+}

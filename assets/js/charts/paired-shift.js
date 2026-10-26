@@ -1,9 +1,17 @@
 // Chart A: per-setup paired startup differences, Hodges-Lehmann tick and 95% CI bar.
 // The axis is cut at XMIN/XMAX; points beyond it are drawn at the edge with their value.
+// Optional charts.json fields: axis["paired-shift"] {min, max, step} and titles["paired-shift"] {title, sub[]};
+// without them the chart uses the default-CDS post's axis and titles.
 CPCharts.register("paired-shift", (el, data, narrow) => {
   const { tooltip, svgFor, text } = CPCharts;
   const rows = data.rows;
-  const XMIN = -200, XMAX = 250;
+  const axis = (data.axis && data.axis["paired-shift"]) || { min: -200, max: 250, step: 100 };
+  const titles = (data.titles && data.titles["paired-shift"]) || {
+    title: "Startup change after removing -Xshare:off",
+    sub: ["Each dot is one round. Left of 0 is faster.", "Bar: 95% CI · tick: Hodges-Lehmann estimate"],
+  };
+  const XMIN = axis.min, XMAX = axis.max;
+  const fmtTick = (t) => (t === 0 ? "0 ms" : `${t > 0 ? "+" : "−"}${Math.abs(t).toLocaleString("en-US")}`);
   const W = el.clientWidth, ROW = narrow ? 64 : 56, TOP = 70;
   const LEFT = narrow ? 112 : 150, RIGHT = narrow ? 56 : 212;
   const H = TOP + ROW * rows.length + 34;
@@ -12,16 +20,14 @@ CPCharts.register("paired-shift", (el, data, narrow) => {
   const tip = tooltip(el);
   const JIT = [-7, 5, -2, 8, -5, 2, -8, 6, -3, 4];
 
-  text(svg, 0, 18, "Startup change after removing -Xshare:off", "cp-t-title");
-  text(svg, 0, 40, "Each dot is one round. Left of 0 is faster.", "cp-t-sub");
-  text(svg, 0, 58, "Bar: 95% CI · tick: Hodges-Lehmann estimate", "cp-t-sub");
+  text(svg, 0, 18, titles.title, "cp-t-title");
+  titles.sub.forEach((s, i) => text(svg, 0, 40 + 18 * i, s, "cp-t-sub"));
 
   const axisY = TOP + ROW * rows.length;
-  d3.range(XMIN, XMAX + 1, 100).forEach((t) => {
+  d3.range(XMIN, XMAX + 1, axis.step).forEach((t) => {
     svg.append("line").attr("class", t === 0 ? "cp-zero" : "cp-grid")
       .attr("x1", x(t)).attr("x2", x(t)).attr("y1", TOP - 4).attr("y2", axisY);
-    text(svg, x(t), axisY + 18, t === 0 ? "0 ms" : `${t > 0 ? "+" : "−"}${Math.abs(t)}`, "cp-t-tick")
-      .attr("text-anchor", "middle");
+    text(svg, x(t), axisY + 18, fmtTick(t), "cp-t-tick").attr("text-anchor", "middle");
   });
 
   rows.forEach((r, i) => {

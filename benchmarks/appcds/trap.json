@@ -1,0 +1,102 @@
+{
+ "image": "cdsdemo:gcs",
+ "method": "archive trained with one GC, run with another; Spring stops at context refresh",
+ "cases": {
+  "matched_zgc": {
+   "shared_classes": 14686,
+   "loaded_classes": 15130,
+   "jvm_messages_without_xlog": [
+    "[0.035s][error][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.035s][error][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.020s][info][cds] full module graph: disabled"
+   ],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": [
+    "[0.032s][error][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.032s][error][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ]
+  },
+  "matched_g1": {
+   "shared_classes": 14685,
+   "loaded_classes": 15138,
+   "jvm_messages_without_xlog": [],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": []
+  },
+  "trap_zgc_archive_g1_run": {
+   "shared_classes": 1438,
+   "loaded_classes": 15313,
+   "jvm_messages_without_xlog": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.002s][error  ][cds] Loading dynamic archive failed."
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.002s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ]
+  },
+  "trap_g1_archive_zgc_run": {
+   "shared_classes": 1439,
+   "loaded_classes": 15318,
+   "jvm_messages_without_xlog": [
+    "[0.017s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.017s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.017s][error  ][cds] Loading dynamic archive failed.",
+    "[0.020s][error  ][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.018s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.020s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.020s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ]
+  },
+  "trap_g1_archive_g1_compact_headers": {
+   "shared_classes": 1438,
+   "loaded_classes": 15328,
+   "jvm_messages_without_xlog": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The shared archive file's UseCompactObjectHeaders setting (disabled) does not equal the current UseCompactObjectHeaders setting (enabled).",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.002s][error  ][cds] Loading dynamic archive failed."
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.002s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The shared archive file's UseCompactObjectHeaders setting (disabled) does not equal the current UseCompactObjectHeaders setting (enabled).",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ]
+  },
+  "control_g1_archive_parallel_run": {
+   "shared_classes": 14685,
+   "loaded_classes": 15140,
+   "jvm_messages_without_xlog": [],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": []
+  }
+ }
+}
