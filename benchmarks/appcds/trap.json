@@ -1,0 +1,138 @@
+{
+ "image": "cdsdemo:gcs",
+ "method": "archive trained with one GC, run with another; Spring stops at context refresh",
+ "cases": {
+  "matched_zgc": {
+   "shared_classes": 14686,
+   "loaded_classes": 15130,
+   "jvm_messages_without_xlog": [
+    "[0.030s][error][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.030s][error][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.022s][info][cds] full module graph: disabled"
+   ],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": [
+    "[0.030s][error][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.030s][error][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.033s][warning][cds] app classpath has fewer elements than expected",
+    "[0.033s][error  ][cds] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)"
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  },
+  "matched_g1": {
+   "shared_classes": 14685,
+   "loaded_classes": 15131,
+   "jvm_messages_without_xlog": [],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": [],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.015s][warning][cds] app classpath has fewer elements than expected",
+    "[0.015s][error  ][cds] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)"
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  },
+  "trap_zgc_archive_g1_run": {
+   "shared_classes": 1438,
+   "loaded_classes": 15318,
+   "jvm_messages_without_xlog": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.002s][error  ][cds] Loading dynamic archive failed."
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.003s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  },
+  "trap_g1_archive_zgc_run": {
+   "shared_classes": 1439,
+   "loaded_classes": 15321,
+   "jvm_messages_without_xlog": [
+    "[0.017s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.017s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.017s][error  ][cds] Loading dynamic archive failed.",
+    "[0.019s][error  ][cds] Cannot use CDS heap data. Selected GC not compatible -XX:-UseCompressedOops"
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.016s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.018s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The saved state of UseCompressedOops and UseCompressedClassPointers is different from runtime, CDS will be disabled.",
+    "[0.018s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.016s][warning][cds] Unable to use shared archive file.",
+    "[0.016s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  },
+  "trap_g1_archive_g1_compact_headers": {
+   "shared_classes": 1438,
+   "loaded_classes": 15325,
+   "jvm_messages_without_xlog": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The shared archive file's UseCompactObjectHeaders setting (disabled) does not equal the current UseCompactObjectHeaders setting (enabled).",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+    "[0.002s][error  ][cds] Loading dynamic archive failed."
+   ],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [
+    "[0.003s][warning][cds] Unable to use shared archive file."
+   ],
+   "xshare_on_exit_code": 1,
+   "xshare_on_output": [
+    "[0.002s][warning][cds] Unable to use shared archive file.",
+    "[                    ] The shared archive file's UseCompactObjectHeaders setting (disabled) does not equal the current UseCompactObjectHeaders setting (enabled).",
+    "[0.002s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.003s][warning][cds] Unable to use shared archive file.",
+    "[0.003s][error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details."
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  },
+  "control_g1_archive_parallel_run": {
+   "shared_classes": 14685,
+   "loaded_classes": 15140,
+   "jvm_messages_without_xlog": [],
+   "java_version_says_sharing": true,
+   "xlog_cds_warnings": [],
+   "xshare_on_exit_code": 0,
+   "xshare_on_output": [],
+   "xshare_on_with_version_exit_code": 1,
+   "xshare_on_with_version_output": [
+    "[0.014s][warning][cds] app classpath has fewer elements than expected",
+    "[0.014s][error  ][cds] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)"
+   ],
+   "jdk_version": "OpenJDK 64-Bit Server VM Temurin-25.0.3+9 (build 25.0.3+9-LTS, mixed mode, sharing)"
+  }
+ }
+}
