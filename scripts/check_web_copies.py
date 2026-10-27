@@ -83,10 +83,11 @@ def main():
             own += any(is_own(u) for u in urls)
             hits += [f'"{p}" → {u}' for u in urls if not is_own(u) and urlparse(u).netloc not in cited]
         out.append(f"### `{path}`")
-        out.append(f"- Searched {len(picked) - len(errors)} of {len(picked)} phrases: "
+        searched = len(picked) - len(errors)
+        out.append(f"- Searched {searched} of {len(picked)} phrases: "
                    + ("**found elsewhere, check these**" if hits else "nothing found elsewhere")
-                   + f" ({dropped} related pages without the exact wording ignored; {own} phrases found on this site,"
-                   " which shows the search works once a post is live)")
+                   + f". {own} of {searched} found on platformnotes.dev itself (expected once a post is indexed);"
+                   f" {dropped} related pages without the exact wording ignored.")
         out += [f"  - {h}" for h in hits]
         out += [f"  - search error: {e}" for e in errors[:3]]
         out.append("")
