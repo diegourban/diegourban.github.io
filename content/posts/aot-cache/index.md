@@ -1,7 +1,7 @@
 ---
 title: "JDK 25's AOT cache vs AppCDS: faster startup, and a second off warm-up"
 date: 2026-10-27
-draft: true
+draft: false
 description: "Trained with a few thousand requests, the AOT cache started a Spring Boot 4 app about 0.2 s faster than AppCDS on G1, Parallel and Serial and took a second off its first 2,000 requests. ZGC needed JDK 26 for the same."
 tags: ["java", "jvm", "aot", "appcds", "leyden", "spring-boot", "performance", "startup"]
 ShowToc: true
