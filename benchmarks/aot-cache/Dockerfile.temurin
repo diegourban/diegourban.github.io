@@ -1,0 +1,11 @@
+# The small app on Temurin, for the JDK 25 vs JDK 26 ZGC side-run: same base image family, only the JDK differs.
+# Build: docker build --build-arg JDK=26 -t aotbench:t26-base -f Dockerfile.temurin .
+# FLAVOR is jdk on purpose: on JDK 26 an AOT cache makes the JVM fail at startup on jlink-built runtimes without
+# the jdk.compiler module, which includes the Temurin JRE images (JDK-8381222, fixed in JDK 27, not backported).
+# measure_oneoffs.py records that failure with FLAVOR=jre.
+ARG JDK=25
+ARG FLAVOR=jdk
+FROM cdsdemo:base AS app
+FROM eclipse-temurin:${JDK}-${FLAVOR}
+WORKDIR /app
+COPY --from=app /app/ /app/

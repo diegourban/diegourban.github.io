@@ -88,7 +88,24 @@
     transition: opacity 0.1s;
 }
 
+/* PaperMod's "table { overflow-x: auto }" does nothing on display: table, so a wide results table would widen
+   the whole page on a phone. As a block it scrolls on its own instead. */
+.cp-results-table {
+    display: block;
+    overflow-x: auto;
+}
+
 .cp-results-table td,
 .cp-results-table th {
     font-variant-numeric: tabular-nums;
 }
+
+/* Line charts (assets/js/charts/lines.js): 2px lines, slot 3 for a third series, dashes as a second cue. */
+.cp-chart { --c-s3: #1baf7a; }
+:root[data-theme="dark"] .cp-chart { --c-s3: #199e70; }
+.cp-chart .cp-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cp-chart .cp-line-s1 { stroke: var(--c-s1); }
+.cp-chart .cp-line-s2 { stroke: var(--c-s2); }
+.cp-chart .cp-line-s3 { stroke: var(--c-s3); }
+.cp-chart .cp-line-rest { stroke: var(--c-ink2); stroke-opacity: 0.45; }
+.cp-chart .cp-dash { stroke-dasharray: 6 4; }

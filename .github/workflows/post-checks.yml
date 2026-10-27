@@ -51,8 +51,9 @@ jobs:
       - name: Link check
         uses: lycheeverse/lychee-action@v2.9.0
         with:
-          # --root-dir resolves /posts/... links; DOIs are permanent and journal sites answer bots with 403.
-          args: --no-progress --max-retries 2 --timeout 30 --root-dir ${{ github.workspace }}/content --exclude '^https://doi\.org/' ${{ steps.posts.outputs.files }}
+          # --root-dir resolves /posts/... links. Excluded: DOIs (permanent; journal sites answer bots with 403) and the
+          # OpenJDK bug tracker (bug IDs are permanent; bugs.openjdk.org answers bots with 403 too).
+          args: --no-progress --max-retries 2 --timeout 30 --root-dir ${{ github.workspace }}/content --exclude '^https://doi\.org/' --exclude '^https://bugs\.openjdk\.org/' ${{ steps.posts.outputs.files }}
           output: links.md
           fail: false
           jobSummary: false

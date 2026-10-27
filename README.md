@@ -86,7 +86,7 @@ python3 make_charts.py   # charts.json
   |---|---|---|
   | References list complete, every external link cited, AI-generated posts cite something | `scripts/check_posts.py` | fails |
   | No run of 8+ words copied from a cited source (sources that can't be fetched are listed, not failed; references with `checked: "by hand"` are skipped) | `scripts/check_posts.py` | fails |
-  | Links resolve ([lychee](https://github.com/lycheeverse/lychee)) | — | warns |
+  | Links resolve ([lychee](https://github.com/lycheeverse/lychee)); `doi.org` and `bugs.openjdk.org` are skipped, since both answer bots with 403 | — | warns |
   | Wording not found elsewhere on the web (12 exact-phrase searches on [Tavily](https://tavily.com), free tier) | `scripts/check_web_copies.py` | warns; skipped without the `TAVILY_API_KEY` repository secret |
 
   Run the first two locally with `python3 scripts/check_posts.py content/posts/<slug>/index.md`.
