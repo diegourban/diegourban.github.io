@@ -30,6 +30,8 @@ TRAININGS.append(("heavy", "heavy", "heavydemo:base", "appcds-zgc.jsa", [GCS["zg
 TRAININGS.append(("heavy", "heavy", "heavydemo:base", "aot-zgc.aot", [GCS["zgc"], "-XX:AOTCacheOutput=/out/aot-zgc.aot"], MAIN_REQUESTS))
 for jdk in ("25", "26"):
     TRAININGS.append((f"t{jdk}", "small", f"aotbench:t{jdk}-base", "aot-zgc.aot", [GCS["zgc"], "-XX:AOTCacheOutput=/out/aot-zgc.aot"], MAIN_REQUESTS))
+    # Added after the review: AppCDS on the same images, so the JDK 25 vs 26 ZGC comparison has an AppCDS baseline.
+    TRAININGS.append((f"t{jdk}", "small", f"aotbench:t{jdk}-base", "appcds-zgc.jsa", [GCS["zgc"], "-XX:ArchiveClassesAtExit=/out/appcds-zgc.jsa"], MAIN_REQUESTS))
 
 
 def train(image_set, app, image, archive, flags, n, extra=(), keep_logs=None):
@@ -132,6 +134,14 @@ if __name__ == "__main__":
     c.postgres_up()
     if sys.argv[1:] == ["signal"]:
         signal_run()
+        sys.exit()
+    if sys.argv[1:2] == ["archives"]:  # train named archives only, e.g. "archives t25/appcds-zgc.jsa,t26/appcds-zgc.jsa"
+        wanted = {tuple(x.split("/")) for x in sys.argv[2].split(",")}
+        path = os.path.join(HERE, "training.json")
+        records = [r for r in json.load(open(path)) if (r["image_set"], r["archive"]) not in wanted]
+        records += [train(*t) for t in TRAININGS if (t[0], t[3]) in wanted]
+        json.dump(records, open(path, "w"), indent=1)
+        bake_images({s for s, _ in wanted})
         sys.exit()
     if sys.argv[1:2] == ["only"]:  # retrain some image sets, e.g. "only t25,t26", keeping the other records
         sets = sys.argv[2].split(",")

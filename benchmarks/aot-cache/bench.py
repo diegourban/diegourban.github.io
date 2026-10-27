@@ -28,6 +28,8 @@ VARIANTS["heavy_aot_zgc"] = ("aotbench:heavy", "heavy", [GCS["zgc"], "-XX:AOTCac
 for jdk in ("25", "26"):
     VARIANTS[f"t{jdk}_cds_zgc"] = (f"aotbench:t{jdk}", "small", [GCS["zgc"]])
     VARIANTS[f"t{jdk}_aot_zgc"] = (f"aotbench:t{jdk}", "small", [GCS["zgc"], "-XX:AOTCache=/app/caches/aot-zgc.aot"])
+    # Added after the review, measured in a second session (results_jdk.jsonl) with the four variants above.
+    VARIANTS[f"t{jdk}_appcds_zgc"] = (f"aotbench:t{jdk}", "small", [GCS["zgc"], "-XX:SharedArchiveFile=/app/caches/appcds-zgc.jsa"])
 
 STARTED = re.compile(r"Started \w+ in ([\d.]+) seconds \(process running for ([\d.]+)\)")
 

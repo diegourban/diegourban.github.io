@@ -31,8 +31,8 @@ def fmt(x, places=0, sign=False):
     return ("+" + s) if sign and d > 0 else s
 
 
-def load():
-    recs = [json.loads(l) for l in open(os.path.join(HERE, "results.jsonl"))]
+def load(name="results.jsonl"):
+    recs = [json.loads(l) for l in open(os.path.join(HERE, name))]
     by = {}
     for r in recs:
         if r.get("failed"):
@@ -75,8 +75,15 @@ def main():
     train_rows = [paired_row(by, f"aot_g1_n{n}", "aot_g1", warmup_total, lab, rng)
                   for n, lab in ((0, "0 (up to onRefresh)"), (200, "200"), (1000, "1,000"), (20000, "20,000"))]
 
-    jdk_rows = [paired_row(by, "t26_aot_zgc", "t25_aot_zgc", startup, "Startup", rng),
-                paired_row(by, "t26_aot_zgc", "t25_aot_zgc", warmup_total, "2,000 requests", rng)]
+    # JDK 25 vs 26 on ZGC: a second session with all six Temurin variants in the same rounds (results_jdk.jsonl).
+    jby = load("results_jdk.jsonl")
+    jdk_rows = {}
+    for key, value in (("startup", startup), ("warmup", warmup_total)):
+        jdk_rows[key] = [paired_row(jby, "t25_aot_zgc", "t25_appcds_zgc", value, "JDK 25: AOT cache vs AppCDS", rng),
+                         paired_row(jby, "t26_aot_zgc", "t26_appcds_zgc", value, "JDK 26: AOT cache vs AppCDS", rng),
+                         paired_row(jby, "t26_aot_zgc", "t25_aot_zgc", value, "AOT cache: JDK 26 vs JDK 25", rng),
+                         paired_row(jby, "t26_appcds_zgc", "t25_appcds_zgc", value, "AppCDS: JDK 26 vs JDK 25", rng)]
+    jdk_medians = {v: f"{fmt(st.median(r['process'] for r in jby[v].values()), 2)} s" for v in jby}
 
     # Warm-up curves (G1): median over rounds of 20-request buckets; x = bucket middle.
     curves = an["curves_ms"]
@@ -120,7 +127,7 @@ def main():
                        f"{hw['shift']['label']} ms ({hw['ci']['label']})"])
 
     sizes = {(t["image_set"], t["archive"]): t for t in training}
-    mb = lambda s, a: fmt(sizes[(s, a)]["bytes"] / 2**20)
+    mb = lambda s, a: fmt(sizes[(s, a)]["bytes"] / 1e6)  # decimal MB
     out = {
         "generated_by": "benchmarks/aot-cache/make_charts.py", "seed": SEED,
         "startup": {"rows": start_rows, "axis": {"min": -400, "max": 200, "step": 100},
@@ -133,9 +140,9 @@ def main():
         "table": {"headers": ["Setup", "Startup, default CDS", "Startup, AppCDS", "Startup, AOT cache",
                               "AOT cache vs AppCDS: startup (95% CI)", "AOT cache vs AppCDS: 2,000 requests (95% CI)"],
                   "rows": table_rows},
-        "warm_rows": warm_rows, "jdk26": jdk_rows,
+        "warm_rows": warm_rows, "jdk": jdk_rows, "jdk_medians": jdk_medians,
         "sizes_mb": {"appcds_g1": mb("small", "appcds-g1.jsa"), "aot_g1": mb("small", "aot-g1.aot"),
-                     "aot_g1_n0": mb("small", "aot-g1-n0.aot"), "aot_zgc_jdk25": mb("t25", "aot-zgc.aot"),
+                     "aot_g1_n0": mb("small", "aot-g1-n0.aot"), "aot_zgc_distroless": mb("small", "aot-zgc.aot"), "aot_zgc_jdk25": mb("t25", "aot-zgc.aot"),
                      "aot_zgc_jdk26": mb("t26", "aot-zgc.aot"), "heavy_aot": mb("heavy", "aot-zgc.aot")},
         "train_s": {k: fmt(sizes[("small", a)]["train_seconds"], 1) for k, a in
                     (("appcds_g1", "appcds-g1.jsa"), ("aot_g1", "aot-g1.aot"), ("aot_g1_n0", "aot-g1-n0.aot"), ("aot_g1_n20000", "aot-g1-n20000.aot"))},
@@ -148,10 +155,10 @@ def main():
                     ", ".join(f"{r['setup']} training requests {r['shift']['label']} ms" for r in train_rows) + ".",
         "warmup": "On G1, requests got faster sooner with an AOT cache trained with requests; the cache trained only up to onRefresh "
                   "warmed up like AppCDS and default CDS.",
-        "signal": "During training, new classes stopped appearing after about 500 requests; JIT compilations faded out by a few thousand.",
+        "signal": "During training, new classes almost stopped after about 500 requests; JIT compilations fell more slowly, with 90% done by request 5,000.",
     }
     json.dump(out, open(OUT, "w"), indent=1, ensure_ascii=False)
-    for r in start_rows + warm_rows + train_rows + jdk_rows:
+    for r in start_rows + warm_rows + train_rows + jdk_rows["startup"] + jdk_rows["warmup"]:
         print(f"{r['setup']:22} {r['shift']['label']:>7} ms  CI {r['ci']['label']:>18}  {r['faster']}/{r['n']}  p={r['p']}")
 
 

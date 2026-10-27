@@ -33,6 +33,37 @@ def boot(image, flags, mounts=()):
                           re.search(r"\[(warning|error)\s*\]\[(aot|cds)|Error occurred|Unexpected exception|AOT cache", l)][:4]}
 
 
+def aot_log(image, flags):
+    """Boots to the context refresh with -Xlog:aot and the code-cache log; returns the lines that say what loaded."""
+    p = subprocess.run(["docker", "run", "--rm", *c.LIMITS, "--entrypoint", "java", image, *flags,
+                        "-Xlog:aot=info,aot+codecache+init=info", CLASSLOG, "-Dspring.context.exit=onRefresh", "-jar", c.SMALL_JAR],
+                       capture_output=True, text=True)
+    out = p.stdout + p.stderr
+    keep = r"Using AOT-linked classes|full module graph|AOT code entries|AOT Code Cache is not used|\[warning\]\[aot|\[error|Mismatched values"
+    return {"exit_code": p.returncode, "classes_from_cache": len(re.findall(r"source: shared objects file", out)),
+            "classes_loaded": len(re.findall(r"\[class,load\]", out)),
+            "lines": sorted({re.sub(r"^\[[^\]]*\]", "", l).strip()[:200] for l in out.splitlines()
+                             if "[class,load]" not in l and re.search(keep, l)})[:8]}
+
+
+def review_checks(g1):
+    """Checks added after the review: what the cache turns on per GC and JDK, a different GC with the same memory
+    layout, and a Java agent attached at runtime only."""
+    out = {
+        "aot_log/g1_jdk25": aot_log("aotbench:small", [g1, "-XX:AOTCache=/app/caches/aot-g1.aot"]),
+        "aot_log/zgc_jdk25": aot_log("aotbench:small", ["-XX:+UseZGC", "-XX:AOTCache=/app/caches/aot-zgc.aot"]),
+        "aot_log/zgc_jdk26": aot_log("aotbench:t26", ["-XX:+UseZGC", "-XX:AOTCache=/app/caches/aot-zgc.aot"]),
+        "g1_cache_serial_run": aot_log("aotbench:small", ["-XX:+UseSerialGC", "-XX:AOTCache=/app/caches/aot-g1.aot"]),
+    }
+    # The OpenTelemetry agent ships in the base image (/app/otel.jar); the cache was trained without it.
+    out["otel_agent_runtime_only"] = aot_log("aotbench:small", [g1, "-javaagent:/app/otel.jar", "-Dotel.traces.exporter=none",
+                                                                 "-Dotel.metrics.exporter=none", "-Dotel.logs.exporter=none",
+                                                                 "-XX:AOTCache=/app/caches/aot-g1.aot"])
+    for k, v in out.items():
+        print(f"{k:24} exit {v['exit_code']} cache {v['classes_from_cache']}/{v['classes_loaded']} {v['lines'][:3]}", flush=True)
+    return out
+
+
 def stale_image():
     """aotbench:small with the application JAR's mtime changed, so its caches are stale."""
     d = tempfile.mkdtemp()
@@ -86,6 +117,13 @@ def main():
         res[f"jdk26_jre_image/{mode}"] = boot("aotbench:t26jre-base", [g1, "-XX:AOTCache=/broken/jre26.aot", f"-XX:AOTMode={mode}"], [f"{d}:/broken"])
         r = res[f"jdk26_jre_image/{mode}"]
         print(f"jdk26_jre_image          {mode:4} exit {r['exit_code']} started {r['started']} {(r['jvm_lines'] or [''])[0][:90]}", flush=True)
+    # The same JRE image with a ZGC cache (added after the review).
+    subprocess.run(["docker", "run", "--rm", *c.LIMITS, "-v", f"{d}:/out", "--entrypoint", "java", "aotbench:t26jre-base",
+                    "-XX:+UseZGC", "-XX:AOTCacheOutput=/out/jre26zgc.aot", "-Dspring.context.exit=onRefresh", "-jar", c.SMALL_JAR],
+                   capture_output=True)
+    res["jdk26_jre_image_zgc/auto"] = boot("aotbench:t26jre-base", ["-XX:+UseZGC", "-XX:AOTCache=/broken/jre26zgc.aot"], [f"{d}:/broken"])
+    print("jdk26_jre_image_zgc      auto exit", res["jdk26_jre_image_zgc/auto"]["exit_code"], flush=True)
+    res.update(review_checks(g1))
     # aotbench:* bundle every cache for the benchmark; one deployed cache adds its own size (training.json).
     res["base_image_mb"] = {img: round(int(c.sh("docker", "image", "inspect", "-f", "{{.Size}}", img).strip()) / 1e6)
                             for img in ("cdsdemo:base", "heavydemo:base")}

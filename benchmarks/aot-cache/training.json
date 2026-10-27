@@ -222,5 +222,33 @@
   "train_seconds": 16.0,
   "bytes": 141885440,
   "uptime_at_workload_start": 2.573
+ },
+ {
+  "image_set": "t25",
+  "app": "small",
+  "base_image": "aotbench:t25-base",
+  "archive": "appcds-zgc.jsa",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-zgc.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 11.1,
+  "bytes": 98893824,
+  "uptime_at_workload_start": 2.438
+ },
+ {
+  "image_set": "t26",
+  "app": "small",
+  "base_image": "aotbench:t26-base",
+  "archive": "appcds-zgc.jsa",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-zgc.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 11.6,
+  "bytes": 99090432,
+  "uptime_at_workload_start": 2.498
  }
 ]

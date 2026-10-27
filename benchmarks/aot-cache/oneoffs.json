@@ -3,29 +3,29 @@
  "intact/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 1.26,
+  "wall_s_to_refresh": 1.27,
   "classes_from_cache": 17162,
-  "classes_loaded": 17583,
+  "classes_loaded": 17593,
   "jvm_lines": [
-   "[0.042s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
-   "[0.042s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
+   "[0.044s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
+   "[0.044s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
   ]
  },
  "intact/on": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 1.22,
+  "wall_s_to_refresh": 1.23,
   "classes_from_cache": 17162,
-  "classes_loaded": 17583,
+  "classes_loaded": 17595,
   "jvm_lines": [
-   "[0.029s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
-   "[0.029s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
+   "[0.026s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
+   "[0.026s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
   ]
  },
  "missing/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 2.64,
+  "wall_s_to_refresh": 2.67,
   "classes_from_cache": 0,
   "classes_loaded": 15339,
   "jvm_lines": [
@@ -41,18 +41,18 @@
   "classes_from_cache": 0,
   "classes_loaded": 0,
   "jvm_lines": [
-   "[0.003s][error][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
-   "[0.003s][error][aot] Loading static archive failed.",
-   "[0.003s][error][aot] Unable to map shared spaces",
+   "[0.002s][error][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[0.002s][error][aot] Loading static archive failed.",
+   "[0.002s][error][aot] Unable to map shared spaces",
    "Error occurred during initialization of VM"
   ]
  },
  "empty/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 2.52,
+  "wall_s_to_refresh": 2.7,
   "classes_from_cache": 0,
-  "classes_loaded": 15339,
+  "classes_loaded": 15342,
   "jvm_lines": [
    "[0.002s][warning][aot] Unable to read generic CDS file map header from AOT cache",
    "[0.002s][warning][aot] Unable to read the file header.",
@@ -63,7 +63,7 @@
  "empty/on": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.22,
+  "wall_s_to_refresh": 0.24,
   "classes_from_cache": 0,
   "classes_loaded": 0,
   "jvm_lines": [
@@ -76,9 +76,9 @@
  "truncated/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 2.51,
+  "wall_s_to_refresh": 2.59,
   "classes_from_cache": 0,
-  "classes_loaded": 15317,
+  "classes_loaded": 15356,
   "jvm_lines": [
    "[0.002s][warning][aot] The AOT cache has been truncated.",
    "[0.002s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
@@ -89,7 +89,7 @@
  "truncated/on": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.24,
+  "wall_s_to_refresh": 0.25,
   "classes_from_cache": 0,
   "classes_loaded": 0,
   "jvm_lines": [
@@ -102,46 +102,46 @@
  "stale_jar_mtime/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 2.63,
+  "wall_s_to_refresh": 2.67,
   "classes_from_cache": 0,
-  "classes_loaded": 15338,
+  "classes_loaded": 15310,
   "jvm_lines": [
-   "[0.025s][warning][aot] This file is not the one used while building the shared archive file: '/app/cdsdemo-0.0.1-SNAPSHOT.jar', timestamp has changed",
-   "[0.025s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
-   "[0.025s][error  ][aot] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)",
-   "[0.027s][error  ][aot] Unable to map shared spaces"
+   "[0.022s][warning][aot] This file is not the one used while building the shared archive file: '/app/cdsdemo-0.0.1-SNAPSHOT.jar', timestamp has changed",
+   "[0.022s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[0.022s][error  ][aot] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)",
+   "[0.025s][error  ][aot] Unable to map shared spaces"
   ]
  },
  "stale_jar_mtime/on": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.23,
+  "wall_s_to_refresh": 0.27,
   "classes_from_cache": 0,
   "classes_loaded": 0,
   "jvm_lines": [
-   "[0.027s][warning][aot] This file is not the one used while building the shared archive file: '/app/cdsdemo-0.0.1-SNAPSHOT.jar', timestamp has changed",
-   "[0.027s][error  ][aot] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)",
-   "[0.027s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
-   "[0.027s][error  ][aot] unrecoverable error"
+   "[0.024s][warning][aot] This file is not the one used while building the shared archive file: '/app/cdsdemo-0.0.1-SNAPSHOT.jar', timestamp has changed",
+   "[0.024s][error  ][aot] shared class paths mismatch (hint: enable -Xlog:class+path=info to diagnose the failure)",
+   "[0.024s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[0.024s][error  ][aot] unrecoverable error"
   ]
  },
  "g1_cache_zgc_run/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 2.59,
+  "wall_s_to_refresh": 2.63,
   "classes_from_cache": 0,
-  "classes_loaded": 15303,
+  "classes_loaded": 15302,
   "jvm_lines": [
-   "[0.004s][warning][aot] Unable to use AOT cache.",
-   "[0.004s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
-   "[0.004s][error  ][aot] Loading static archive failed.",
-   "[0.004s][error  ][aot] Unable to map shared spaces"
+   "[0.003s][warning][aot] Unable to use AOT cache.",
+   "[0.003s][error  ][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[0.003s][error  ][aot] Loading static archive failed.",
+   "[0.003s][error  ][aot] Unable to map shared spaces"
   ]
  },
  "g1_cache_zgc_run/on": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.25,
+  "wall_s_to_refresh": 0.26,
   "classes_from_cache": 0,
   "classes_loaded": 0,
   "jvm_lines": [
@@ -154,23 +154,23 @@
  "g1_cache_plus_xmx512m/auto": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 1.2,
+  "wall_s_to_refresh": 1.25,
   "classes_from_cache": 17162,
   "classes_loaded": 17593,
   "jvm_lines": [
-   "[0.030s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
-   "[0.030s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
+   "[0.025s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
+   "[0.025s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
   ]
  },
  "g1_cache_plus_xmx512m/on": {
   "exit_code": 0,
   "started": true,
-  "wall_s_to_refresh": 1.18,
+  "wall_s_to_refresh": 1.22,
   "classes_from_cache": 17162,
   "classes_loaded": 17593,
   "jvm_lines": [
-   "[0.030s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
-   "[0.030s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
+   "[0.031s][warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'",
+   "[0.031s][warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache"
   ]
  },
  "extend_attempt": {
@@ -184,11 +184,11 @@
  "jdk26_jre_image/auto": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.39,
-  "classes_from_cache": 15543,
-  "classes_loaded": 15544,
+  "wall_s_to_refresh": 0.42,
+  "classes_from_cache": 15547,
+  "classes_loaded": 15548,
   "jvm_lines": [
-   "[0.118s][error][aot] java.lang.InternalError: (no message)",
+   "[0.133s][error][aot] java.lang.InternalError: (no message)",
    "Error occurred during initialization of VM",
    "Unexpected exception when loading aot-linked classes."
   ]
@@ -196,13 +196,84 @@
  "jdk26_jre_image/on": {
   "exit_code": 1,
   "started": false,
-  "wall_s_to_refresh": 0.35,
-  "classes_from_cache": 15543,
-  "classes_loaded": 15544,
+  "wall_s_to_refresh": 0.33,
+  "classes_from_cache": 15547,
+  "classes_loaded": 15548,
   "jvm_lines": [
-   "[0.096s][error][aot] java.lang.InternalError: (no message)",
+   "[0.098s][error][aot] java.lang.InternalError: (no message)",
    "Error occurred during initialization of VM",
    "Unexpected exception when loading aot-linked classes."
+  ]
+ },
+ "jdk26_jre_image_zgc/auto": {
+  "exit_code": 1,
+  "started": false,
+  "wall_s_to_refresh": 0.41,
+  "classes_from_cache": 15530,
+  "classes_loaded": 15531,
+  "jvm_lines": [
+   "[0.142s][error][aot] java.lang.InternalError: (no message)",
+   "Error occurred during initialization of VM",
+   "Unexpected exception when loading aot-linked classes."
+  ]
+ },
+ "aot_log/g1_jdk25": {
+  "exit_code": 0,
+  "classes_from_cache": 17162,
+  "classes_loaded": 17593,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: true (static archive: has aot-linked classes)",
+   "[info][aot,codecache,init] Loaded 740 AOT code entries from AOT Code Cache",
+   "[info][aot] full module graph: enabled",
+   "[info][aot] initial full module graph: enabled",
+   "[warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache",
+   "[warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'"
+  ]
+ },
+ "aot_log/zgc_jdk25": {
+  "exit_code": 0,
+  "classes_from_cache": 12874,
+  "classes_loaded": 15317,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes)",
+   "[info][aot,codecache,init] AOT Code Cache is not used: AOT Class Linking is not used.",
+   "[info][aot] full module graph: disabled",
+   "[info][aot] initial full module graph: disabled"
+  ]
+ },
+ "aot_log/zgc_jdk26": {
+  "exit_code": 0,
+  "classes_from_cache": 17186,
+  "classes_loaded": 17630,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: true (static archive: has aot-linked classes)",
+   "[info][aot,codecache,init] Loaded 734 AOT code entries from AOT Code Cache",
+   "[info][aot] full module graph: enabled",
+   "[info][aot] initial full module graph: enabled"
+  ]
+ },
+ "g1_cache_serial_run": {
+  "exit_code": 0,
+  "classes_from_cache": 17162,
+  "classes_loaded": 17583,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: true (static archive: has aot-linked classes)",
+   "[info][aot,codecache,init] Loaded 740 AOT code entries from AOT Code Cache",
+   "[info][aot] full module graph: enabled",
+   "[info][aot] initial full module graph: enabled"
+  ]
+ },
+ "otel_agent_runtime_only": {
+  "exit_code": 0,
+  "classes_from_cache": 0,
+  "classes_loaded": 19108,
+  "lines": [
+   "[error][aot] AOT cache has aot-linked classes. It cannot be used when archived full module graph is not used.",
+   "[error][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[error][aot] Disabling optimized module handling",
+   "[error][aot] Mismatched values for property jdk.module.addmods: java.instrument specified during runtime but not during dump time",
+   "[error][aot] Unable to map shared spaces",
+   "[info ][aot] full module graph: disabled"
   ]
  },
  "base_image_mb": {
