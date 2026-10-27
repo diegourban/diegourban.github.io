@@ -2,6 +2,8 @@
 baseURL = "https://example.com/"
 locale = "en-US"
 title = "Platform Notes"
+# Footer line (PaperMod renders it as Markdown); the terms are on content/license.md.
+copyright = "© 2026 Diego Urban · Text: all rights reserved, [quoting with a link welcome](/license/)"
 theme = "PaperMod"
 enableRobotsTXT = true
 enableGitInfo = true

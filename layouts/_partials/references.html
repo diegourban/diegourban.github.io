@@ -1,0 +1,21 @@
+{{- /* References for a post, from front matter `references` (a list of author, title, venue, year, url).
+  Rendered after the content as "Author. *Title*. Venue, year. URL"; venue and year are optional.
+  The build fails on an entry without author, title or url. scripts/check_posts.py checks the rest. */ -}}
+{{- with .Params.references }}
+{{- range $i, $r := . }}
+  {{- range slice "author" "title" "url" }}
+    {{- if not (index $r .) }}{{ errorf "%s: reference %d has no `%s`" $.File.Path (add $i 1) . }}{{ end }}
+  {{- end }}
+{{- end }}
+<section class="references" aria-labelledby="references">
+  <h2 id="references">References</h2>
+  <ol>
+    {{- range . }}
+    <li>{{ strings.TrimSuffix "." .author }}. <cite>{{ .title }}</cite>.
+      {{- with .venue }} {{ . }}{{ end }}
+      {{- if and .venue .year }}, {{ .year }}.{{ else if .year }} {{ .year }}.{{ else if .venue }}.{{ end }}
+      <a href="{{ .url }}">{{ .url }}</a></li>
+    {{- end }}
+  </ol>
+</section>
+{{- end }}

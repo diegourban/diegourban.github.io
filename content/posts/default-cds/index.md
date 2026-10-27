@@ -12,11 +12,57 @@ cover:
   alt: "Startup change after removing -Xshare:off, per GC: about 2% faster, 5–7 MB less private memory"
   hiddenInSingle: true
   hiddenInList: true
+references:
+  - author: "OpenJDK"
+    title: "JEP 341: Default CDS Archives"
+    venue: "Delivered in JDK 12"
+    year: 2019
+    url: "https://openjdk.org/jeps/341"
+  - author: "OpenJDK"
+    title: "JEP 310: Application Class-Data Sharing"
+    venue: "Delivered in JDK 10"
+    year: 2018
+    url: "https://openjdk.org/jeps/310"
+  - author: "OpenJDK"
+    title: "JEP 516: Ahead-of-Time Object Caching with Any GC"
+    venue: "Delivered in JDK 26"
+    year: 2026
+    url: "https://openjdk.org/jeps/516"
+  - author: "OpenJDK"
+    title: "JEP 519: Compact Object Headers"
+    venue: "Delivered in JDK 25"
+    year: 2025
+    url: "https://openjdk.org/jeps/519"
+  - author: "Oracle"
+    title: "Class Data Sharing"
+    venue: "Java SE 25 HotSpot Virtual Machine Guide"
+    year: 2025
+    url: "https://docs.oracle.com/en/java/javase/25/vm/class-data-sharing.html"
+  - author: "Oracle"
+    title: "The java Command"
+    venue: "Java SE 25 Tool Reference"
+    year: 2025
+    url: "https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html"
+  - author: "Wilcoxon, F."
+    title: "Individual Comparisons by Ranking Methods"
+    venue: "Biometrics Bulletin 1(6), 80–83"
+    year: 1945
+    url: "https://doi.org/10.2307/3001968"
+  - author: "Hodges, J. L. and Lehmann, E. L."
+    title: "Estimates of Location Based on Rank Tests"
+    venue: "The Annals of Mathematical Statistics 34(2), 598–611"
+    year: 1963
+    url: "https://doi.org/10.1214/aoms/1177704172"
+  - author: "Efron, B."
+    title: "Bootstrap Methods: Another Look at the Jackknife"
+    venue: "The Annals of Statistics 7(1), 1–26"
+    year: 1979
+    url: "https://doi.org/10.1214/aos/1176344552"
 ---
 
 Deleting a leftover `-Xshare:off` from our JVM flags made startup only slightly faster. It also showed why: default CDS saves a fixed few tens of milliseconds of JVM startup, and your startup time is mostly your own classes.
 
-Since JDK 12, every JDK ships **CDS (Class Data Sharing)** archives in `lib/server/*.jsa`, holding the JDK's core classes already parsed and laid out. At startup the JVM memory-maps one of them instead of loading those classes from scratch, and it does this by default with nothing to configure.
+Since JDK 12 ([JEP 341](https://openjdk.org/jeps/341)), every JDK ships **CDS (Class Data Sharing)** archives in `lib/server/*.jsa`, holding the JDK's core classes already parsed and laid out. At startup the JVM [memory-maps](https://docs.oracle.com/en/java/javase/25/vm/class-data-sharing.html) one of them instead of loading those classes from scratch, and it does this by default with nothing to configure.
 
 Several of our services had `-Xshare:off` in their flags, which switches all of that off; it came from an old base image, and nobody had written down why. I deleted it and expected a noticeably faster startup, but didn't get one.
 
@@ -48,7 +94,7 @@ The archive serves the same ~1.4k JDK classes no matter what the app does, so it
 
 Because of that, the saving stays roughly **fixed in milliseconds** on both apps and shrinks as a percentage when the app grows.
 
-Besides classes, the archive holds pre-built Java heap objects, like the module graph and interned strings. ZGC can't load those archived objects in JDK 25; JEP 516, planned for JDK 26, is meant to fix that.
+Besides classes, the archive holds pre-built Java heap objects, like the module graph and interned strings. ZGC can't load those archived objects in JDK 25. [JEP 516](https://openjdk.org/jeps/516), delivered in JDK 26, lifts that restriction.
 
 ## Where the memory goes
 
@@ -58,7 +104,7 @@ Metaspace drops by 10 MB, yet the JVM doesn't use 10 MB less memory. Archived cl
 Private memory fell by 5–7 MB per JVM on the small app (2 MB on the heavy one). File-backed memory rose by about 3 MB, which is the mapped archive. Metaspace isn't drawn here. It fell by 10 MB in every setup, but it's part of private memory, and most of its drop moved into the file-backed archive.
 {{< /chart >}}
 
-That file-backed part **can** be shared between JVMs on the same node through the OS page cache, as long as:
+That file-backed part **can** be [shared between JVMs](https://docs.oracle.com/en/java/javase/25/vm/class-data-sharing.html) on the same node through the OS page cache, as long as:
 
 - the pods run from the same image layer (the same JDK build);
 - the archive maps at its intended address (if it has to be relocated, its pages get written to and stop being shared);
@@ -68,9 +114,9 @@ I measured one JVM at a time, so I haven't measured the sharing itself.
 
 ## Why the flag still matters
 
-Deleting one flag gives you a few MB of private memory back per JVM. Your image carries four archive files either way (~60 MB), one per memory layout: with and without compressed oops, each with and without compact object headers. You pay for them on every pull, so you might as well use one.
+Deleting one flag gives you a few MB of private memory back per JVM. Your image carries four archive files either way (~60 MB), one per memory layout: with and without compressed oops, each with and without [compact object headers](https://openjdk.org/jeps/519). You pay for them on every pull, so you might as well use one.
 
-`-Xshare:off` also blocks AppCDS, an archive of *your* application's classes that runs on the same mechanism. With the flag set, the JVM silently ignores an AppCDS archive. The app still starts normally, and 0 classes come from the archive instead of about 14.7k. That's where the bigger numbers are, and the next post covers them.
+`-Xshare:off` also blocks [AppCDS](https://openjdk.org/jeps/310), an archive of *your* application's classes that runs on the same mechanism. With the flag set, the JVM silently ignores an AppCDS archive. The app still starts normally, and 0 classes come from the archive instead of about 14.7k. That's where the bigger numbers are, and the next post covers them.
 
 ## Why the flag might be there
 
@@ -103,7 +149,7 @@ To see which archive got mapped (ZGC uses `classes_nocoops.jsa`):
 java -XX:+UseZGC -Xlog:cds -version | grep Opened
 ```
 
-In CI, smoke-test with `-Xshare:on`, which fails loudly when sharing can't be used. Give it **the same GC and heap flags as production**, or you'll be testing a different archive from the one production maps. Never put `-Xshare:on` in the production entrypoint.
+In CI, smoke-test with `-Xshare:on`, which [fails loudly](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html) when sharing can't be used. Give it **the same GC and heap flags as production**, or you'll be testing a different archive from the one production maps. Never put `-Xshare:on` in the production entrypoint; the `java` reference says it's for testing only.
 
 JDK 11 ships no default archive, but `java -Xshare:dump` creates one.
 
@@ -114,6 +160,6 @@ These are demo apps (about 15k and 19k classes), run on one machine (Docker Desk
 ## Method and data
 
 - Startup is Spring's `process running for`. CPU is utime+stime of PID 1, read about a second after the app reports healthy. Memory comes from `/proc/1/status` and the actuator.
-- The paired shift is the Hodges-Lehmann estimate over the ten rounds, and its 95% CI is a bootstrap of that estimate (10,000 resamples, fixed seed). p-values come from exact Wilcoxon signed-rank tests (Serial p = 0.002, G1 p = 0.006). Numbers are rounded half away from zero.
+- The paired shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) over the ten rounds, and its 95% CI is a [bootstrap](https://doi.org/10.1214/aos/1176344552) of that estimate (10,000 resamples, fixed seed). p-values come from exact [Wilcoxon signed-rank tests](https://doi.org/10.2307/3001968) (Serial p = 0.002, G1 p = 0.006). Numbers are rounded half away from zero.
 - Class counts come from `-Xlog:class+load` with default CDS and ZGC, up to Spring's context refresh (`measure_coverage.sh`).
 - Scripts, raw results and both demo apps live in [`benchmarks/default-cds`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/default-cds), where `make_charts.py` computes every number in the charts and the table from the raw results.
