@@ -1,0 +1,226 @@
+[
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "appcds-zgc.jsa",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-zgc.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 13.2,
+  "bytes": 98304000,
+  "uptime_at_workload_start": 2.865
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-zgc.aot",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:AOTCacheOutput=/out/aot-zgc.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 14.6,
+  "bytes": 107151360,
+  "uptime_at_workload_start": 2.532
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "appcds-g1.jsa",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-g1.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 11.7,
+  "bytes": 98369536,
+  "uptime_at_workload_start": 2.374
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-g1.aot",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:AOTCacheOutput=/out/aot-g1.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 15.1,
+  "bytes": 130482176,
+  "uptime_at_workload_start": 2.411
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "appcds-parallel.jsa",
+  "flags": [
+   "-XX:+UseParallelGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-parallel.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 11.5,
+  "bytes": 98369536,
+  "uptime_at_workload_start": 2.363
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-parallel.aot",
+  "flags": [
+   "-XX:+UseParallelGC",
+   "-XX:AOTCacheOutput=/out/aot-parallel.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 15.2,
+  "bytes": 130351104,
+  "uptime_at_workload_start": 2.342
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "appcds-serial.jsa",
+  "flags": [
+   "-XX:+UseSerialGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-serial.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 11.4,
+  "bytes": 98369536,
+  "uptime_at_workload_start": 2.347
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-serial.aot",
+  "flags": [
+   "-XX:+UseSerialGC",
+   "-XX:AOTCacheOutput=/out/aot-serial.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 15.5,
+  "bytes": 130416640,
+  "uptime_at_workload_start": 2.389
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-g1-n0.aot",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:AOTCacheOutput=/out/aot-g1-n0.aot"
+  ],
+  "requests": 0,
+  "train_seconds": 6.1,
+  "bytes": 111607808,
+  "uptime_at_workload_start": null
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-g1-n200.aot",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:AOTCacheOutput=/out/aot-g1-n200.aot"
+  ],
+  "requests": 200,
+  "train_seconds": 8.4,
+  "bytes": 125763584,
+  "uptime_at_workload_start": 2.459
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-g1-n1000.aot",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:AOTCacheOutput=/out/aot-g1-n1000.aot"
+  ],
+  "requests": 1000,
+  "train_seconds": 10.1,
+  "bytes": 128253952,
+  "uptime_at_workload_start": 2.506
+ },
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "aot-g1-n20000.aot",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-XX:AOTCacheOutput=/out/aot-g1-n20000.aot"
+  ],
+  "requests": 20000,
+  "train_seconds": 29.5,
+  "bytes": 131334144,
+  "uptime_at_workload_start": 2.519
+ },
+ {
+  "image_set": "heavy",
+  "app": "heavy",
+  "base_image": "heavydemo:base",
+  "archive": "appcds-zgc.jsa",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:ArchiveClassesAtExit=/out/appcds-zgc.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 14.8,
+  "bytes": 111345664,
+  "uptime_at_workload_start": 5.045
+ },
+ {
+  "image_set": "heavy",
+  "app": "heavy",
+  "base_image": "heavydemo:base",
+  "archive": "aot-zgc.aot",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:AOTCacheOutput=/out/aot-zgc.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 17.8,
+  "bytes": 119537664,
+  "uptime_at_workload_start": 5.045
+ },
+ {
+  "image_set": "t25",
+  "app": "small",
+  "base_image": "aotbench:t25-base",
+  "archive": "aot-zgc.aot",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:AOTCacheOutput=/out/aot-zgc.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 13.9,
+  "bytes": 108724224,
+  "uptime_at_workload_start": 2.49
+ },
+ {
+  "image_set": "t26",
+  "app": "small",
+  "base_image": "aotbench:t26-base",
+  "archive": "aot-zgc.aot",
+  "flags": [
+   "-XX:+UseZGC",
+   "-XX:AOTCacheOutput=/out/aot-zgc.aot"
+  ],
+  "requests": 5000,
+  "train_seconds": 16.0,
+  "bytes": 141885440,
+  "uptime_at_workload_start": 2.573
+ }
+]
