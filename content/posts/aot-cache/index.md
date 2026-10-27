@@ -6,6 +6,12 @@ description: "Trained with a few thousand requests, the AOT cache started a Spri
 tags: ["java", "jvm", "aot", "appcds", "leyden", "spring-boot", "performance", "startup"]
 ShowToc: true
 ai_disclosure: ai-generated
+cover:
+  image: cover.png
+  relative: true
+  alt: "Latency over the first 2,000 requests on G1: the AOT cache trained with requests drops below 1 ms within about 400 requests, while AppCDS, default CDS and a cache trained only up to onRefresh stay above it"
+  hiddenInSingle: true
+  hiddenInList: true
 references:
   - author: "OpenJDK"
     title: "JEP 483: Ahead-of-Time Class Loading & Linking"
