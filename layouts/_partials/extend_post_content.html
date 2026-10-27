@@ -19,6 +19,7 @@
   (resources.Get "js/charts/paired-shift.js")
   (resources.Get "js/charts/memory-change.js")
   (resources.Get "js/charts/class-coverage.js")
+  (resources.Get "js/charts/lines.js")
   | resources.Concat "js/charts.js" | minify | fingerprint "sha512" }}
 <script src="{{ $d3.RelPermalink }}" integrity="{{ $d3.Data.Integrity }}"></script>
 <script src="{{ $charts.RelPermalink }}" integrity="{{ $charts.Data.Integrity }}"></script>

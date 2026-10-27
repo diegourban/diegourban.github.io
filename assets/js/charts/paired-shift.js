@@ -1,12 +1,14 @@
 // Chart A: per-setup paired startup differences, Hodges-Lehmann tick and 95% CI bar.
 // The axis is cut at XMIN/XMAX; points beyond it are drawn at the edge with their value.
 // Optional charts.json fields: axis["paired-shift"] {min, max, step} and titles["paired-shift"] {title, sub[]};
-// without them the chart uses the default-CDS post's axis and titles.
+// without them the chart uses the default-CDS post's axis and titles. With a data key ({{< chart "paired-shift" "key" >}})
+// the chart reads data[key].rows, data[key].axis and data[key].titles instead, so a post can have several.
 CPCharts.register("paired-shift", (el, data, narrow) => {
   const { tooltip, svgFor, text } = CPCharts;
-  const rows = data.rows;
-  const axis = (data.axis && data.axis["paired-shift"]) || { min: -200, max: 250, step: 100 };
-  const titles = (data.titles && data.titles["paired-shift"]) || {
+  const set = el.dataset.key ? data[el.dataset.key] : null;
+  const rows = set ? set.rows : data.rows;
+  const axis = (set && set.axis) || (data.axis && data.axis["paired-shift"]) || { min: -200, max: 250, step: 100 };
+  const titles = (set && set.titles) || (data.titles && data.titles["paired-shift"]) || {
     title: "Startup change after removing -Xshare:off",
     sub: ["Each dot is one round. Left of 0 is faster.", "Bar: 95% CI · tick: Hodges-Lehmann estimate"],
   };
