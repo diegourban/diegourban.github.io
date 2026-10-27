@@ -1,0 +1,31 @@
+/* References list after each post (layouts/_partials/references.html). */
+.references {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.references h2 {
+    margin: 0 0 12px;
+    font-size: 1.2em;
+}
+
+.references ol {
+    margin: 0;
+    padding-inline-start: 1.6em;
+}
+
+.references li {
+    margin-bottom: 8px;
+    color: var(--secondary);
+}
+
+/* Long URLs wrap instead of widening the page on phones. */
+.references a {
+    overflow-wrap: anywhere;
+    color: var(--secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

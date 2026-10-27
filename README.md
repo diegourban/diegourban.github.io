@@ -74,6 +74,13 @@ python3 make_charts.py   # charts.json
 - **Training opt-out:** `layouts/robots.txt` sends `Content-Signal: search=yes, ai-input=yes, ai-train=no` and blocks the training crawlers by name; `static/.well-known/tdmrep.json` and `<meta name="tdm-reservation" content="1">` reserve text and data mining rights (W3C TDMRep). Search and AI-answer crawlers stay allowed.
 - The About page explains the levels and the opt-out to readers.
 
+## Sources and originality
+
+- **Cite what you didn't measure or come up with:** JDK and Spring behaviour (the JEP or the official docs), statistical methods (the original paper), anyone else's numbers, and any idea or recipe taken from an article or talk. Prefer the primary source. Your own measurements cite their script and output file in `benchmarks/`.
+- **How:** an inline link at the claim, plus an entry in the post's `references` front matter (`author`, `title`, optional `venue` and `year`, `url`). `layouts/_partials/references.html` renders them as a References section after the post and adds them to the structured data as `citation`.
+- **Copied wording:** rewrite it in your own words and keep the citation, or, when the exact words matter (a definition, an error message), put them in quotation marks with the citation next to them. Flags, error strings you measured yourself and code don't count.
+- **Licence:** the text is all rights reserved, with quoting welcome (`content/license.md`, footer line in `hugo.toml`). The code has no licence yet.
+
 ## Publishing
 
 GitHub Pages uses **Settings → Pages → Source = GitHub Actions**. The workflow builds with Hugo and publishes on every push to `master`, or manually from **Actions → Deploy Hugo site to Pages → Run workflow**.

@@ -105,6 +105,15 @@
   "datePublished": {{ .PublishDate }},
   "dateModified": {{ .Lastmod }},
   "author": {{ $person | jsonify | safeJS }},
+  {{- with .Params.references }}
+  {{- $cites := slice }}
+  {{- range . }}
+    {{- $c := dict "@type" "CreativeWork" "name" .title "url" .url }}
+    {{- with .year }}{{ $c = merge $c (dict "datePublished" (string .)) }}{{ end }}
+    {{- $cites = $cites | append $c }}
+  {{- end }}
+  "citation": {{ $cites | jsonify | safeJS }},
+  {{- end }}
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": {{ .Permalink | safeHTML }}

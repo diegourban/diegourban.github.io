@@ -12,11 +12,71 @@ cover:
   alt: "Startup change with AppCDS vs default CDS, per GC: about 800 ms faster on a small Spring Boot app, about one second on a heavier one"
   hiddenInSingle: true
   hiddenInList: true
+references:
+  - author: "OpenJDK"
+    title: "JEP 310: Application Class-Data Sharing"
+    venue: "Delivered in JDK 10"
+    year: 2018
+    url: "https://openjdk.org/jeps/310"
+  - author: "OpenJDK"
+    title: "JEP 350: Dynamic CDS Archives"
+    venue: "Delivered in JDK 13"
+    year: 2019
+    url: "https://openjdk.org/jeps/350"
+  - author: "OpenJDK"
+    title: "JEP 519: Compact Object Headers"
+    venue: "Delivered in JDK 25"
+    year: 2025
+    url: "https://openjdk.org/jeps/519"
+  - author: "Oracle"
+    title: "The java Command"
+    venue: "Java SE 25 Tool Reference"
+    year: 2025
+    url: "https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html"
+  - author: "Spring Boot"
+    title: "AOT Cache (section: CDS)"
+    venue: "Spring Boot Reference Documentation"
+    url: "https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html#packaging.aot-cache.cds"
+  - author: "OpenJDK"
+    title: "JEP 483: Ahead-of-Time Class Loading & Linking"
+    venue: "Delivered in JDK 24"
+    year: 2025
+    url: "https://openjdk.org/jeps/483"
+  - author: "OpenJDK"
+    title: "JEP 514: Ahead-of-Time Command-Line Ergonomics"
+    venue: "Delivered in JDK 25"
+    year: 2025
+    url: "https://openjdk.org/jeps/514"
+  - author: "OpenJDK"
+    title: "JEP 515: Ahead-of-Time Method Profiling"
+    venue: "Delivered in JDK 25"
+    year: 2025
+    url: "https://openjdk.org/jeps/515"
+  - author: "OpenJDK"
+    title: "JEP 516: Ahead-of-Time Object Caching with Any GC"
+    venue: "Delivered in JDK 26"
+    year: 2026
+    url: "https://openjdk.org/jeps/516"
+  - author: "Wilcoxon, F."
+    title: "Individual Comparisons by Ranking Methods"
+    venue: "Biometrics Bulletin 1(6), 80–83"
+    year: 1945
+    url: "https://doi.org/10.2307/3001968"
+  - author: "Hodges, J. L. and Lehmann, E. L."
+    title: "Estimates of Location Based on Rank Tests"
+    venue: "The Annals of Mathematical Statistics 34(2), 598–611"
+    year: 1963
+    url: "https://doi.org/10.1214/aoms/1177704172"
+  - author: "Efron, B."
+    title: "Bootstrap Methods: Another Look at the Jackknife"
+    venue: "The Annals of Statistics 7(1), 1–26"
+    year: 1979
+    url: "https://doi.org/10.1214/aos/1176344552"
 ---
 
 If you train a class-data archive for your own Spring Boot app, startup gets 0.8 to 1 second faster. I measured 784 to 828 ms on a small app across four garbage collectors, and 1,001 ms on a heavier one with Postgres, Flyway and 80 JPA entities. You pay for it with one training run in the image build and an archive of 87 to 104 MB.
 
-Last time I removed a stray `-Xshare:off` and got back [a few tens of milliseconds](/posts/default-cds/), because the JDK's default archive only holds the JDK's own classes. AppCDS goes further and archives yours, as a second layer on top of the JDK's archive.
+Last time I removed a stray `-Xshare:off` and got back [a few tens of milliseconds](/posts/default-cds/), because the JDK's default archive only holds the JDK's own classes. [AppCDS](https://openjdk.org/jeps/310) goes further and archives yours, as a [second layer](https://openjdk.org/jeps/350) on top of the JDK's archive.
 
 ## From the JDK's classes to yours
 
@@ -44,7 +104,7 @@ I wouldn't count on saving memory. Metaspace drops from about 72 MB to 11 MB on 
 
 ## How to build it
 
-Train the archive in the image build, with every JVM option the container will run with. I put those options in the image as `JAVA_TOOL_OPTIONS`, so the training run and the container pick up the same ones. Spring Boot's extracted layout keeps the classpath stable:
+Train the archive in the image build, with every JVM option the container will run with. I put those options in the image as `JAVA_TOOL_OPTIONS`, so the training run and the container pick up the same ones. Spring Boot's extracted layout keeps the classpath stable, as its [CDS documentation](https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html#packaging.aot-cache.cds) recommends:
 
 ```bash
 java -Djarmode=tools -jar app.jar extract --destination ext
@@ -69,7 +129,7 @@ If your Deployment sets its own `JAVA_TOOL_OPTIONS`, those replace the image's, 
 
 The heavy app validates its Flyway migrations and Hibernate schema on start, so its training run needs a database too, and a plain `RUN` line in the Dockerfile can't reach one. I trained it with `docker run` against a Postgres container, wrote the archive to a mounted volume and copied it into the final image. In CI you'd run Postgres as a service container next to the build.
 
-The final image also has to contain exactly the JAR files the archive was trained on. AppCDS checks each classpath entry's size and modification time, so copy the archive into an image built from the same layer instead of rebuilding it.
+The final image also has to contain exactly the JAR files the archive was trained on. AppCDS checks each classpath entry's size and modification time (touching or repacking the JAR dropped it to 1,439 classes, see [`classpath_check.txt`](https://github.com/diegourban/diegourban.github.io/blob/master/benchmarks/appcds/classpath_check.txt)), so copy the archive into an image built from the same layer instead of rebuilding it.
 
 ## When the archive stops loading
 
@@ -86,17 +146,17 @@ The saved state of UseCompressedOops and UseCompressedClassPointers is different
 [error  ][cds] Loading dynamic archive failed.
 ```
 
-Two settings decide that layout, compressed oops and compact object headers. ZGC runs without compressed oops, and so does G1 with a heap above about 32 GB. Turning on `-XX:+UseCompactObjectHeaders` breaks the match the same way, with 1,438 classes again and a message about `UseCompactObjectHeaders`. A G1 archive keeps working under Parallel, since both use the same layout.
+Two settings decide that layout, compressed oops and compact object headers. ZGC runs without compressed oops, and so does G1 with a heap above [about 32 GB](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html). Turning on [`-XX:+UseCompactObjectHeaders`](https://openjdk.org/jeps/519) breaks the match the same way, with 1,438 classes again and a message about `UseCompactObjectHeaders`. A G1 archive keeps working under Parallel, since both use the same layout.
 
 Once you pass `-XX:SharedArchiveFile` with ZGC, even a correctly matched archive prints two `[error][cds]` lines on every start (`Cannot use CDS heap data`), because ZGC can't use the JDK's archived heap objects on JDK 25. If every deploy logs CDS errors, a new one won't stand out. And `java -version` still ends with `sharing` as long as the JDK's default archive loaded, so it won't tell you either.
 
 To catch the mismatch, I'd use one of these:
 
 - Count the archived classes once: run with `-Xlog:class+load` and count the lines with `source: shared objects file`. With a working archive that's close to every class.
-- Start with `-Xshare:on` in a CI smoke test, using the real `-jar` and the production flags. A matched archive starts the app, and a mismatched one makes the JVM refuse to start. Run the check against your app rather than `-version`, because `-version` fails even with a good archive when the classpath doesn't match.
+- Start with [`-Xshare:on`](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html) in a CI smoke test, using the real `-jar` and the production flags. A matched archive starts the app, and a mismatched one makes the JVM refuse to start. Run the check against your app rather than `-version`, because `-version` fails even with a good archive when the classpath doesn't match.
 - Alert on any `[warning][cds]` line in your logs rather than one exact message, since the wording depends on what didn't match.
 
-`-XX:+AutoCreateSharedArchive` writes a fresh archive at JVM exit whenever the existing one is missing or doesn't match. The run after a change starts without AppCDS and pays for the dump at shutdown, the dump only happens on a clean exit, and the archive path has to outlive the process. That fits a long-lived host better than an immutable container image.
+[`-XX:+AutoCreateSharedArchive`](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html) writes a fresh archive at JVM exit whenever the existing one is missing or doesn't match. The run after a change starts without AppCDS and pays for the dump at shutdown, the dump only happens on a clean exit, and the archive path has to outlive the process. That fits a long-lived host better than an immutable container image.
 
 ## What it costs
 
@@ -123,5 +183,5 @@ These are the same demo apps as before, on one machine (Docker Desktop on an arm
 
 ## Method and data
 
-- The startup and memory numbers are the AppCDS variant of [the default-CDS benchmark](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/default-cds): same runs, same pairing by round, the Hodges-Lehmann estimate with a bootstrap 95% CI (10,000 resamples, fixed seed) and exact Wilcoxon signed-rank tests (p = 0.002 in every setup, the smallest possible with ten pairs). Memory is sampled about a second after readiness. Numbers are rounded half away from zero.
-- Class counts, the mismatch tests, the build cost and the Dockerfile recipe come from [`benchmarks/appcds`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/appcds): `measure_coverage.sh`, `measure_trap.sh`, `measure_build_cost.sh` and `recipe/test.sh` (its output is in `recipe/results.txt`). Build costs are medians of 5 runs (small app) and 3 runs (heavy app); each mismatch case is a single run. `measure_trap.sh` also records the JDK build (Temurin 25.0.3+9) and the `-Xshare:on -version` check, and `measure_aot_zgc.sh` records the AOT cache on ZGC (`aot_zgc.txt`). `make_charts.py` turns the results into the numbers in the charts and the table.
+- The startup and memory numbers are the AppCDS variant of [the default-CDS benchmark](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/default-cds): same runs, same pairing by round, the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) with a [bootstrap](https://doi.org/10.1214/aos/1176344552) 95% CI (10,000 resamples, fixed seed) and exact [Wilcoxon signed-rank tests](https://doi.org/10.2307/3001968) (p = 0.002 in every setup, the smallest possible with ten pairs). Memory is sampled about a second after readiness. Numbers are rounded half away from zero.
+- Class counts, the mismatch tests, the build cost and the Dockerfile recipe come from [`benchmarks/appcds`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/appcds): `measure_coverage.sh`, `measure_trap.sh`, `measure_build_cost.sh` and `recipe/test.sh` (its output is in `recipe/results.txt`). Build costs are medians of 5 runs (small app) and 3 runs (heavy app); each mismatch case is a single run. `measure_trap.sh` also records the JDK build (Temurin 25.0.3+9) and the `-Xshare:on -version` check, `measure_aot_zgc.sh` records the AOT cache on ZGC (`aot_zgc.txt`), and `measure_classpath_check.sh` tests a touched and a repacked JAR (`classpath_check.txt`). `make_charts.py` turns the results into the numbers in the charts and the table.
