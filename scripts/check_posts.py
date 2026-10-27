@@ -12,6 +12,8 @@ References lint (fails):
 Overlap (fails on a match, never on a fetch error):
   - downloads every cited source and reports any run of 8 or more words the post shares with it.
     Code, inline code, shortcodes, link targets and text in "quotation marks" are left out.
+  - a reference with `checked: "by hand"` is skipped: use it for sources scripts can't read (journals behind
+    bot protection, scanned PDFs) once you've compared them yourself.
 Stdlib only, so it runs on a bare CI runner.
 """
 import argparse, glob, html, re, sys, urllib.request
@@ -74,6 +76,8 @@ def lint(path, fm, body):
                 problems.append(f"reference {i} has no `{k}`")
         if r.get("url") and not re.match(r"https?://", r["url"]):
             problems.append(f"reference {i} url is not http(s): {r['url']}")
+        if r.get("checked") not in (None, "by hand"):
+            problems.append(f'reference {i} has `checked: {r["checked"]}`; the only value is "by hand"')
     listed = {strip_fragment(r["url"]) for r in refs if r.get("url")}
     links = re.findall(r"\]\((https?://[^)\s]+)\)", body) + re.findall(r"<(https?://[^>\s]+)>", body)
     for url in sorted(set(links)):
@@ -140,7 +144,8 @@ def main():
         failed |= bool(problems)
         post_words = words(prose(body))
         matches, unreachable = [], []
-        for url in sorted({strip_fragment(r["url"]) for r in refs or [] if r.get("url")}):
+        by_hand = {strip_fragment(r["url"]) for r in refs or [] if r.get("url") and r.get("checked") == "by hand"}
+        for url in sorted({strip_fragment(r["url"]) for r in refs or [] if r.get("url")} - by_hand):
             try:
                 source_words = words(page_text(url))
             except Exception as e:  # a source being down never blocks the PR
@@ -155,6 +160,8 @@ def main():
         if matches:
             out.append("  - Rewrite these in your own words, or quote them with the citation next to them.")
         out += [f"  - couldn't check {u}" for u in unreachable]
+        if by_hand:
+            out.append(f"  - {len(by_hand)} source{'s' if len(by_hand) > 1 else ''} marked as compared by hand")
         failed |= bool(matches)
         out.append("")
     report = "\n".join(out)

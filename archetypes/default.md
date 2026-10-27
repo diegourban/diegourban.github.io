@@ -13,5 +13,6 @@ ai_disclosure: ""
 #     venue: "Delivered in JDK 12"   # optional
 #     year: 2019                     # optional
 #     url: "https://openjdk.org/jeps/341"
+#     checked: "by hand"             # optional: you compared it yourself because scripts can't read it
 references: []
 ---

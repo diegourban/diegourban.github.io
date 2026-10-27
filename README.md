@@ -85,13 +85,13 @@ python3 make_charts.py   # charts.json
   | Check | Script | Result |
   |---|---|---|
   | References list complete, every external link cited, AI-generated posts cite something | `scripts/check_posts.py` | fails |
-  | No run of 8+ words copied from a cited source (sources that can't be fetched are listed, not failed) | `scripts/check_posts.py` | fails |
+  | No run of 8+ words copied from a cited source (sources that can't be fetched are listed, not failed; references with `checked: "by hand"` are skipped) | `scripts/check_posts.py` | fails |
   | Links resolve ([lychee](https://github.com/lycheeverse/lychee)) | — | warns |
   | Wording not found elsewhere on the web (12 exact-phrase searches on [Tavily](https://tavily.com), free tier) | `scripts/check_web_copies.py` | warns; skipped without the `TAVILY_API_KEY` repository secret |
 
   Run the first two locally with `python3 scripts/check_posts.py content/posts/<slug>/index.md`.
 
-**Before publishing a post:** the post checks are green, any web-search hit is explained, and papers the overlap check couldn't fetch (journals block bots) were compared by hand. For a second opinion, paste the post into [Quetext](https://www.quetext.com/) in two parts of up to 1,000 words.
+**Before publishing a post:** the post checks are green, any web-search hit is explained, and every source the overlap check couldn't fetch (journals block bots) was compared by hand and marked `checked: "by hand"` in its reference. For a second opinion, paste the post into [Quetext](https://www.quetext.com/) in two parts of up to 1,000 words.
 
 ## Publishing
 

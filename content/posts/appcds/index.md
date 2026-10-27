@@ -62,16 +62,19 @@ references:
     venue: "Biometrics Bulletin 1(6), 80–83"
     year: 1945
     url: "https://doi.org/10.2307/3001968"
+    checked: "by hand"
   - author: "Hodges, J. L. and Lehmann, E. L."
     title: "Estimates of Location Based on Rank Tests"
     venue: "The Annals of Mathematical Statistics 34(2), 598–611"
     year: 1963
     url: "https://doi.org/10.1214/aoms/1177704172"
+    checked: "by hand"
   - author: "Efron, B."
     title: "Bootstrap Methods: Another Look at the Jackknife"
     venue: "The Annals of Statistics 7(1), 1–26"
     year: 1979
     url: "https://doi.org/10.1214/aos/1176344552"
+    checked: "by hand"
 ---
 
 If you train a class-data archive for your own Spring Boot app, startup gets 0.8 to 1 second faster. I measured 784 to 828 ms on a small app across four garbage collectors, and 1,001 ms on a heavier one with Postgres, Flyway and 80 JPA entities. You pay for it with one training run in the image build and an archive of 87 to 104 MB.
