@@ -71,7 +71,8 @@ jobs:
             cat web.md 2>/dev/null
             echo
             echo "## Links (warning only)"
-            cat links.md 2>/dev/null || echo "Link check didn't run."
+            # lychee's report starts at "# Summary"; nest its headings under this section.
+            sed 's/^#/###/' links.md 2>/dev/null || echo "Link check didn't run."
             echo
             echo "_Optional second opinion: paste the post into [Quetext](https://www.quetext.com/) in two parts of up to 1,000 words._"
           } > summary.md
