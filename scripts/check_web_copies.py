@@ -40,11 +40,23 @@ def phrase(sentence):
     return " ".join(w[start:start + PHRASE_WORDS])
 
 
+def normalise(text):
+    return " ".join(re.sub(r"[^\w\s]", " ", text.lower().replace("’", "'").replace("'", "")).split())
+
+
 def search(key, text):
-    body = json.dumps({"query": f'"{text}"', "exact_match": True, "max_results": 5, "search_depth": "basic"}).encode()
+    """URLs whose page text really contains the phrase, and how many results were dropped.
+    Tavily's exact_match still returns topically related pages, so every result is checked against its own text
+    (include_raw_content costs no extra credits; only search_depth does)."""
+    body = json.dumps({"query": f'"{text}"', "exact_match": True, "max_results": 5, "search_depth": "basic",
+                       "include_raw_content": "text"}).encode()
     req = urllib.request.Request(API, data=body, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return [x["url"] for x in json.load(r).get("results", [])]
+    with urllib.request.urlopen(req, timeout=60) as r:
+        results = json.load(r).get("results", [])
+    wanted = normalise(text)
+    found = [x["url"] for x in results
+             if wanted in normalise((x.get("raw_content") or "") + " " + (x.get("content") or ""))]
+    return found, len(results) - len(found)
 
 
 def main():
@@ -59,18 +71,22 @@ def main():
     for path in args.files if key else []:
         fm, body = split_post(path)
         cited = {urlparse(r["url"]).netloc for r in parse_references(fm) or [] if r.get("url")}
-        hits, errors, picked = [], [], sentences(body)
+        hits, errors, dropped, own, picked = [], [], 0, 0, sentences(body)
         for s in picked:
             p = phrase(s)
             try:
-                urls = search(key, p)
+                urls, n = search(key, p)
             except Exception as e:
                 errors.append(f"{type(e).__name__}: {e}"[:120])
                 continue
+            dropped += n
+            own += any(is_own(u) for u in urls)
             hits += [f'"{p}" → {u}' for u in urls if not is_own(u) and urlparse(u).netloc not in cited]
         out.append(f"### `{path}`")
         out.append(f"- Searched {len(picked) - len(errors)} of {len(picked)} phrases: "
-                   + ("**found elsewhere, check these**" if hits else "nothing found elsewhere"))
+                   + ("**found elsewhere, check these**" if hits else "nothing found elsewhere")
+                   + f" ({dropped} related pages without the exact wording ignored; {own} phrases found on this site,"
+                   " which shows the search works once a post is live)")
         out += [f"  - {h}" for h in hits]
         out += [f"  - search error: {e}" for e in errors[:3]]
         out.append("")
