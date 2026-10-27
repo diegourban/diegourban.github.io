@@ -48,15 +48,21 @@ def sample(cname, port):
 
 def run(name):
     image, app, flags = VARIANTS[name]
-    port = random.randint(20000, 40000)
-    cname = f"aotbench-{name}-{port}"
     jar = c.SMALL_JAR if app == "small" else c.HEAVY_JAR
     net = ["--network", c.NETWORK] if app == "heavy" else []
     if app == "heavy":
         c.postgres_reset()
-    t0 = time.monotonic()
-    c.sh("docker", "run", "-d", "--name", cname, *c.LIMITS, *net, "-p", f"{port}:8080", "--entrypoint", "java",
-         image, *flags, "-jar", jar)
+    for attempt in range(3):  # docker exits 125 when it can't create the container, e.g. the random port is taken
+        port = random.randint(20000, 40000)
+        cname = f"aotbench-{name}-{port}"
+        t0 = time.monotonic()
+        p = c.subprocess.run(["docker", "run", "-d", "--name", cname, *c.LIMITS, *net, "-p", f"{port}:8080",
+                              "--entrypoint", "java", image, *flags, "-jar", jar], capture_output=True, text=True)
+        if p.returncode == 0:
+            break
+        c.sh("docker", "rm", "-f", cname, check=False)
+    else:
+        raise RuntimeError(f"docker run failed 3 times: {p.stderr.strip()[:300]}")
     try:
         if c.wait_ready(port, 180) is None:
             raise RuntimeError(f"{name}: not ready\n" + c.sh("docker", "logs", cname)[-2000:])
