@@ -1,6 +1,6 @@
 {{- /* References for a post, from front matter `references` (a list of author, title, venue, year, url).
   Rendered after the content as "Author. *Title*. Venue, year. URL"; venue and year are optional.
-  The build fails on an entry without author, title or url. scripts/check_posts.py checks the rest. */ -}}
+  The build fails on an entry without author, title or url. */ -}}
 {{- with .Params.references }}
 {{- range $i, $r := . }}
   {{- range slice "author" "title" "url" }}
