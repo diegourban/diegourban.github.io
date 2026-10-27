@@ -48,16 +48,19 @@ references:
     venue: "Biometrics Bulletin 1(6), 80–83"
     year: 1945
     url: "https://doi.org/10.2307/3001968"
+    checked: "by hand"
   - author: "Hodges, J. L. and Lehmann, E. L."
     title: "Estimates of Location Based on Rank Tests"
     venue: "The Annals of Mathematical Statistics 34(2), 598–611"
     year: 1963
     url: "https://doi.org/10.1214/aoms/1177704172"
+    checked: "by hand"
   - author: "Efron, B."
     title: "Bootstrap Methods: Another Look at the Jackknife"
     venue: "The Annals of Statistics 7(1), 1–26"
     year: 1979
     url: "https://doi.org/10.1214/aos/1176344552"
+    checked: "by hand"
 ---
 
 Deleting a leftover `-Xshare:off` from our JVM flags made startup only slightly faster. It also showed why: default CDS saves a fixed few tens of milliseconds of JVM startup, and your startup time is mostly your own classes.
