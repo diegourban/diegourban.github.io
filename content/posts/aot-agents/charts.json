@@ -1,0 +1,716 @@
+{
+ "generated_by": "benchmarks/aot-agents/make_charts.py",
+ "seed": 20261027,
+ "startup": {
+  "rows": [
+   {
+    "setup": "AOT cache, no agent",
+    "diffs": [
+     {
+      "v": -1049.0,
+      "label": "−1,049"
+     },
+     {
+      "v": -891.0,
+      "label": "−891"
+     },
+     {
+      "v": -1125.0,
+      "label": "−1,125"
+     },
+     {
+      "v": -1016.0,
+      "label": "−1,016"
+     },
+     {
+      "v": -1033.0,
+      "label": "−1,033"
+     },
+     {
+      "v": -1037.0,
+      "label": "−1,037"
+     },
+     {
+      "v": -1042.0,
+      "label": "−1,042"
+     },
+     {
+      "v": -1062.0,
+      "label": "−1,062"
+     },
+     {
+      "v": -1016.0,
+      "label": "−1,016"
+     },
+     {
+      "v": -988.0,
+      "label": "−988"
+     }
+    ],
+    "shift": {
+     "v": -1033.0,
+     "label": "−1,033"
+    },
+    "ci": {
+     "lo": -1057.0,
+     "hi": -988.0,
+     "label": "−1,057 to −988"
+    },
+    "faster": 10,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "AppCDS, no agent",
+    "diffs": [
+     {
+      "v": -812.0,
+      "label": "−812"
+     },
+     {
+      "v": -779.0,
+      "label": "−779"
+     },
+     {
+      "v": -846.0,
+      "label": "−846"
+     },
+     {
+      "v": -801.0,
+      "label": "−801"
+     },
+     {
+      "v": -822.0,
+      "label": "−822"
+     },
+     {
+      "v": -800.0,
+      "label": "−800"
+     },
+     {
+      "v": -811.0,
+      "label": "−811"
+     },
+     {
+      "v": -828.0,
+      "label": "−828"
+     },
+     {
+      "v": -730.0,
+      "label": "−730"
+     },
+     {
+      "v": -681.0,
+      "label": "−681"
+     }
+    ],
+    "shift": {
+     "v": -801.0,
+     "label": "−801"
+    },
+    "ci": {
+     "lo": -820.0,
+     "hi": -755.0,
+     "label": "−820 to −755"
+    },
+    "faster": 10,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "Agent, default CDS",
+    "diffs": [
+     {
+      "v": 1701.0,
+      "label": "+1,701"
+     },
+     {
+      "v": 1537.0,
+      "label": "+1,537"
+     },
+     {
+      "v": 1639.0,
+      "label": "+1,639"
+     },
+     {
+      "v": 1530.0,
+      "label": "+1,530"
+     },
+     {
+      "v": 1502.0,
+      "label": "+1,502"
+     },
+     {
+      "v": 1434.0,
+      "label": "+1,434"
+     },
+     {
+      "v": 1604.0,
+      "label": "+1,604"
+     },
+     {
+      "v": 1634.0,
+      "label": "+1,634"
+     },
+     {
+      "v": 1446.0,
+      "label": "+1,446"
+     },
+     {
+      "v": 1558.0,
+      "label": "+1,558"
+     }
+    ],
+    "shift": {
+     "v": 1558.0,
+     "label": "+1,558"
+    },
+    "ci": {
+     "lo": 1502.0,
+     "hi": 1619.0,
+     "label": "+1,502 to +1,619"
+    },
+    "faster": 0,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "Agent, AppCDS trained with it",
+    "diffs": [
+     {
+      "v": 1397.0,
+      "label": "+1,397"
+     },
+     {
+      "v": 1730.0,
+      "label": "+1,730"
+     },
+     {
+      "v": 1197.0,
+      "label": "+1,197"
+     },
+     {
+      "v": 1285.0,
+      "label": "+1,285"
+     },
+     {
+      "v": 1311.0,
+      "label": "+1,311"
+     },
+     {
+      "v": 1302.0,
+      "label": "+1,302"
+     },
+     {
+      "v": 1186.0,
+      "label": "+1,186"
+     },
+     {
+      "v": 1368.0,
+      "label": "+1,368"
+     },
+     {
+      "v": 1344.0,
+      "label": "+1,344"
+     },
+     {
+      "v": 1341.0,
+      "label": "+1,341"
+     }
+    ],
+    "shift": {
+     "v": 1326.0,
+     "label": "+1,326"
+    },
+    "ci": {
+     "lo": 1265.0,
+     "hi": 1397.0,
+     "label": "+1,265 to +1,397"
+    },
+    "faster": 0,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "Agent, AppCDS trained without it",
+    "diffs": [
+     {
+      "v": 1604.0,
+      "label": "+1,604"
+     },
+     {
+      "v": 1423.0,
+      "label": "+1,423"
+     },
+     {
+      "v": 1312.0,
+      "label": "+1,312"
+     },
+     {
+      "v": 1381.0,
+      "label": "+1,381"
+     },
+     {
+      "v": 1390.0,
+      "label": "+1,390"
+     },
+     {
+      "v": 1289.0,
+      "label": "+1,289"
+     },
+     {
+      "v": 1332.0,
+      "label": "+1,332"
+     },
+     {
+      "v": 1335.0,
+      "label": "+1,335"
+     },
+     {
+      "v": 1514.0,
+      "label": "+1,514"
+     },
+     {
+      "v": 1423.0,
+      "label": "+1,423"
+     }
+    ],
+    "shift": {
+     "v": 1386.0,
+     "label": "+1,386"
+    },
+    "ci": {
+     "lo": 1335.0,
+     "hi": 1468.0,
+     "label": "+1,335 to +1,468"
+    },
+    "faster": 0,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "Agent, AppCDS, flag missing at runtime",
+    "diffs": [
+     {
+      "v": 1561.0,
+      "label": "+1,561"
+     },
+     {
+      "v": 1837.0,
+      "label": "+1,837"
+     },
+     {
+      "v": 1593.0,
+      "label": "+1,593"
+     },
+     {
+      "v": 1524.0,
+      "label": "+1,524"
+     },
+     {
+      "v": 1445.0,
+      "label": "+1,445"
+     },
+     {
+      "v": 1491.0,
+      "label": "+1,491"
+     },
+     {
+      "v": 1541.0,
+      "label": "+1,541"
+     },
+     {
+      "v": 1622.0,
+      "label": "+1,622"
+     },
+     {
+      "v": 1527.0,
+      "label": "+1,527"
+     },
+     {
+      "v": 1761.0,
+      "label": "+1,761"
+     }
+    ],
+    "shift": {
+     "v": 1567.0,
+     "label": "+1,567"
+    },
+    "ci": {
+     "lo": 1519.0,
+     "hi": 1677.0,
+     "label": "+1,519 to +1,677"
+    },
+    "faster": 0,
+    "n": 10,
+    "p": "0.002"
+   },
+   {
+    "setup": "Agent, AOT cache trained without it",
+    "diffs": [
+     {
+      "v": 1429.0,
+      "label": "+1,429"
+     },
+     {
+      "v": 1535.0,
+      "label": "+1,535"
+     },
+     {
+      "v": 1304.0,
+      "label": "+1,304"
+     },
+     {
+      "v": 1671.0,
+      "label": "+1,671"
+     },
+     {
+      "v": 1382.0,
+      "label": "+1,382"
+     },
+     {
+      "v": 1445.0,
+      "label": "+1,445"
+     },
+     {
+      "v": 1518.0,
+      "label": "+1,518"
+     },
+     {
+      "v": 1354.0,
+      "label": "+1,354"
+     },
+     {
+      "v": 1395.0,
+      "label": "+1,395"
+     },
+     {
+      "v": 1614.0,
+      "label": "+1,614"
+     }
+    ],
+    "shift": {
+     "v": 1459.0,
+     "label": "+1,459"
+    },
+    "ci": {
+     "lo": 1389.0,
+     "hi": 1533.0,
+     "label": "+1,389 to +1,533"
+    },
+    "faster": 0,
+    "n": 10,
+    "p": "0.002"
+   }
+  ],
+  "axis": {
+   "min": -1200,
+   "max": 1800,
+   "step": 600
+  },
+  "titles": {
+   "title": "Startup against no agent and default CDS",
+   "sub": [
+    "Small app, G1, JDK 25. Each dot is one round. Left of 0 is faster.",
+    "Bar: 95% CI · tick: Hodges-Lehmann estimate"
+   ]
+  }
+ },
+ "table": {
+  "headers": [
+   "Setup",
+   "Startup (median)",
+   "Classes from the archive",
+   "vs agent with default CDS (95% CI)"
+  ],
+  "rows": [
+   [
+    "No agent, default CDS",
+    "1.92 s",
+    "1,438 of 15,317",
+    ""
+   ],
+   [
+    "AOT cache, no agent",
+    "0.88 s",
+    "17,162 of 17,593",
+    ""
+   ],
+   [
+    "AppCDS, no agent",
+    "1.13 s",
+    "14,693 of 15,139",
+    ""
+   ],
+   [
+    "Agent, default CDS",
+    "3.45 s",
+    "1,453 of 19,132",
+    ""
+   ],
+   [
+    "Agent, AppCDS trained with it",
+    "3.22 s",
+    "5,111 of 18,918",
+    "−229 ms (−318 to −113)"
+   ],
+   [
+    "Agent, AppCDS trained without it",
+    "3.28 s",
+    "2,573 of 18,941",
+    "−142 ms (−222 to −106)"
+   ],
+   [
+    "Agent, AppCDS, flag missing at runtime",
+    "3.49 s",
+    "1,453 of 19,136",
+    "+12 ms (−55 to +122)"
+   ],
+   [
+    "Agent, AOT cache trained without it",
+    "3.36 s",
+    "0 of 19,124",
+    "−86 ms (−196 to +11)"
+   ],
+   [
+    "Agent, AOT cache trained with it",
+    "no cache",
+    "0 of 15 trainings wrote one",
+    ""
+   ]
+  ]
+ },
+ "vs_agent": {
+  "otel_appcds_g1": {
+   "setup": "Agent, AppCDS trained with it",
+   "diffs": [
+    {
+     "v": -304.0,
+     "label": "−304"
+    },
+    {
+     "v": 193.0,
+     "label": "+193"
+    },
+    {
+     "v": -442.0,
+     "label": "−442"
+    },
+    {
+     "v": -245.0,
+     "label": "−245"
+    },
+    {
+     "v": -191.0,
+     "label": "−191"
+    },
+    {
+     "v": -132.0,
+     "label": "−132"
+    },
+    {
+     "v": -418.0,
+     "label": "−418"
+    },
+    {
+     "v": -266.0,
+     "label": "−266"
+    },
+    {
+     "v": -102.0,
+     "label": "−102"
+    },
+    {
+     "v": -217.0,
+     "label": "−217"
+    }
+   ],
+   "shift": {
+    "v": -229.0,
+    "label": "−229"
+   },
+   "ci": {
+    "lo": -318.0,
+    "hi": -113.0,
+    "label": "−318 to −113"
+   },
+   "faster": 9,
+   "n": 10,
+   "p": "0.014"
+  },
+  "otel_appcds_untrained_g1": {
+   "setup": "Agent, AppCDS trained without it",
+   "diffs": [
+    {
+     "v": -97.0,
+     "label": "−97"
+    },
+    {
+     "v": -114.0,
+     "label": "−114"
+    },
+    {
+     "v": -327.0,
+     "label": "−327"
+    },
+    {
+     "v": -149.0,
+     "label": "−149"
+    },
+    {
+     "v": -112.0,
+     "label": "−112"
+    },
+    {
+     "v": -145.0,
+     "label": "−145"
+    },
+    {
+     "v": -272.0,
+     "label": "−272"
+    },
+    {
+     "v": -299.0,
+     "label": "−299"
+    },
+    {
+     "v": 68.0,
+     "label": "+68"
+    },
+    {
+     "v": -135.0,
+     "label": "−135"
+    }
+   ],
+   "shift": {
+    "v": -142.0,
+    "label": "−142"
+   },
+   "ci": {
+    "lo": -222.0,
+    "hi": -106.0,
+    "label": "−222 to −106"
+   },
+   "faster": 9,
+   "n": 10,
+   "p": "0.004"
+  },
+  "otel_appcds_noflag_g1": {
+   "setup": "Agent, AppCDS, flag missing at runtime",
+   "diffs": [
+    {
+     "v": -140.0,
+     "label": "−140"
+    },
+    {
+     "v": 300.0,
+     "label": "+300"
+    },
+    {
+     "v": -46.0,
+     "label": "−46"
+    },
+    {
+     "v": -6.0,
+     "label": "−6"
+    },
+    {
+     "v": -57.0,
+     "label": "−57"
+    },
+    {
+     "v": 57.0,
+     "label": "+57"
+    },
+    {
+     "v": -63.0,
+     "label": "−63"
+    },
+    {
+     "v": -12.0,
+     "label": "−12"
+    },
+    {
+     "v": 81.0,
+     "label": "+81"
+    },
+    {
+     "v": 203.0,
+     "label": "+203"
+    }
+   ],
+   "shift": {
+    "v": 12.0,
+    "label": "+12"
+   },
+   "ci": {
+    "lo": -55.0,
+    "hi": 122.0,
+    "label": "−55 to +122"
+   },
+   "faster": 6,
+   "n": 10,
+   "p": "0.791"
+  },
+  "otel_aot_untrained_g1": {
+   "setup": "Agent, AOT cache trained without it",
+   "diffs": [
+    {
+     "v": -272.0,
+     "label": "−272"
+    },
+    {
+     "v": -2.0,
+     "label": "−2"
+    },
+    {
+     "v": -335.0,
+     "label": "−335"
+    },
+    {
+     "v": 141.0,
+     "label": "+141"
+    },
+    {
+     "v": -120.0,
+     "label": "−120"
+    },
+    {
+     "v": 11.0,
+     "label": "+11"
+    },
+    {
+     "v": -86.0,
+     "label": "−86"
+    },
+    {
+     "v": -280.0,
+     "label": "−280"
+    },
+    {
+     "v": -51.0,
+     "label": "−51"
+    },
+    {
+     "v": 56.0,
+     "label": "+56"
+    }
+   ],
+   "shift": {
+    "v": -86.0,
+    "label": "−86"
+   },
+   "ci": {
+    "lo": -196.0,
+    "hi": 11.0,
+    "label": "−196 to +11"
+   },
+   "faster": 7,
+   "n": 10,
+   "p": "0.160"
+  }
+ },
+ "aria": {
+  "startup": "The OpenTelemetry agent added about 1.6 s of startup. Without the agent the AOT cache saved about 1 s and AppCDS 0.8 s; with it, the best archive saved about 0.2 s."
+ }
+}
