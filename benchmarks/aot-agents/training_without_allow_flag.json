@@ -1,0 +1,19 @@
+{
+ "appcds": {
+  "exit_code": 1,
+  "lines": [
+   "Error occurred during CDS dumping",
+   "Must enable AllowArchivingWithJavaAgent in order to run Java agent during CDS dumping"
+  ]
+ },
+ "aot": {
+  "exit_code": 0,
+  "lines": [
+   "[0.425s][warning][aot] Skipping java/net/InetAddress: From ClassFileLoadHook",
+   "[0.461s][warning][aot] Skipping java/util/concurrent/CompletableFuture: From ClassFileLoadHook",
+   "[0.505s][warning][aot] Skipping java/lang/ApplicationShutdownHooks$1: From ClassFileLoadHook",
+   "[0.898s][warning][aot] Skipping java/util/concurrent/CompletableFuture$Completion: From ClassFileLoadHook",
+   "[0.901s][warning][aot] Skipping java/util/concurrent/CompletableFuture$UniCompletion: From ClassFileLoadHook"
+  ]
+ }
+}
