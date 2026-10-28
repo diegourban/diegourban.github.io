@@ -16,6 +16,7 @@ PAIRS = [
     ("otel_appcds_untrained_g1", "otel_cds_g1"),    # archive trained without the agent
     ("otel_aot_untrained_g1", "otel_cds_g1"),       # post 3's trap
     ("aot_g1", "cds_g1"),
+    ("otel_appcds_g1", "otel_appcds_untrained_g1"),  # the two AppCDS archives head to head (added after the review)
 ]
 
 
