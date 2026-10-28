@@ -30,6 +30,15 @@ def main():
     startup = lambda r: r["process"] * 1000
     rows = [base.paired_row(by, v, "cds_g1", startup, label, rng) for v, label in LABELS.items()]
     vs_agent = {v: base.paired_row(by, v, "otel_cds_g1", startup, LABELS[v], rng) for v in LABELS if v.startswith("otel_") and v != "otel_cds_g1"}
+    # The bootstrap draws above run in a different order than analyze.py's, so the CI edges can differ by a few ms.
+    # Where analysis.json has the same pair, take its CI so the post, the table and the chart quote one number.
+    ci = {(p["a"], p["b"]): p["ci"] for p in json.load(open(os.path.join(HERE, "analysis.json")))["pairs"] if p["metric"] == "process_s"}
+    for b, row in [("cds_g1", r) for r in rows] + [("otel_cds_g1", r) for r in vs_agent.values()]:
+        v = next(k for k, label in LABELS.items() if label == row["setup"])
+        if (v, b) in ci:
+            lo, hi = (x * 1000 for x in ci[(v, b)])
+            row["ci"] = {"lo": float(base.rnd(lo)), "hi": float(base.rnd(hi)),
+                         "label": f"{base.fmt(lo, sign=True)} to {base.fmt(hi, sign=True)}"}
     med = lambda v: st.median(r["process"] for r in by[v].values())
     table = []
     for v in ["cds_g1", *LABELS]:
