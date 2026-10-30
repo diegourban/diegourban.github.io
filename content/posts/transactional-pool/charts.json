@@ -1,0 +1,583 @@
+{
+ "generated_by": "benchmarks/tx-pool/make_charts.py",
+ "failures": {
+  "title": "Failed requests as the arrival rate rises",
+  "sub": [
+   "Pool of 10, 2 s timeout, 300 ms downstream call. Median of 3 rounds.",
+   "Each run stopped after three failing steps in a row."
+  ],
+  "x": {
+   "label": "Requests per second",
+   "scale": "linear",
+   "min": 0,
+   "max": 300,
+   "ticks": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ]
+  },
+  "y": {
+   "label": "% failed",
+   "min": 0,
+   "max": 40,
+   "ticks": [
+    0,
+    10,
+    20,
+    30,
+    40
+   ],
+   "unit": "%"
+  },
+  "series": [
+   {
+    "name": "Eager, 90% downstream",
+    "short": "Eager 90%",
+    "cls": "s1",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      4.0
+     ],
+     [
+      50,
+      23.5
+     ],
+     [
+      60,
+      35.9
+     ]
+    ]
+   },
+   {
+    "name": "Eager, 50% downstream",
+    "short": "Eager 50%",
+    "cls": "s2",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      2.8
+     ],
+     [
+      80,
+      16.8
+     ],
+     [
+      90,
+      27.9
+     ]
+    ]
+   },
+   {
+    "name": "Eager, 10% downstream",
+    "short": "Eager 10%",
+    "cls": "s3",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      0.0
+     ],
+     [
+      80,
+      0.0
+     ],
+     [
+      90,
+      0.0
+     ],
+     [
+      100,
+      0.0
+     ],
+     [
+      125,
+      0.0
+     ],
+     [
+      150,
+      0.0
+     ],
+     [
+      200,
+      0.0
+     ],
+     [
+      250,
+      0.0
+     ],
+     [
+      300,
+      0.0
+     ]
+    ]
+   },
+   {
+    "name": "Lazy or narrowed, any share",
+    "short": "Lazy/narrowed",
+    "cls": "rest",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      0.0
+     ],
+     [
+      80,
+      0.0
+     ],
+     [
+      90,
+      0.0
+     ],
+     [
+      100,
+      0.0
+     ],
+     [
+      125,
+      0.0
+     ],
+     [
+      150,
+      0.0
+     ],
+     [
+      200,
+      0.0
+     ],
+     [
+      250,
+      0.0
+     ],
+     [
+      300,
+      0.0
+     ]
+    ]
+   }
+  ]
+ },
+ "latency": {
+  "title": "Database requests wait for a connection",
+  "sub": [
+   "p95 of the database-path requests, 50% downstream. Median of 3 rounds.",
+   "Eager leaves the chart at 70 req/s: from there it is the 2 s pool timeout."
+  ],
+  "x": {
+   "label": "Requests per second",
+   "scale": "linear",
+   "min": 0,
+   "max": 300,
+   "ticks": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ]
+  },
+  "y": {
+   "label": "p95 (ms)",
+   "min": 0,
+   "max": 80,
+   "ticks": [
+    0,
+    20,
+    40,
+    60,
+    80
+   ],
+   "unit": "ms"
+  },
+  "series": [
+   {
+    "name": "Eager (default)",
+    "short": "Eager",
+    "cls": "s1",
+    "points": [
+     [
+      10,
+      15.5
+     ],
+     [
+      20,
+      12.1
+     ],
+     [
+      30,
+      10.6
+     ],
+     [
+      40,
+      8.8
+     ],
+     [
+      50,
+      14.1
+     ],
+     [
+      60,
+      64.5
+     ],
+     [
+      70,
+      1995.0
+     ],
+     [
+      80,
+      2008.2
+     ],
+     [
+      90,
+      2010.0
+     ]
+    ]
+   },
+   {
+    "name": "Lazy (connection-fetch=lazy)",
+    "short": "Lazy",
+    "cls": "s2",
+    "points": [
+     [
+      10,
+      15.8
+     ],
+     [
+      20,
+      12.0
+     ],
+     [
+      30,
+      9.9
+     ],
+     [
+      40,
+      8.5
+     ],
+     [
+      50,
+      7.6
+     ],
+     [
+      60,
+      6.7
+     ],
+     [
+      70,
+      6.1
+     ],
+     [
+      80,
+      6.0
+     ],
+     [
+      90,
+      5.6
+     ],
+     [
+      100,
+      5.1
+     ],
+     [
+      125,
+      4.9
+     ],
+     [
+      150,
+      5.1
+     ],
+     [
+      200,
+      5.4
+     ],
+     [
+      250,
+      5.9
+     ],
+     [
+      300,
+      5.4
+     ]
+    ]
+   },
+   {
+    "name": "Narrowed transaction",
+    "short": "Narrowed",
+    "cls": "s3",
+    "dash": true,
+    "points": [
+     [
+      10,
+      16.1
+     ],
+     [
+      20,
+      12.0
+     ],
+     [
+      30,
+      10.0
+     ],
+     [
+      40,
+      8.9
+     ],
+     [
+      50,
+      8.1
+     ],
+     [
+      60,
+      6.8
+     ],
+     [
+      70,
+      6.4
+     ],
+     [
+      80,
+      6.2
+     ],
+     [
+      90,
+      6.1
+     ],
+     [
+      100,
+      5.3
+     ],
+     [
+      125,
+      5.2
+     ],
+     [
+      150,
+      4.9
+     ],
+     [
+      200,
+      5.0
+     ],
+     [
+      250,
+      5.3
+     ],
+     [
+      300,
+      5.5
+     ]
+    ]
+   }
+  ]
+ },
+ "table": {
+  "headers": [
+   "First failing step (tested up to 300 req/s)",
+   "90% downstream",
+   "50% downstream",
+   "10% downstream"
+  ],
+  "rows": [
+   [
+    "Eager (default)",
+    "40 req/s",
+    "70 req/s",
+    "none"
+   ],
+   [
+    "Lazy (connection-fetch=lazy)",
+    "none",
+    "none",
+    "none"
+   ],
+   [
+    "Narrowed transaction",
+    "none",
+    "none",
+    "none"
+   ]
+  ]
+ },
+ "checks": {
+  "headers": [
+   "Method (connections held during the call)",
+   "Eager",
+   "Lazy",
+   "Eager + OSIV",
+   "Lazy + OSIV"
+  ],
+  "rows": [
+   [
+    "No query: @Transactional",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: @Transactional(readOnly = true)",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: same, with the JDBC transaction manager",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: NOT_SUPPORTED, NEVER, SUPPORTS or no annotation",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   [
+    "@Transactional, the call, then a query",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "@Transactional, a query, then the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "SUPPORTS or NOT_SUPPORTED, an EntityManager query, then the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "No annotation, an EntityManager query, then the call",
+    "0",
+    "0",
+    "1",
+    "1"
+   ],
+   [
+    "No transaction, a Spring Data repository call, then the call",
+    "0",
+    "0",
+    "1",
+    "1"
+   ],
+   [
+    "Outer @Transactional queried, inner NOT_SUPPORTED makes the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "Outer @Transactional queried, inner REQUIRES_NEW queries and makes the call",
+    "2",
+    "2",
+    "2",
+    "2"
+   ]
+  ]
+ },
+ "aria": {
+  "failures": "With eager connection fetching, requests started failing at 40 req/s with 90% of them calling the slow service, and at 70 req/s with 50%. With 10% no step failed up to 300 req/s. With lazy fetching or a narrowed transaction, no request failed at any rate or share.",
+  "latency": "At 50% downstream, the database requests' p95 stayed at or below about 16 ms for lazy and narrowed at every rate. With eager fetching it rose to 64 ms at 60 req/s and to about 2,000 ms, the pool timeout, at 70 req/s."
+ }
+}
