@@ -45,10 +45,11 @@ def get(path, timeout=5):
         return json.loads(r.read())
 
 
-def start_app(fetch="eager", osiv=False):
+def start_app(fetch="eager", osiv=False, env=None):
     rm("app")
+    extra = [x for k, v in (env or {}).items() for x in ("-e", f"{k}={v}")]
     sh("docker", "run", "-d", "--name", "app", "--network", NET, "--cpus=2", "-m", "1g", "-p", f"{APP_PORT}:8080",
-       "-e", f"SPRING_DATASOURCE_CONNECTION_FETCH={fetch}", "-e", f"SPRING_JPA_OPEN_IN_VIEW={str(osiv).lower()}", APP_IMAGE)
+       "-e", f"SPRING_DATASOURCE_CONNECTION_FETCH={fetch}", "-e", f"SPRING_JPA_OPEN_IN_VIEW={str(osiv).lower()}", *extra, APP_IMAGE)
     t0 = time.monotonic()
     while time.monotonic() - t0 < 120:
         try:

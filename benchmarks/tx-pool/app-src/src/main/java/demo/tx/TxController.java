@@ -16,6 +16,8 @@ public class TxController {
 
 	private final NarrowedService narrowed;
 
+	private final Checks c;
+
 	private final Map<String, IntSupplier> checks;
 
 	TxController(MixedService mixed, NarrowedService narrowed, Checks c) {
@@ -28,7 +30,32 @@ public class TxController {
 				Map.entry("supportsQueryThenCall", c::supportsQueryThenCall),
 				Map.entry("notSupportedQueryThenCall", c::notSupportedQueryThenCall),
 				Map.entry("noneQueryThenCall", c::noneQueryThenCall), Map.entry("suspended", c::suspended),
-				Map.entry("jdbcRequired", c::jdbcRequired), Map.entry("jdbcReadOnly", c::jdbcReadOnly));
+				Map.entry("jdbcRequired", c::jdbcRequired), Map.entry("jdbcReadOnly", c::jdbcReadOnly),
+				Map.entry("emSupportsQueryThenCall", c::emSupportsQueryThenCall),
+				Map.entry("emNotSupportedQueryThenCall", c::emNotSupportedQueryThenCall),
+				Map.entry("emNoneQueryThenCall", c::emNoneQueryThenCall),
+				Map.entry("requiresNewInsideQueried", c::requiresNewInsideQueried));
+		this.c = c;
+	}
+
+	@GetMapping("/hold")
+	int hold(@RequestParam long ms) {
+		return c.hold(ms);
+	}
+
+	/** Runs callThenSave and reports where it failed: before or after the downstream call. */
+	@GetMapping("/callThenSave")
+	Map<String, Object> callThenSave() {
+		int before = c.downstreamCalls();
+		String outcome;
+		try {
+			c.callThenSave();
+			outcome = "ok";
+		}
+		catch (RuntimeException ex) {
+			outcome = ex.getClass().getSimpleName();
+		}
+		return Map.of("outcome", outcome, "downstreamCalled", c.downstreamCalls() > before);
 	}
 
 	@PostMapping("/mixed")

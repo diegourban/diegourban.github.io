@@ -69,6 +69,26 @@
    1,
    1,
    1
+  ],
+  "emSupportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNotSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNoneQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "requiresNewInsideQueried": [
+   2,
+   2,
+   2
   ]
  },
  "eager_osiv": {
@@ -141,6 +161,26 @@
    1,
    1,
    1
+  ],
+  "emSupportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNotSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNoneQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "requiresNewInsideQueried": [
+   2,
+   2,
+   2
   ]
  },
  "lazy": {
@@ -213,6 +253,26 @@
    0,
    0,
    0
+  ],
+  "emSupportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNotSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNoneQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "requiresNewInsideQueried": [
+   2,
+   2,
+   2
   ]
  },
  "lazy_osiv": {
@@ -285,6 +345,34 @@
    0,
    0,
    0
+  ],
+  "emSupportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNotSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "emNoneQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "requiresNewInsideQueried": [
+   2,
+   2,
+   2
   ]
+ },
+ "contention_eager": {
+  "downstreamCalled": false,
+  "outcome": "CannotCreateTransactionException"
+ },
+ "contention_lazy": {
+  "downstreamCalled": true,
+  "outcome": "DataAccessResourceFailureException"
  }
 }
