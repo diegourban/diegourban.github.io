@@ -144,7 +144,7 @@ A `NOT_SUPPORTED` or `SUPPORTS` method that runs its own query keeps the connect
 
 A suspended transaction keeps its connection. An outer `@Transactional` method that had run a query and then called a `NOT_SUPPORTED` method still held its connection during that call, with lazy fetching too. With `REQUIRES_NEW` instead, the inner transaction took a second connection while the outer one kept its first, so one request held two. The [Spring documentation](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html) warns that this can exhaust the pool.
 
-Open session in view keeps one `EntityManager` open for the whole request, and Hibernate holds its connection from the first query until the response is written. With it on, every method that queried and then made the call held a connection, transaction or not. It's on by default for Spring Boot web apps, and Spring Boot logs a warning about it at startup.
+Open session in view keeps one `EntityManager` open for the whole request, and Hibernate holds its connection from the first query until the response is written. With it on, every method that queried and then made the call held a connection, transaction or not. It's [on by default](https://docs.spring.io/spring-boot/reference/data/sql.html) for Spring Boot web apps, and Spring Boot logs a warning about it at startup.
 
 ## What I'd do
 
@@ -160,7 +160,7 @@ The load test ran with open session in view off. With it on, the checks show the
 
 ## Method and data
 
-- The app, the WireMock stub, the k6 script and the drivers are in [`benchmarks/tx-pool`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/tx-pool). The app sets `spring.jpa.open-in-view=false`, the pool size and the timeout, and declares its own `JpaTransactionManager` next to a JDBC one for the checks.
+- The app, the WireMock stub, the k6 script and the drivers are in [`benchmarks/tx-pool`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/tx-pool). The app sets `spring.jpa.open-in-view=false`, the pool size and the timeout, and declares its own `JpaTransactionManager` next to a JDBC one for the checks. The open session in view default (`true`) and its startup warning are in the configuration metadata and classes of `spring-boot-jpa` 4.1.2.
 - `checks.py` runs the single-request checks, three repeats each, and the pool-of-1 contention check (`checks.json`). `bench.py` runs the load steps (`results.jsonl`).
 - Latency is k6's p95 per route and step. Every chart and table value is the median of the three rounds. The breakpoints were the same step in every round, while the failure rate at a failing step varied (2.6% to 4.2% at 50% and 70 req/s). A request counts as failed when it returns an error or k6 couldn't send it on time; none was dropped.
 - The pool figures are instantaneous samples from Actuator every half second, so short waits between samples aren't counted.
