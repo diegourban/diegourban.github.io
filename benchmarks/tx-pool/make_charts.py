@@ -52,22 +52,23 @@ def main():
     failures = {
         "title": "Failed requests as the arrival rate rises",
         "sub": ["Pool of 10, 2 s timeout, 300 ms downstream call. Median of 3 rounds.",
-                "Lazy and narrowed never failed, at any share."],
+                "Each run stopped after three failing steps in a row."],
         "x": X, "y": {"label": "% failed", "min": 0, "max": 40, "ticks": [0, 10, 20, 30, 40], "unit": "%"},
         "series": [
             {"name": "Eager, 90% downstream", "short": "Eager 90%", "cls": "s1", "points": series(by, "eager", 0.9, pct)},
             {"name": "Eager, 50% downstream", "short": "Eager 50%", "cls": "s2", "points": series(by, "eager", 0.5, pct)},
             {"name": "Eager, 10% downstream", "short": "Eager 10%", "cls": "s3", "points": series(by, "eager", 0.1, pct)},
-            {"name": "Lazy or narrowed, 90% downstream", "short": "Lazy/narrowed", "cls": "rest",
-             "points": [[a[0], max(a[1], b[1])] for a, b in zip(series(by, "lazy", 0.9, pct), series(by, "narrowed", 0.9, pct))]},
+            {"name": "Lazy or narrowed, any share", "short": "Lazy/narrowed", "cls": "rest",
+             "points": [[x, max(p[1] for s in ("lazy", "narrowed") for sh in (0.1, 0.5, 0.9)
+                                for p in series(by, s, sh, pct) if p[0] == x)] for x in RATES]},
         ],
     }
     p95 = lambda r: r["db"]["p(95)"]
     latency = {
         "title": "Database requests wait for a connection",
-        "sub": ["p95 of the requests that only write to the database, 50% downstream. Median of 3 rounds.",
-                "Eager hits the 2 s pool timeout at 70 req/s; the runs stop three steps after the first failure."],
-        "x": X, "y": {"label": "p95 (ms)", "min": 0, "max": 2100, "ticks": [0, 500, 1000, 1500, 2000], "unit": "ms"},
+        "sub": ["p95 of the database-path requests, 50% downstream. Median of 3 rounds.",
+                "Eager leaves the chart at 70 req/s: from there it is the 2 s pool timeout."],
+        "x": X, "y": {"label": "p95 (ms)", "min": 0, "max": 80, "ticks": [0, 20, 40, 60, 80], "unit": "ms"},
         "series": [
             {"name": "Eager (default)", "short": "Eager", "cls": "s1", "points": series(by, "eager", 0.5, p95)},
             {"name": "Lazy (connection-fetch=lazy)", "short": "Lazy", "cls": "s2", "points": series(by, "lazy", 0.5, p95)},
@@ -76,21 +77,25 @@ def main():
     }
     bp = breakpoints(rows)
     label = {"eager": "Eager (default)", "lazy": "Lazy (connection-fetch=lazy)", "narrowed": "Narrowed transaction"}
-    fmt = lambda v: "no failures up to 300" if v is None else f"{v} req/s"
-    table = {"headers": ["Setup", "90% downstream", "50% downstream", "10% downstream"],
+    fmt = lambda v: "none" if v is None else f"{v} req/s"
+    table = {"headers": ["First failing step (tested up to 300 req/s)", "90% downstream", "50% downstream", "10% downstream"],
              "rows": [[label[s]] + [", ".join(sorted({fmt(v) for v in bp[(s, sh)]})) for sh in [0.9, 0.5, 0.1]]
                       for s in ["eager", "lazy", "narrowed"]]}
     checks = json.load(open(os.path.join(HERE, "checks.json")))
-    shapes = [
-        ("@Transactional, no query", "required"),
-        ("@Transactional(readOnly = true), no query", "readOnly"),
-        ("NOT_SUPPORTED, NEVER, SUPPORTS or no annotation, no query", ["notSupported", "never", "supports", "none"]),
-        ("@Transactional, query, then the call", "queryThenCall"),
-        ("@Transactional, the call, then the query", "callThenQuery"),
-        ("No transaction (SUPPORTS, NOT_SUPPORTED or none), query, then the call",
+    shapes = [  # in the order of the post's three cases, then the surprises
+        ("No query: @Transactional", "required"),
+        ("No query: @Transactional(readOnly = true)", "readOnly"),
+        ("No query: same, with the JDBC transaction manager", ["jdbcRequired", "jdbcReadOnly"]),
+        ("No query: NOT_SUPPORTED, NEVER, SUPPORTS or no annotation", ["notSupported", "never", "supports", "none"]),
+        ("@Transactional, the call, then a query", "callThenQuery"),
+        ("@Transactional, a query, then the call", "queryThenCall"),
+        ("SUPPORTS or NOT_SUPPORTED, an EntityManager query, then the call",
+         ["emSupportsQueryThenCall", "emNotSupportedQueryThenCall"]),
+        ("No annotation, an EntityManager query, then the call", "emNoneQueryThenCall"),
+        ("No transaction, a Spring Data repository call, then the call",
          ["supportsQueryThenCall", "notSupportedQueryThenCall", "noneQueryThenCall"]),
         ("Outer @Transactional queried, inner NOT_SUPPORTED makes the call", "suspended"),
-        ("Plain JDBC transaction manager, no query", ["jdbcRequired", "jdbcReadOnly"]),
+        ("Outer @Transactional queried, inner REQUIRES_NEW queries and makes the call", "requiresNewInsideQueried"),
     ]
 
     def held(key, names):
@@ -99,14 +104,14 @@ def main():
         assert len(vals) == 1, (key, names, vals)  # every repeat and every variant in a row agree
         return str(vals.pop())
 
-    check_table = {"headers": ["Method", "Eager", "Lazy", "Eager, open session in view", "Lazy, open session in view"],
+    check_table = {"headers": ["Method (connections held during the call)", "Eager", "Lazy", "Eager + OSIV", "Lazy + OSIV"],
                    "rows": [[name] + [held(k, n) for k in ["eager", "lazy", "eager_osiv", "lazy_osiv"]] for name, n in shapes]}
     out = {"generated_by": "benchmarks/tx-pool/make_charts.py", "failures": failures, "latency": latency,
            "table": table, "checks": check_table,
            "aria": {"failures": "With eager connection fetching, requests started failing at 40 req/s with 90% of them calling "
                                 "the slow service, and at 70 req/s with 50%. With 10% no step failed up to 300 req/s. "
                                 "With lazy fetching or a narrowed transaction, no request failed at any rate or share.",
-                    "latency": "At 50% downstream, the database requests' p95 stayed under 16 ms for lazy and narrowed at "
+                    "latency": "At 50% downstream, the database requests' p95 stayed at or below about 16 ms for lazy and narrowed at "
                                "every rate. With eager fetching it rose to 64 ms at 60 req/s and to about 2,000 ms, the pool "
                                "timeout, at 70 req/s."}}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
