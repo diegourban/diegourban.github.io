@@ -5,6 +5,12 @@ draft: true
 description: "A @Transactional method takes a pool connection when it starts, even on a path that only calls another service. With a pool of 10 and a 300 ms downstream call, requests started failing at 40 req/s when 90% of them made that call. With Spring Boot 4.1's lazy connection fetching, nothing failed up to 300 req/s, the highest rate tested."
 tags: ["java", "spring-boot", "spring", "jpa", "hikaricp", "transactions", "performance"]
 ShowToc: true
+cover:
+  image: cover.png
+  relative: true
+  alt: "Failed requests as the arrival rate rises: with eager connection fetching, 90% downstream requests start failing at 40 req/s and 50% at 70 req/s, while lazy fetching and a narrowed transaction never fail up to 300 req/s"
+  hiddenInSingle: true
+  hiddenInList: true
 ai_disclosure: ai-generated
 references:
   - author: "Spring Boot"
