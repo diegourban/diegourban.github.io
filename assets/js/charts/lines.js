@@ -51,8 +51,10 @@ CPCharts.register("lines", (el, data, narrow) => {
     ends.forEach((e) => text(svg, W - RIGHT + 8, e.y + 4, e.s.short || e.s.name, "cp-t-val2"));
   }
 
-  // Crosshair: snap to the nearest x of the first series and list every series' value there.
-  const xs = d.series[0].points.map((p) => p[0]);
+  // Crosshair: snap to the nearest x of the longest series and list every series that has a value there
+  // (a series may stop early, e.g. a run that was cut off once it failed).
+  const xs = d3.greatest(d.series, (s) => s.points.length).points.map((p) => p[0]);
+  const at = (s, xv) => s.points.find((p) => p[0] === xv);
   const cross = svg.append("line").attr("class", "cp-zero").attr("y1", TOP).attr("y2", TOP + PLOT).style("opacity", 0);
   svg.append("rect").attr("x", LEFT).attr("y", TOP).attr("width", W - RIGHT - LEFT).attr("height", PLOT)
     .attr("fill", "transparent")
@@ -60,7 +62,8 @@ CPCharts.register("lines", (el, data, narrow) => {
       const mx = x.invert(d3.pointer(ev)[0]);
       const i = d3.minIndex(xs, (v) => Math.abs(v - mx));
       cross.attr("x1", x(xs[i])).attr("x2", x(xs[i])).style("opacity", 1);
-      tip.show(ev, `${d.x.label} ${fmt(xs[i])}: ` + d.series.map((s) => `${s.short || s.name} ${fmt(s.points[i][1])}${d.y.unit ? " " + d.y.unit : ""}`).join(" · "));
+      tip.show(ev, `${d.x.label} ${fmt(xs[i])}: ` + d.series.filter((s) => at(s, xs[i]))
+        .map((s) => `${s.short || s.name} ${fmt(at(s, xs[i])[1])}${d.y.unit ? " " + d.y.unit : ""}`).join(" · "));
     })
     .on("mouseleave", () => { cross.style("opacity", 0); tip.hide(); });
 });
