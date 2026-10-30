@@ -15,8 +15,9 @@ export const options = {
       rate: RATE,
       timeUnit: '1s',
       duration: __ENV.DURATION || '30s',
-      preAllocatedVUs: Math.max(50, RATE),
-      maxVUs: 1000,
+      // Enough VUs up front for every request to wait out the 2 s pool timeout, so k6 never drops one.
+      preAllocatedVUs: Math.max(100, RATE * 4),
+      maxVUs: 3000,
     },
   },
   // Thresholds that always pass, only so the summary carries the per-route submetrics.
@@ -28,6 +29,11 @@ export const options = {
   },
   summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'p(99)', 'max', 'count'],
 };
+
+// The whole summary as JSON on stdout, for bench.py.
+export function handleSummary(data) {
+  return { stdout: JSON.stringify(data) };
+}
 
 export default function () {
   // Deterministic split: out of every 10 requests, SHARE*10 take the downstream path.
