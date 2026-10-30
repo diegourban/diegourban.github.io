@@ -1,0 +1,290 @@
+{
+ "eager": {
+  "none": [
+   0,
+   0,
+   0
+  ],
+  "required": [
+   1,
+   1,
+   1
+  ],
+  "readOnly": [
+   1,
+   1,
+   1
+  ],
+  "notSupported": [
+   0,
+   0,
+   0
+  ],
+  "never": [
+   0,
+   0,
+   0
+  ],
+  "supports": [
+   0,
+   0,
+   0
+  ],
+  "queryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "callThenQuery": [
+   1,
+   1,
+   1
+  ],
+  "supportsQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "notSupportedQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "noneQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "suspended": [
+   1,
+   1,
+   1
+  ],
+  "jdbcRequired": [
+   1,
+   1,
+   1
+  ],
+  "jdbcReadOnly": [
+   1,
+   1,
+   1
+  ]
+ },
+ "eager_osiv": {
+  "none": [
+   0,
+   0,
+   0
+  ],
+  "required": [
+   1,
+   1,
+   1
+  ],
+  "readOnly": [
+   1,
+   1,
+   1
+  ],
+  "notSupported": [
+   0,
+   0,
+   0
+  ],
+  "never": [
+   0,
+   0,
+   0
+  ],
+  "supports": [
+   0,
+   0,
+   0
+  ],
+  "queryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "callThenQuery": [
+   1,
+   1,
+   1
+  ],
+  "supportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "notSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "noneQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "suspended": [
+   1,
+   1,
+   1
+  ],
+  "jdbcRequired": [
+   1,
+   1,
+   1
+  ],
+  "jdbcReadOnly": [
+   1,
+   1,
+   1
+  ]
+ },
+ "lazy": {
+  "none": [
+   0,
+   0,
+   0
+  ],
+  "required": [
+   0,
+   0,
+   0
+  ],
+  "readOnly": [
+   0,
+   0,
+   0
+  ],
+  "notSupported": [
+   0,
+   0,
+   0
+  ],
+  "never": [
+   0,
+   0,
+   0
+  ],
+  "supports": [
+   0,
+   0,
+   0
+  ],
+  "queryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "callThenQuery": [
+   0,
+   0,
+   0
+  ],
+  "supportsQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "notSupportedQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "noneQueryThenCall": [
+   0,
+   0,
+   0
+  ],
+  "suspended": [
+   1,
+   1,
+   1
+  ],
+  "jdbcRequired": [
+   0,
+   0,
+   0
+  ],
+  "jdbcReadOnly": [
+   0,
+   0,
+   0
+  ]
+ },
+ "lazy_osiv": {
+  "none": [
+   0,
+   0,
+   0
+  ],
+  "required": [
+   0,
+   0,
+   0
+  ],
+  "readOnly": [
+   0,
+   0,
+   0
+  ],
+  "notSupported": [
+   0,
+   0,
+   0
+  ],
+  "never": [
+   0,
+   0,
+   0
+  ],
+  "supports": [
+   0,
+   0,
+   0
+  ],
+  "queryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "callThenQuery": [
+   0,
+   0,
+   0
+  ],
+  "supportsQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "notSupportedQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "noneQueryThenCall": [
+   1,
+   1,
+   1
+  ],
+  "suspended": [
+   1,
+   1,
+   1
+  ],
+  "jdbcRequired": [
+   0,
+   0,
+   0
+  ],
+  "jdbcReadOnly": [
+   0,
+   0,
+   0
+  ]
+ }
+}
