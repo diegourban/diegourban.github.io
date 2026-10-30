@@ -1,6 +1,6 @@
 ---
 title: "The OpenTelemetry agent costs 1.6 s of startup, and the AOT cache can't win it back"
-date: 2026-11-03
+date: 2026-11-10
 draft: true
 description: "On JDK 25 the OpenTelemetry Java agent added 1.6 s to a Spring Boot app's startup. Training an AOT cache with the agent attached never produced a cache, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
 tags: ["java", "jvm", "aot", "appcds", "opentelemetry", "spring-boot", "startup"]
@@ -51,11 +51,11 @@ references:
 
 Attaching the OpenTelemetry Java agent added 1.6 seconds to my Spring Boot app's startup on JDK 25. Without the agent, the AOT cache saves about 1 second. With it, I couldn't get an AOT cache at all. None of 15 training runs on JDK 25 and 26 wrote one, and 13 of them crashed the JVM. AppCDS did load with the agent attached, and an AppCDS archive trained without the agent won back about 0.15 seconds, for 70 to 80 MB more memory.
 
-[The last post](/posts/aot-cache/) warned that an agent added only at runtime makes the JVM throw the AOT cache away, and suggested training with the agent attached. I tried it, and for this agent it doesn't work.
+[My AOT cache post](/posts/aot-cache/) warned that an agent added only at runtime makes the JVM throw the AOT cache away, and suggested training with the agent attached. I tried it, and for this agent it doesn't work.
 
 ## What I measured
 
-The app is the same small Spring Boot 4.1 service as before, on JDK 25 (Temurin 25.0.3) with G1, in containers limited to 2 CPUs and 1 GB. I attached [OpenTelemetry's Java agent](https://opentelemetry.io/docs/zero-code/java/agent/) [2.23.0](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.23.0) with its default instrumentation and the exporters switched off, so nothing needs a backend. Archives were trained on the same 5,000 requests as last time. All eight setups ran in each of ten rounds, in random order.
+The app is the same small Spring Boot 4.1 service as in that post, on JDK 25 (Temurin 25.0.3) with G1, in containers limited to 2 CPUs and 1 GB. I attached [OpenTelemetry's Java agent](https://opentelemetry.io/docs/zero-code/java/agent/) [2.23.0](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.23.0) with its default instrumentation and the exporters switched off, so nothing needs a backend. Archives were trained on the same 5,000 requests as there. All eight setups ran in each of ten rounds, in random order.
 
 {{< chart "paired-shift" "startup" >}}
 The baseline is a single setup: no agent, and the JDK's default archive. Each setup with the agent ends up to the right of every setup without it.
@@ -93,7 +93,7 @@ The agent puts its own classes on the boot class path, and from then on the JVM 
 
 Memory went the other way from what I expected. Without the agent, AppCDS moved about 15 MB from private memory into the mapped archive. Compared with the agent on the default archive, which is mapped too, both archives added 50 to 60 MB of private memory and about 18 MB of mapped file, so resident memory rose by 70 to 80 MB. I haven't found the reason.
 
-The setup the last post warned about, an AOT cache trained without the agent, started 86 ms faster than the agent alone. Its 95% CI runs from 196 ms faster to 11 ms slower, and ten rounds could only have caught a difference of about 140 ms, so I count it as nothing measurable. According to its log, the JVM drops the whole cache, because the agent adds the `java.instrument` module and the cache was built without it.
+The setup the AOT cache post warned about, an AOT cache trained without the agent, started 86 ms faster than the agent alone. Its 95% CI runs from 196 ms faster to 11 ms slower, and ten rounds could only have caught a difference of about 140 ms, so I count it as nothing measurable. According to its log, the JVM drops the whole cache, because the agent adds the `java.instrument` module and the cache was built without it.
 
 ## What I'd do
 
@@ -107,6 +107,6 @@ One demo app on one machine (Docker Desktop on an arm64 Mac, so no x86-64), G1 o
 
 ## Method and data
 
-- Startup is Spring's `process running for`, compared within each round. The shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) of the paired differences, its 95% interval a [bootstrap](https://doi.org/10.1214/aos/1176344552) of that estimate (10,000 resamples, fixed seed), and p comes from exact [Wilcoxon signed-rank tests](https://doi.org/10.2307/3001968), with the same code as the last post. Memory is sampled from `/proc/1/status` after readiness and after the requests.
+- Startup is Spring's `process running for`, compared within each round. The shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) of the paired differences, its 95% interval a [bootstrap](https://doi.org/10.1214/aos/1176344552) of that estimate (10,000 resamples, fixed seed), and p comes from exact [Wilcoxon signed-rank tests](https://doi.org/10.2307/3001968), with the same code as the AOT cache post. Memory is sampled from `/proc/1/status` after readiness and after the requests.
 - Classes from the archive are counted with `-Xlog:class+load` in single runs (`checks.json`).
-- Everything is in [`benchmarks/aot-agents`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/aot-agents): `agents.py` trains, checks and runs the rounds on the last post's harness (`results.jsonl`), `probe_crash.sh` and `probe_repeat.sh` record the crashes, `measure_review.sh` records the JVM messages quoted here (`review_evidence.txt`), and `analyze.py` and `make_charts.py` compute every number.
+- Everything is in [`benchmarks/aot-agents`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/aot-agents): `agents.py` trains, checks and runs the rounds on the AOT cache post's harness (`results.jsonl`), `probe_crash.sh` and `probe_repeat.sh` record the crashes, `measure_review.sh` records the JVM messages quoted here (`review_evidence.txt`), and `analyze.py` and `make_charts.py` compute every number.
