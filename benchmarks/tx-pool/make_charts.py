@@ -81,7 +81,7 @@ def main():
         "title": "Failed requests as the arrival rate rises",
         "sub": ["Pool of 10, 2 s timeout, 300 ms partner call. Median of 3 rounds.",
                 "Each run stopped after three failing steps in a row."],
-        "x": X, "y": {"label": "% failed", "min": 0, "max": 40, "ticks": [0, 10, 20, 30, 40], "unit": "%"},
+        "x": X, "y": {"label": "% failed", "min": 0, "max": 50, "ticks": [0, 10, 20, 30, 40, 50], "unit": "%"},
         "series": [
             {"name": "Eager, 100% partner orders", "short": "Eager 100%", "cls": "s1", "points": series(by, "eager", 1.0, pct)},
             {"name": "Eager, 50% partner orders", "short": "Eager 50%", "cls": "s2", "points": series(by, "eager", 0.5, pct)},
