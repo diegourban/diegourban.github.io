@@ -1,9 +1,12 @@
 {{- /* The post's results table, rendered from the same charts.json as the charts so the numbers always agree.
   If charts.json has a generic "table" ({headers, rows}), that is rendered as is; otherwise the default-CDS
-  post's columns are built from "rows". */ -}}
+  post's columns are built from "rows". An optional argument names another generic table in charts.json, for a
+  page with more than one: {{< results-table "checks" >}} renders charts.json "checks" ({headers, rows}). */ -}}
 {{- $data := .Page.Resources.Get "charts.json" | transform.Unmarshal -}}
+{{- $table := $data.table -}}
+{{- with .Get 0 }}{{ $table = index $data . }}{{ end -}}
 <table class="cp-results-table">
-{{- with $data.table }}
+{{- with $table }}
   <thead>
     <tr>{{ range .headers }}<th>{{ . }}</th>{{ end }}</tr>
   </thead>
