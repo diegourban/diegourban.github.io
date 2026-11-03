@@ -1,5 +1,6 @@
 // One step of the load test: a fixed arrival rate (open model), so a slow app does not slow the sender down.
-// RATE requests per second for DURATION, against /mixed or /narrowed, with SHARE of them on the downstream path.
+// RATE orders per second for DURATION, against /orders or /orders-narrowed, with SHARE of them for marketplace
+// products (forwarded to the partner API, no database) and the rest for products we stock (two writes).
 import http from 'k6/http';
 import exec from 'k6/execution';
 
@@ -36,7 +37,10 @@ export function handleSummary(data) {
 }
 
 export default function () {
-  // Deterministic split: out of every 10 requests, SHARE*10 take the downstream path.
-  const route = (exec.scenario.iterationInTest % 10) < Math.round(SHARE * 10) ? 'downstream' : 'db';
-  http.post(`${BASE}/${TARGET}?route=${route}`, null, { tags: { route }, timeout: '10s' });
+  // Deterministic split: out of every 20 orders, SHARE*20 go to a partner (20 slots, so 95% is exact).
+  const i = exec.scenario.iterationInTest;
+  const route = (i % 20) < Math.round(SHARE * 20) ? 'downstream' : 'db';
+  // Own-stock orders spread over 100 stock rows, so the decrements don't queue on one row lock.
+  const product = route === 'db' ? `own-${i % 100}` : `partner-${i % 100}`;
+  http.post(`${BASE}/${TARGET}?product=${product}&quantity=1`, null, { tags: { route }, timeout: '10s' });
 }
