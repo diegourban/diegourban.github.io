@@ -1,14 +1,14 @@
 ---
 title: "@Transactional holds a pool connection it may never use. Spring Boot 4.1 can fix that"
-date: 2026-11-04
+date: 2026-11-10
 draft: true
-description: "A @Transactional method takes a pool connection when it starts, even on a path that only calls another service. With a pool of 10 and a 300 ms downstream call, requests started failing at 40 req/s when 90% of them made that call. With Spring Boot 4.1's lazy connection fetching, nothing failed up to 300 req/s, the highest rate tested."
+description: "A @Transactional method takes a pool connection when it starts, even on a path that only calls another service. With a pool of 10 and a 300 ms partner API, an order service started failing at 40 req/s when 90% or more of its orders went to the partner. With Spring Boot 4.1's lazy connection fetching, nothing failed up to 300 req/s, the highest rate tested."
 tags: ["java", "spring-boot", "spring", "jpa", "hikaricp", "transactions", "performance"]
 ShowToc: true
 cover:
   image: cover.png
   relative: true
-  alt: "Failed requests as the arrival rate rises: with eager connection fetching, 90% downstream requests start failing at 40 req/s and 50% at 70 req/s, while lazy fetching and a narrowed transaction never fail up to 300 req/s"
+  alt: "Failed requests as the arrival rate rises: with eager connection fetching, an order service starts failing at 40 req/s when every order goes to a partner API, at 70 with half and at 150 with a quarter, while lazy fetching and a narrowed transaction never fail up to 300 req/s"
   hiddenInSingle: true
   hiddenInList: true
 ai_disclosure: ai-generated
@@ -56,63 +56,67 @@ references:
     url: "https://vladmihalcea.com/lazyconnectiondatasourceproxy-spring-data-jpa/"
 ---
 
-A `@Transactional` method takes a connection from the pool the moment it starts, whether or not it ever runs a query. In my test, with a pool of 10 connections and a downstream call that took 300 ms, a method that wrote to the database on one path and made that call on the other started failing at 40 requests per second, when 90% of requests made the call. Those requests never needed the database. They held a connection while they waited, and the requests that did need one queued behind them until the pool timed out. Spring Boot 4.1 added a property that fetches the connection only when the first statement runs. With it, nothing failed up to 300 requests per second, the highest rate I tested.
+A `@Transactional` method takes a connection from the pool the moment it starts, whether or not it ever runs a query. I tested it with an order service that writes the order to the database for products it stocks and forwards marketplace orders to a partner API, which took 300 ms to answer. With a pool of 10 connections, it started failing at 40 requests per second when 90% or more of the orders went to the partner. Those orders never needed the database. They held a connection while they waited for the partner, and the orders that did need one queued behind them until the pool timed out. Spring Boot 4.1 added a property that fetches the connection only when the first statement runs. With it, nothing failed up to 300 requests per second, the highest rate I tested.
 
 ## The method
 
-Here's the method I tested:
-
 ```java
 @Transactional
-public String handle(String route) {
-    if ("db".equals(route)) {
-        return "db:" + repo.save(new Item("x")).getId();
+public String placeOrder(String productId, int quantity) {
+    if (isOwnStock(productId)) {
+        PurchaseOrder order = orders.save(new PurchaseOrder(productId, quantity));
+        stock.decrement(productId, quantity);
+        return "placed:" + order.getId();
     }
-    return "downstream:" + downstream.call();
+    return "forwarded:" + forward(productId, quantity);
 }
 ```
 
-The database path saves a row. On the other branch the method calls another service, which takes 300 ms to answer, and never runs a query. In real code the database path does more than one write, which is why the method is transactional at all. The example keeps a single `save` to stay short.
+An order for a product the shop stocks is two writes, the order and the stock, which is why the method is transactional. An order for a marketplace product goes to the partner's API and never touches the database. The catalog rule behind `isOwnStock` lives in memory, as a cache would; if it were a query, every order would run one before the partner call, which is the third case below.
+
+Calling a third-party API from inside a request like this isn't how I'd design it. Sending the order asynchronously, through an outbox or a queue, or at least making the call outside the transaction, is usually the better design. The example is here to show what the pool does with the code as many services have it.
 
 ## What I measured
 
-The app is a small Spring Boot 4.1.2 service with Spring Data JPA and PostgreSQL 17.6, and a WireMock stub plays the downstream service with a fixed 300 ms delay. HikariCP had 10 connections and gave up after 2 seconds of waiting for one. Each part ran in its own Docker container with 2 CPUs.
+The app is a small Spring Boot 4.1.2 service with Spring Data JPA and PostgreSQL 17.6, and a WireMock stub plays the partner API with a fixed 300 ms delay. HikariCP had 10 connections and gave up after 2 seconds of waiting for one. Each part ran in its own Docker container with 2 CPUs.
 
-k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would quietly slow down along with the app, and the pool would never run out. The share of requests on the downstream path was 10%, 50% or 90%, in a fixed pattern where 1, 5 or 9 out of every 10 requests made the call. I ran three setups:
+k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would quietly slow down along with the app, and the pool would never run out. The share of orders sent to the partner was 100%, 95%, 90%, 75%, 50% or 25%, in a fixed pattern over every 20 orders, and the own-stock orders spread over 100 stock rows so they didn't queue on one row lock. I ran three setups:
 
 - **Eager**: the method above. Open session in view is off; everything else is at Spring Boot's defaults.
 - **Lazy**: the same code with `spring.datasource.connection-fetch=lazy`.
-- **Narrowed**: the method itself isn't transactional, and the database path calls a separate `@Transactional` bean that does the writes. This is the refactor you'd do by hand.
+- **Narrowed**: `placeOrder` itself isn't transactional, and the own-stock branch calls a separate `@Transactional` bean that does the two writes. This is the refactor you'd do by hand.
 
 Each combination ran three times, in random order. A step failed when more than 1% of its requests failed, and a run stopped after three failing steps in a row.
 
-{{< chart "lines" "failures" >}}
-The failures are the pool's 2-second timeout.
+{{< chart "lines" "breaks" >}}
+Each eager run failed first at the step just above the pool's capacity, and every round failed at the same step.
 {{< /chart >}}
 
 {{< results-table >}}
 
-All three rounds broke at the same step. With 90% of requests on the downstream path, eager fetching held up at 30 req/s and failed at 40, and with half of them it held at 60 and failed at 70. Lazy and narrowed never failed, at any rate or share.
+With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and narrowed never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, they never had a single connection checked out during the run.
 
-At the first failing step, the database requests failed more often than the downstream ones. At 90% and 40 req/s, 4.2% to 6.7% of the database requests failed across the three rounds, against 3.7% to 3.9% of the downstream ones.
+{{< chart "lines" "failures" >}}
+The failures are the pool's 2-second timeout. Both kinds of order failed, at similar rates.
+{{< /chart >}}
 
-Lazy and narrowed were also close in latency. Narrowed's database p95 was higher by about 0.3 ms (95% CI 0.1 to 1.1 ms, higher in 7 of 9 paired runs), small enough that I'd ignore it. And as long as no thread waited for a connection, the database p95 of eager and lazy differed by 0.2% (95% CI −2.7% to +2.4%).
+Lazy and narrowed also matched in latency. The own-stock orders' p95 differed by about 0.3 ms (95% CI −0.04 to +0.8 ms over 15 paired runs), so they're indistinguishable here. As long as no thread waited for a connection, eager and lazy were within 1% of each other (95% CI −2.9% to +4.1%).
 
 ## The arithmetic behind it
 
-A downstream request holds its connection for the whole call, about 307 ms measured, so 10 connections cover about 32 downstream requests per second. Add the 3.5 ms a database request holds one and the pool's capacity is 10 ÷ (share × 0.307 s + (1 − share) × 0.0035 s). That gives about 36 requests per second at 90% downstream, and the pool ran out between 30 and 40. Half and half gives about 64, and it ran out between 60 and 70. At 10% the formula says about 295, right where I stopped, and at 300 req/s a few threads waited at a time (never more than 3 in a sample) without a queue building up.
+A partner order holds its connection for the whole call, about 309 ms measured, so 10 connections cover about 32 of them per second. Add the 3.5 ms an own-stock order holds one for its two writes, and the pool's capacity is 10 ÷ (share × 0.309 s + (1 − share) × 0.0035 s). That gives about 32 orders per second when they all go to the partner, 36 at 90%, 43 at 75%, 64 at half and 125 at a quarter. Every eager run failed at the first step above that: 40, 50, 70 and 150.
 
-So the breakpoint depends mostly on the pool size, the downstream latency and the share of traffic that makes the call. The database work only matters when that share is small. By the same arithmetic, doubling the downstream latency during an incident halves the breakpoint. I didn't test that.
+So the breakpoint depends mostly on the pool size, the partner's latency and the share of orders that go to it. The database work only matters when that share is small. By the same arithmetic, a partner that slows to 600 ms during an incident halves the breakpoint. I didn't test that.
 
-And the database requests went from fine to failing within two steps, with no gradual slowdown before it.
+And the own-stock orders, the ones that need the database, went from fine to failing within a few steps.
 
 {{< chart "lines" "latency" >}}
 The early fall in every line is the JVM warming up, because the rates always ran from low to high on a freshly started app.
 {{< /chart >}}
 
-With 50% of requests on the downstream path, the database requests' p95 was 9 ms at 40 req/s and 64 ms at 60. At 70 it was about 2 seconds, which is the pool timeout. From there on a database request either got a connection or failed after two seconds, with about 140 threads queued for one (136 to 141 across the rounds).
+With half the orders going to the partner, the own-stock orders' p95 was 11 ms at 30 req/s, 64 ms at 40 and 145 ms at 60. At 70 it was about 2 seconds, which is the pool timeout. From there on an own-stock order either got a connection or failed after two seconds, with about 140 threads queued for one (137 to 141 across the rounds).
 
-Nor did the pool's waiting-threads gauge, `hikaricp.connections.pending`, give much warning. With half the requests on the downstream path it showed waiting threads one or two steps before the failures, and at 90% nothing waited at 30 req/s while 40 already failed.
+The pool's waiting-threads gauge, `hikaricp.connections.pending`, warned earlier the more own-stock orders there were. At half and at a quarter partner orders, threads waited three steps before the failures, and at 75% one step before. At 90% and above, nothing waited at 30 req/s and 40 already failed.
 
 ## The flag
 
@@ -122,13 +126,13 @@ The [reference documentation](https://docs.spring.io/spring-boot/reference/data/
 
 The property only applies when Spring Boot creates the pool. An app that defines its own `DataSource` bean, as every setup with more than one database does, gets no proxy and no warning, and still needs the manual wiring. Where it does apply, the `dataSource` bean becomes the proxy, so code that injects or casts to `HikariDataSource` breaks, while `DataSource.unwrap(HikariDataSource.class)` still reaches the pool.
 
-With lazy fetching, a pool timeout surfaces later in the method, after anything it did before its first query. I gave the pool a single connection, held it, and called a method that makes the downstream call and then saves. Eager fetching failed before the call, with `CannotCreateTransactionException`. Under lazy fetching the method made the call and then failed at the save, with `DataAccessResourceFailureException`. Retry and error handling written for the first exception won't see the second, and a call that changes something on the other side has already happened.
+With lazy fetching, a pool timeout surfaces later in the method, after anything it did before its first query. I gave the pool a single connection, held it, and called a method that makes the slow call and then saves. Eager fetching failed before the call, with `CannotCreateTransactionException`. Under lazy fetching the method made the call and then failed at the save, with `DataAccessResourceFailureException`. Retry and error handling written for the first exception won't see the second, and a call that changes something on the other side has already happened.
 
 From 4.1.0 to 4.1.2, lazy fetching with JMX and Hikari's `register-mbeans` both on also stopped Hikari registering its pool MBeans ([#52373](https://github.com/spring-projects/spring-boot/pull/52373)). It's fixed in 4.1.3. My runs used 4.1.2 with JMX off, its default, and read the pool through Micrometer.
 
 ## What each kind of method holds
 
-These are all the single-request checks. Each number is the pool's active connections during the 300 ms downstream call, on an otherwise idle app, three repeats each. Every repeat agreed. OSIV is open session in view.
+These are all the single-request checks, on simpler methods than `placeOrder`. Each number is the pool's active connections during a 300 ms downstream call, on an otherwise idle app, three repeats each. Every repeat agreed. OSIV is open session in view.
 
 {{< results-table "checks" >}}
 
@@ -138,7 +142,7 @@ Don't make it transactional. If the class is annotated with `@Transactional`, op
 
 ### Some paths touch the database and some don't
 
-That's the method above, and the case the flag is for. Keep the transaction, turn on lazy fetching, and the path that never runs a query never takes a connection. A method that made the call first and queried after also held nothing during the call, so the order within a path matters too.
+That's `placeOrder`, and the case the flag is for. Keep the transaction, turn on lazy fetching, and the path that never runs a query never takes a connection. A method that made the call first and queried after also held nothing during the call, so the order within a path matters too.
 
 ### A query first, then the call
 
@@ -154,20 +158,20 @@ Open session in view keeps one `EntityManager` open for the whole request, and H
 
 ## What I'd do
 
-If a transactional method makes a slow call on some paths, and Spring Boot creates your pool, turn on `spring.datasource.connection-fetch=lazy`, on 4.1.3 or later if you use JMX. Check your error handling for the later pool timeout. Then turn off open session in view, and look at the methods that query before a slow call. They need the call moved or the transaction narrowed, and the flag doesn't change that.
+If a transactional method makes a slow call on some paths, and you can't move the call out, and Spring Boot creates your pool, turn on `spring.datasource.connection-fetch=lazy`, on 4.1.3 or later if you use JMX. Check your error handling for the later pool timeout. Then turn off open session in view, and look at the methods that query before a slow call. They need the call moved or the transaction narrowed, and the flag doesn't change that.
 
 ## Caveats
 
-One small app on one machine (Docker Desktop on an arm64 Mac), PostgreSQL only, one fixed downstream latency, a pool of 10, and three rounds. The rates scale with the pool size and the latency, so read the breakpoints as a ratio, not as numbers to expect in production.
+One small app on one machine (Docker Desktop on an arm64 Mac), PostgreSQL only, one fixed partner latency, a pool of 10, and three rounds. The rates scale with the pool size and the latency, so read the breakpoints as a ratio, not as numbers to expect in production. A real partner API also has jitter, which I left out to keep the arithmetic clean.
 
-k6 sent requests at perfectly even intervals with a fixed route pattern. Real traffic is burstier, so waits and failures start somewhat below these rates, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
+k6 sent orders at perfectly even intervals with a fixed pattern. Real traffic is burstier, so waits and failures start somewhat below these rates, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
 
-The load test ran with open session in view off. With it on, the checks show the downstream path holding the same connections (one with eager fetching, none with lazy), but the database path would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. Tomcat's 200 threads were never the limit at a breakpoint, though past it they nearly were, with about 190 busy at 90 req/s and half the requests downstream. Virtual threads wouldn't move the breakpoint, but past it more requests would reach the pool and time out, where platform threads would leave them waiting for a Tomcat thread.
+The load test ran with open session in view off. With it on, the checks show the partner path holding the same connections (one with eager fetching, none with lazy), but an own-stock order would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. Tomcat's 200 threads were busy at one breakpoint, a quarter partner orders at 150 req/s, with about 190 waiting for a connection and 10 holding one, and past the breakpoints they filled up. Virtual threads wouldn't move the breakpoints, which the pool sets, but past them more requests would reach the pool and time out, where platform threads leave them waiting for a Tomcat thread.
 
 ## Method and data
 
-- The app, the WireMock stub, the k6 script and the drivers are in [`benchmarks/tx-pool`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/tx-pool). The app sets `spring.jpa.open-in-view=false`, the pool size and the timeout, and declares its own `JpaTransactionManager` next to a JDBC one for the checks. The open session in view default (`true`) and its startup warning are in the configuration metadata and classes of `spring-boot-jpa` 4.1.2.
+- The app (`placeOrder` in `orders/`, the single-request checks in `Checks.java`), the WireMock stubs, the k6 script and the drivers are in [`benchmarks/tx-pool`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/tx-pool). The app sets `spring.jpa.open-in-view=false`, the pool size and the timeout, and declares its own `JpaTransactionManager` next to a JDBC one for the checks. The open session in view default (`true`) and its startup warning are in the configuration metadata and classes of `spring-boot-jpa` 4.1.2.
 - `checks.py` runs the single-request checks, three repeats each, and the pool-of-1 contention check (`checks.json`). `bench.py` runs the load steps (`results.jsonl`).
-- Latency is k6's p95 per route and step. Every chart and table value is the median of the three rounds. The breakpoints were the same step in every round, while the failure rate at a failing step varied (2.6% to 4.2% at 50% and 70 req/s). A request counts as failed when it returns an error or k6 couldn't send it on time; none was dropped.
+- Latency is k6's p95 per route and step. Every chart and table value is the median of the three rounds. The breakpoints were the same step in every round, while the failure rate at a failing step varied (3.0% to 3.4% at half partner orders and 70 req/s). A request counts as failed when it returns an error or k6 couldn't send it on time. k6 dropped requests only in two overloaded steps, eager at a quarter partner orders at 200 and 250 req/s, past its breakpoint.
 - The pool figures are instantaneous samples from Actuator every half second, so short waits between samples aren't counted.
-- The comparisons between setups pair runs by share and round (9 pairs). Their shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) of the per-run median difference, its 95% interval a [bootstrap](https://doi.org/10.1214/aos/1176344552) (10,000 resamples, fixed seed), with the same code as the earlier posts. `analyze.py` computes those and the capacity model (`analysis.json`), and `make_charts.py` every number in the charts and tables.
+- The comparisons between setups pair runs by share and round (15 pairs for the own-stock orders, which don't exist at 100% partner orders). Their shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) of the per-run median difference, its 95% interval a [bootstrap](https://doi.org/10.1214/aos/1176344552) (10,000 resamples, fixed seed), with the same code as the earlier posts. `analyze.py` computes those and the capacity model (`analysis.json`), and `make_charts.py` every number in the charts and tables.

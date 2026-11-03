@@ -1,9 +1,164 @@
 {
  "generated_by": "benchmarks/tx-pool/make_charts.py",
+ "breaks": {
+  "title": "Where the pool runs out",
+  "sub": [
+   "First failing step with eager fetching, by the share of orders sent to the partner. Same in all 3 rounds.",
+   "Capacity: 10 connections / (309 ms per partner order and 3.5 ms per own-stock order, weighted by the share)."
+  ],
+  "x": {
+   "label": "Orders sent to the partner (%)",
+   "scale": "linear",
+   "min": 25,
+   "max": 100,
+   "ticks": [
+    25,
+    50,
+    75,
+    90,
+    100
+   ]
+  },
+  "y": {
+   "label": "req/s",
+   "min": 0,
+   "max": 300,
+   "ticks": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ],
+   "unit": "req/s"
+  },
+  "series": [
+   {
+    "name": "Eager: first failing step",
+    "short": "Eager",
+    "cls": "s1",
+    "points": [
+     [
+      25,
+      150
+     ],
+     [
+      50,
+      70
+     ],
+     [
+      75,
+      50
+     ],
+     [
+      90,
+      40
+     ],
+     [
+      95,
+      40
+     ],
+     [
+      100,
+      40
+     ]
+    ]
+   },
+   {
+    "name": "Pool capacity from the measured hold times",
+    "short": "Capacity",
+    "cls": "s2",
+    "dash": true,
+    "points": [
+     [
+      25,
+      125.3
+     ],
+     [
+      30,
+      105.1
+     ],
+     [
+      35,
+      90.6
+     ],
+     [
+      40,
+      79.6
+     ],
+     [
+      45,
+      71.0
+     ],
+     [
+      50,
+      64.0
+     ],
+     [
+      55,
+      58.3
+     ],
+     [
+      60,
+      53.5
+     ],
+     [
+      65,
+      49.5
+     ],
+     [
+      70,
+      46.0
+     ],
+     [
+      75,
+      43.0
+     ],
+     [
+      80,
+      40.3
+     ],
+     [
+      85,
+      38.0
+     ],
+     [
+      90,
+      35.9
+     ],
+     [
+      95,
+      34.0
+     ],
+     [
+      100,
+      32.4
+     ]
+    ]
+   },
+   {
+    "name": "Lazy or narrowed: no failures up to 300 (the highest rate tested)",
+    "short": "Lazy/narrowed",
+    "cls": "rest",
+    "points": [
+     [
+      25,
+      300
+     ],
+     [
+      100,
+      300
+     ]
+    ]
+   }
+  ]
+ },
  "failures": {
   "title": "Failed requests as the arrival rate rises",
   "sub": [
-   "Pool of 10, 2 s timeout, 300 ms downstream call. Median of 3 rounds.",
+   "Pool of 10, 2 s timeout, 300 ms partner call. Median of 3 rounds.",
    "Each run stopped after three failing steps in a row."
   ],
   "x": {
@@ -24,20 +179,21 @@
   "y": {
    "label": "% failed",
    "min": 0,
-   "max": 40,
+   "max": 50,
    "ticks": [
     0,
     10,
     20,
     30,
-    40
+    40,
+    50
    ],
    "unit": "%"
   },
   "series": [
    {
-    "name": "Eager, 90% downstream",
-    "short": "Eager 90%",
+    "name": "Eager, 100% partner orders",
+    "short": "Eager 100%",
     "cls": "s1",
     "points": [
      [
@@ -54,20 +210,20 @@
      ],
      [
       40,
-      4.0
+      13.2
      ],
      [
       50,
-      23.5
+      30.6
      ],
      [
       60,
-      35.9
+      41.9
      ]
     ]
    },
    {
-    "name": "Eager, 50% downstream",
+    "name": "Eager, 50% partner orders",
     "short": "Eager 50%",
     "cls": "s2",
     "points": [
@@ -97,21 +253,21 @@
      ],
      [
       70,
-      2.8
+      3.2
      ],
      [
       80,
-      16.8
+      16.6
      ],
      [
       90,
-      27.9
+      25.1
      ]
     ]
    },
    {
-    "name": "Eager, 10% downstream",
-    "short": "Eager 10%",
+    "name": "Eager, 25% partner orders",
+    "short": "Eager 25%",
     "cls": "s3",
     "points": [
      [
@@ -160,19 +316,15 @@
      ],
      [
       150,
-      0.0
+      8.5
      ],
      [
       200,
-      0.0
+      20.8
      ],
      [
       250,
-      0.0
-     ],
-     [
-      300,
-      0.0
+      33.6
      ]
     ]
    },
@@ -246,9 +398,9 @@
   ]
  },
  "latency": {
-  "title": "Database requests wait for a connection",
+  "title": "Own-stock orders wait for a connection",
   "sub": [
-   "p95 of the database-path requests, 50% downstream. Median of 3 rounds.",
+   "p95 of the own-stock orders, with half the orders sent to the partner. Median of 3 rounds.",
    "Eager leaves the chart at 70 req/s: from there it is the 2 s pool timeout."
   ],
   "x": {
@@ -269,13 +421,13 @@
   "y": {
    "label": "p95 (ms)",
    "min": 0,
-   "max": 80,
+   "max": 200,
    "ticks": [
     0,
-    20,
-    40,
-    60,
-    80
+    50,
+    100,
+    150,
+    200
    ],
    "unit": "ms"
   },
@@ -291,35 +443,35 @@
      ],
      [
       20,
-      12.1
+      11.7
      ],
      [
       30,
-      10.6
+      11.0
      ],
      [
       40,
-      8.8
+      64.3
      ],
      [
       50,
-      14.1
+      115.1
      ],
      [
       60,
-      64.5
+      145.2
      ],
      [
       70,
-      1995.0
+      1993.2
      ],
      [
       80,
-      2008.2
+      2008.0
      ],
      [
       90,
-      2010.0
+      2008.7
      ]
     ]
    },
@@ -330,43 +482,43 @@
     "points": [
      [
       10,
-      15.8
+      15.9
      ],
      [
       20,
-      12.0
+      11.5
      ],
      [
       30,
-      9.9
+      10.8
      ],
      [
       40,
-      8.5
+      8.0
      ],
      [
       50,
-      7.6
+      7.3
      ],
      [
       60,
-      6.7
+      6.5
      ],
      [
       70,
-      6.1
+      5.8
      ],
      [
       80,
-      6.0
+      5.5
      ],
      [
       90,
-      5.6
+      5.3
      ],
      [
       100,
-      5.1
+      5.2
      ],
      [
       125,
@@ -374,19 +526,19 @@
      ],
      [
       150,
-      5.1
+      4.8
      ],
      [
       200,
-      5.4
+      4.2
      ],
      [
       250,
-      5.9
+      4.4
      ],
      [
       300,
-      5.4
+      4.4
      ]
     ]
    },
@@ -398,63 +550,63 @@
     "points": [
      [
       10,
-      16.1
+      15.8
      ],
      [
       20,
-      12.0
+      11.8
      ],
      [
       30,
-      10.0
+      10.5
      ],
      [
       40,
-      8.9
-     ],
-     [
-      50,
       8.1
      ],
      [
+      50,
+      7.5
+     ],
+     [
       60,
-      6.8
+      6.7
      ],
      [
       70,
-      6.4
-     ],
-     [
-      80,
       6.2
      ],
      [
+      80,
+      5.7
+     ],
+     [
       90,
-      6.1
+      5.3
      ],
      [
       100,
-      5.3
+      5.5
      ],
      [
       125,
-      5.2
-     ],
-     [
-      150,
-      4.9
-     ],
-     [
-      200,
       5.0
      ],
      [
+      150,
+      4.8
+     ],
+     [
+      200,
+      4.4
+     ],
+     [
       250,
-      5.3
+      4.5
      ],
      [
       300,
-      5.5
+      4.3
      ]
     ]
    }
@@ -462,26 +614,38 @@
  },
  "table": {
   "headers": [
-   "First failing step (tested up to 300 req/s)",
-   "90% downstream",
-   "50% downstream",
-   "10% downstream"
+   "First failing step, req/s (tested up to 300)",
+   "100% partner",
+   "95% partner",
+   "90% partner",
+   "75% partner",
+   "50% partner",
+   "25% partner"
   ],
   "rows": [
    [
     "Eager (default)",
-    "40 req/s",
-    "70 req/s",
-    "none"
+    "40",
+    "40",
+    "40",
+    "50",
+    "70",
+    "150"
    ],
    [
     "Lazy (connection-fetch=lazy)",
+    "none",
+    "none",
+    "none",
     "none",
     "none",
     "none"
    ],
    [
     "Narrowed transaction",
+    "none",
+    "none",
+    "none",
     "none",
     "none",
     "none"
@@ -577,7 +741,8 @@
   ]
  },
  "aria": {
-  "failures": "With eager connection fetching, requests started failing at 40 req/s with 90% of them calling the slow service, and at 70 req/s with 50%. With 10% no step failed up to 300 req/s. With lazy fetching or a narrowed transaction, no request failed at any rate or share.",
-  "latency": "At 50% downstream, the database requests' p95 stayed at or below about 16 ms for lazy and narrowed at every rate. With eager fetching it rose to 64 ms at 60 req/s and to about 2,000 ms, the pool timeout, at 70 req/s."
+  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity the hold times predict. Lazy fetching and a narrowed transaction never failed up to 300 req/s.",
+  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a narrowed transaction, no request failed at any rate or share.",
+  "latency": "With half the orders sent to the partner, the own-stock orders' p95 stayed at or below 16 ms for lazy and narrowed at every rate. With eager fetching it was 64 ms at 40 req/s, 145 ms at 60 and about 2,000 ms, the pool timeout, at 70."
  }
 }
