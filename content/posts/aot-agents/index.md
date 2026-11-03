@@ -1,7 +1,7 @@
 ---
 title: "The OpenTelemetry agent costs 1.6 s of startup, and the AOT cache can't win it back"
-date: 2026-11-10
-draft: true
+date: 2026-11-04
+draft: false
 description: "On JDK 25 the OpenTelemetry Java agent added 1.6 s to a Spring Boot app's startup. Training an AOT cache with the agent attached never produced a cache, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
 tags: ["java", "jvm", "aot", "appcds", "opentelemetry", "spring-boot", "startup"]
 ShowToc: true
