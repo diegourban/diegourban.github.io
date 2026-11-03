@@ -5,24 +5,17 @@ import java.util.function.IntSupplier;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TxController {
 
-	private final MixedService mixed;
-
-	private final NarrowedService narrowed;
-
 	private final Checks c;
 
 	private final Map<String, IntSupplier> checks;
 
-	TxController(MixedService mixed, NarrowedService narrowed, Checks c) {
-		this.mixed = mixed;
-		this.narrowed = narrowed;
+	TxController(Checks c) {
 		this.checks = Map.ofEntries(
 				Map.entry("none", c::none), Map.entry("required", c::required), Map.entry("readOnly", c::readOnly),
 				Map.entry("notSupported", c::notSupported), Map.entry("never", c::never), Map.entry("supports", c::supports),
@@ -56,16 +49,6 @@ public class TxController {
 			outcome = ex.getClass().getSimpleName();
 		}
 		return Map.of("outcome", outcome, "downstreamCalled", c.downstreamCalls() > before);
-	}
-
-	@PostMapping("/mixed")
-	String mixed(@RequestParam String route) {
-		return mixed.handle(route);
-	}
-
-	@PostMapping("/narrowed")
-	String narrowed(@RequestParam String route) {
-		return narrowed.handle(route);
 	}
 
 	@GetMapping("/check/{name}")

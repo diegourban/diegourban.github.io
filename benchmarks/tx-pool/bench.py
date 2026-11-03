@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Load test: the mixed endpoint under eager and lazy connection fetching, and the narrowed reference, at stepped
-arrival rates, for 10%, 50% and 90% of requests on the downstream path. Appends one line per step to results.jsonl.
+"""Load test: placeOrder under eager and lazy connection fetching, and the narrowed reference, at stepped arrival
+rates, for 25% to 100% of orders forwarded to the partner API (the downstream path). Appends one line per step to results.jsonl.
 
   python3 bench.py ROUNDS          full run
   python3 bench.py --smoke         two short steps per combination, to check the harness (results_smoke.jsonl)
@@ -10,11 +10,11 @@ import json, os, random, subprocess, sys, threading, time
 import common as c
 
 SETUPS = {  # name: (endpoint, connection fetching)
-    "eager": ("mixed", "eager"),
-    "lazy": ("mixed", "lazy"),
-    "narrowed": ("narrowed", "eager"),
+    "eager": ("orders", "eager"),
+    "lazy": ("orders", "lazy"),
+    "narrowed": ("orders-narrowed", "eager"),
 }
-SHARES = [0.1, 0.5, 0.9]
+SHARES = [1.0, 0.95, 0.9, 0.75, 0.5, 0.25]
 RATES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 200, 250, 300]
 STEP = "30s"
 FAIL = 0.01          # a step "fails" when more than 1% of its requests fail
@@ -82,7 +82,7 @@ def combination(rnd, setup, share, rates, duration, out):
                "pool_pending_mean": sum(sampler.pending) / len(sampler.pending) if sampler.pending else None}
         out.write(json.dumps(row) + "\n")
         out.flush()
-        print(f"r{rnd} {setup:8} share {share:.1f} {rate:3} req/s  failed {row['failed_rate']:6.1%}  "
+        print(f"r{rnd} {setup:8} share {share:4.0%} {rate:3} req/s  failed {row['failed_rate']:6.1%}  "
               f"db p95 {row['db']['p(95)'] or 0:7.0f} ms  pending max {row['pool_pending_max']}", flush=True)
         failing = failing + 1 if row["failed_rate"] > FAIL else 0
         if failing >= STOP_AFTER:

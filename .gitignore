@@ -9,3 +9,4 @@ build/
 bin/
 *.jar
 *.jsa
+__pycache__/

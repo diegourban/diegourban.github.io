@@ -3,7 +3,7 @@
 breakpoints and warnings per round, and paired comparisons of the database requests' p95. Writes analysis.json.
 
 Pairing: each round runs every (setup, share) combination once, in random order, so runs are paired by
-(share, round), 9 pairs. A run's value is the median over its steps of the per-step comparison. The shift is the
+(share, round): 18 pairs, or 15 for the database requests, which don't exist at 100% partner orders. A run's value is the median over its steps of the per-step comparison. The shift is the
 Hodges-Lehmann estimate, its 95% CI a bootstrap of that estimate (fixed seed), and p an exact Wilcoxon signed-rank
 test, the same code as the earlier posts.
 """
@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.join(HERE, "..", "default-cds"))
 from paired_stats import hodges_lehmann, wilcoxon_p  # noqa: E402
 
 SEED, BOOT = 20261027, 10000
+SHARES = (1.0, 0.95, 0.9, 0.75, 0.5, 0.25)
+DB_SHARES = tuple(s for s in SHARES if s < 1.0)
 FAIL = 0.01
 POOL = 10
 
@@ -39,9 +41,9 @@ def main():
 
     # Hold times: the downstream call as the eager runs saw it, and a database request once the JVM is warm.
     down = st.median(r["downstream"]["med"] for r in rows if r["setup"] == "eager" and r["downstream"]["n"])
-    db = st.median(r["db"]["med"] for r in rows if r["setup"] == "lazy" and r["rate"] >= 100)
+    db = st.median(r["db"]["med"] for r in rows if r["setup"] == "lazy" and r["rate"] >= 100 and r["db"]["n"])
     out["hold_ms"] = {"downstream_median": down, "db_median_at_100_plus": db}
-    out["capacity_model"] = {str(s): POOL / (s * down / 1000 + (1 - s) * db / 1000) for s in (0.1, 0.5, 0.9)}
+    out["capacity_model"] = {str(s): POOL / (s * down / 1000 + (1 - s) * db / 1000) for s in SHARES}
 
     # Per round: the breakpoint, the first step with a waiting thread, and what failed at the breakpoint.
     per_round = []
@@ -58,15 +60,12 @@ def main():
             row.update({"db_failed": s["db"]["failed_rate"], "downstream_failed": s["downstream"]["failed_rate"],
                         "failed": s["failed_rate"], "pending_max_at_breakpoint": s["pool_pending_max"],
                         "db_p95_at_breakpoint": s["db"]["p(95)"]})
-        if share == 0.1:
-            top = steps[max(rates)]
-            row.update({"pending_max_at_300": top["pool_pending_max"], "pending_mean_at_300": top["pool_pending_mean"]})
         per_round.append(row)
     out["eager_per_round"] = per_round
 
     # Narrowed vs lazy: database p95 difference per step (ms), median per run.
     d = []
-    for share in (0.1, 0.5, 0.9):
+    for share in DB_SHARES:
         for rnd in (1, 2, 3):
             n, l = runs[("narrowed", share, rnd)], runs[("lazy", share, rnd)]
             d.append(st.median(n[x]["db"]["p(95)"] - l[x]["db"]["p(95)"] for x in sorted(set(n) & set(l))))
@@ -74,7 +73,7 @@ def main():
 
     # Lazy vs eager while the eager run showed no waiting thread: relative difference per step (%), median per run.
     d = []
-    for share in (0.1, 0.5, 0.9):
+    for share in DB_SHARES:
         for rnd in (1, 2, 3):
             e, l = runs[("eager", share, rnd)], runs[("lazy", share, rnd)]
             quiet = [x for x in sorted(set(e) & set(l)) if (e[x]["pool_pending_max"] or 0) == 0]
