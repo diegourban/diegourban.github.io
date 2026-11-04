@@ -1,12 +1,17 @@
 ---
-title: "The OpenTelemetry agent costs 1.6 s of startup, and the AOT cache can't win it back"
+title: "The OpenTelemetry agent and JDK 25's AOT cache don't mix"
 date: 2026-11-04
 draft: false
-description: "On JDK 25 the OpenTelemetry Java agent added 1.6 s to a Spring Boot app's startup. Training an AOT cache with the agent attached never produced a cache, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
+description: "On JDK 25, training an AOT cache with the OpenTelemetry Java agent attached never produced a cache. The agent added 1.6 s to a Spring Boot app's startup, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
 tags: ["java", "jvm", "aot", "appcds", "opentelemetry", "spring-boot", "startup"]
 ShowToc: true
 ai_disclosure: ai-generated
 references:
+  - author: "OpenJDK"
+    title: "8356693: AOT assembly phase fails with -javaagent (pull request #25170)"
+    venue: "openjdk/jdk, GitHub"
+    year: 2025
+    url: "https://github.com/openjdk/jdk/pull/25170"
   - author: "OpenJDK"
     title: "JEP 483: Ahead-of-Time Class Loading & Linking"
     venue: "Delivered in JDK 24"
@@ -49,9 +54,9 @@ references:
     checked: "by hand"
 ---
 
-Attaching the OpenTelemetry Java agent added 1.6 seconds to my Spring Boot app's startup on JDK 25. Without the agent, the AOT cache saves about 1 second. With it, I couldn't get an AOT cache at all. None of 15 training runs on JDK 25 and 26 wrote one, and 13 of them crashed the JVM. AppCDS did load with the agent attached, and an AppCDS archive trained without the agent won back about 0.15 seconds, for 70 to 80 MB more memory.
+[My AOT cache post](/posts/aot-cache/) warned that an agent added only at runtime makes the JVM throw the AOT cache away, and suggested training the cache with the agent attached. With the OpenTelemetry Java agent, that doesn't work. None of 15 training runs on JDK 25 and 26 wrote a cache, and 13 of them crashed the JVM.
 
-[My AOT cache post](/posts/aot-cache/) warned that an agent added only at runtime makes the JVM throw the AOT cache away, and suggested training with the agent attached. I tried it, and for this agent it doesn't work.
+The agent also costs more startup than any archive won back. It added 1.6 seconds to my Spring Boot app's startup on JDK 25, while the AOT cache saves about 1 second without it. AppCDS did load with the agent attached, and an AppCDS archive trained without the agent won back about 0.15 seconds, for 70 to 80 MB more memory.
 
 ## What I measured
 
@@ -75,11 +80,11 @@ According to the training log, the agent rewrites core JDK classes, and the cach
 Critical class java.lang.Class has been excluded. AOT configuration file cannot be written.
 ```
 
-[JEP 483](https://openjdk.org/jeps/483) rules this setup out from the start. No run may use an agent that rewrites class files or adds itself to the boot class path, and the OpenTelemetry agent does both. A [Corretto issue](https://github.com/corretto/corretto-25/issues/84) reports a similar crash with a different agent, but its fix is already in JDK 26, which failed here as well.
+[JEP 483](https://openjdk.org/jeps/483) originally ruled out agents that rewrite classes. JDK 25 relaxed that ([JDK-8356693](https://github.com/openjdk/jdk/pull/25170)): an agent may run during training, and the cache leaves out every class it transformed, which is where the `Skipping` lines come from. That can work for an agent that only touches application classes. The OpenTelemetry agent also rewrites `java.lang.Class` and the JDK's class loaders, and the JVM can't build a cache without those. A [Corretto issue](https://github.com/corretto/corretto-25/issues/84) reports a similar crash with a different agent, but its fix is already in JDK 26, which failed here as well.
 
 ## AppCDS loads, but only partly
 
-AppCDS has the same restriction, with a diagnostic way around it. A training run with the agent attached stops with `Must enable AllowArchivingWithJavaAgent in order to run Java agent during CDS dumping`. With `-XX:+UnlockDiagnosticVMOptions -XX:+AllowArchivingWithJavaAgent` the archive gets written, but every start that uses it then needs the same two flags, and JDK 25 warns that such an archive "should be used for testing purposes only and should not be used in a production environment". JDK 26 dropped the flag (`Unrecognized VM option`) and refuses to dump an archive with any agent attached, which rules it out for me.
+AppCDS didn't get that change, and its way around the restriction is a diagnostic flag. A training run with the agent attached stops with `Must enable AllowArchivingWithJavaAgent in order to run Java agent during CDS dumping`. With `-XX:+UnlockDiagnosticVMOptions -XX:+AllowArchivingWithJavaAgent` the archive gets written, but every start that uses it then needs the same two flags, and JDK 25 warns that such an archive "should be used for testing purposes only and should not be used in a production environment". JDK 26 dropped the flag (`Unrecognized VM option`) and refuses to dump an archive with any agent attached, which rules it out for me.
 
 An archive trained without the agent needs no flags and loads fine with the agent attached. Compared with the agent on the default archive, it started 142 ms faster (95% CI 106 to 222 ms, faster in nine of ten rounds) and took 219 ms off the 2,000 requests (faster in all ten). The flagged archive was 229 ms faster at startup, but head to head the two archives weren't measurably different (82 ms apart, CI from 143 ms faster to 33 ms slower).
 
