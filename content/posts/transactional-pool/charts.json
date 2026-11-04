@@ -268,7 +268,8 @@
    {
     "name": "Eager, 25% partner orders",
     "short": "Eager 25%",
-    "cls": "s3",
+    "cls": "s1",
+    "dash": true,
     "points": [
      [
       10,
@@ -331,7 +332,7 @@
    {
     "name": "Lazy or narrowed, any share",
     "short": "Lazy/narrowed",
-    "cls": "rest",
+    "cls": "s3",
     "points": [
      [
       10,

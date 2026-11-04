@@ -85,8 +85,8 @@ def main():
         "series": [
             {"name": "Eager, 100% partner orders", "short": "Eager 100%", "cls": "s1", "points": series(by, "eager", 1.0, pct)},
             {"name": "Eager, 50% partner orders", "short": "Eager 50%", "cls": "s2", "points": series(by, "eager", 0.5, pct)},
-            {"name": "Eager, 25% partner orders", "short": "Eager 25%", "cls": "s3", "points": series(by, "eager", 0.25, pct)},
-            {"name": "Lazy or narrowed, any share", "short": "Lazy/narrowed", "cls": "rest",
+            {"name": "Eager, 25% partner orders", "short": "Eager 25%", "cls": "s1", "dash": True, "points": series(by, "eager", 0.25, pct)},
+            {"name": "Lazy or narrowed, any share", "short": "Lazy/narrowed", "cls": "s3",
              "points": [[x, calm(x)] for x in RATES]},
         ],
     }
