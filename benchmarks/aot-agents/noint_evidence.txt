@@ -1,0 +1,16 @@
+== 0. control: the same settings as attempt 2, no cache at all
+Exception in thread "main" java.lang.NoClassDefFoundError: io/opentelemetry/javaagent/instrumentation/logback/mdc/v1_0/LogbackSingletons
+exit code: 1
+== 1. internal-reflection and internal-class-loader off: training
+NoClassDefFoundError: io/opentelemetry/javaagent/instrumentation/logback/mdc/v1_0/LogbackSingletons
+Problematic frame:
+SIGSEGV
+cache written: no
+== 2. executors off as well: training
+AOTCache creation is complete: /out/c.aot 58785792 bytes
+NoClassDefFoundError: io/opentelemetry/javaagent/instrumentation/logback/mdc/v1_0/LogbackSingletons
+cache written: 58785792 bytes
+== 2. executors off as well: start with the cache
+Exception in thread "main" java.lang.NoClassDefFoundError: io/opentelemetry/javaagent/instrumentation/logback/mdc/v1_0/LogbackSingletons
+exit code: 1
+Using AOT-linked classes: true

@@ -70,7 +70,7 @@ The baseline is a single setup: no agent, and the JDK's default archive. Each se
 
 The agent loads about 3,800 more classes (19,132 against 15,317), and the median startup went from 1.92 s to 3.45 s. Warm-up got slower as well, by 0.57 s over the first 2,000 requests after startup.
 
-## No AOT cache with the agent
+## No AOT cache with the agent's defaults
 
 I tried 15 times, five each on Temurin 25.0.3, 25.0.4.1 and 26.0.2.1, and none wrote a cache. Each run trained only until Spring's context refresh, to keep it short. Thirteen of them crashed the JVM with a `SIGSEGV`. On JDK 25 the crash was in the code that decides which classes go into the cache (`SystemDictionaryShared::check_for_exclusion`), on JDK 26 in the code that prepares the training data. The other two ended without a crash report and without a cache.
 
@@ -81,6 +81,8 @@ Critical class java.lang.Class has been excluded. AOT configuration file cannot 
 ```
 
 [JEP 483](https://openjdk.org/jeps/483) originally ruled out agents that rewrite classes. JDK 25 relaxed that ([JDK-8356693](https://github.com/openjdk/jdk/pull/25170)): an agent may run during training, and the cache leaves out every class it transformed, which is where the `Skipping` lines come from. That can work for an agent that only touches application classes. The OpenTelemetry agent also rewrites `java.lang.Class` and the JDK's class loaders, and the JVM can't build a cache without those. A [Corretto issue](https://github.com/corretto/corretto-25/issues/84) reports a similar crash with a different agent, but its fix is already in JDK 26, which failed here as well.
+
+I also tried switching off the agent's instrumentations that rewrite JDK classes, on JDK 25.0.3. With `internal-reflection` and `internal-class-loader` off, training still crashed. With `executors` off as well, it wrote a 59 MB cache, but the app didn't start with it. It didn't start without a cache either: with those instrumentations off, the main thread died with a `NoClassDefFoundError` for one of the agent's own classes. So I found no setting where both the agent and a cache work. I didn't try newer OpenTelemetry releases or JDK 27 early-access builds, and found no open issue about this in the OpenTelemetry or OpenJDK trackers.
 
 ## AppCDS loads, but only partly
 
@@ -114,4 +116,4 @@ One demo app on one machine (Docker Desktop on an arm64 Mac, so no x86-64), G1 o
 
 - Startup is Spring's `process running for`, compared within each round. The shift is the [Hodges-Lehmann estimate](https://doi.org/10.1214/aoms/1177704172) of the paired differences, its 95% interval a [bootstrap](https://doi.org/10.1214/aos/1176344552) of that estimate (10,000 resamples, fixed seed), and p comes from exact [Wilcoxon signed-rank tests](https://doi.org/10.2307/3001968), with the same code as the AOT cache post. Memory is sampled from `/proc/1/status` after readiness and after the requests.
 - Classes from the archive are counted with `-Xlog:class+load` in single runs (`checks.json`).
-- Everything is in [`benchmarks/aot-agents`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/aot-agents): `agents.py` trains, checks and runs the rounds on the AOT cache post's harness (`results.jsonl`), `probe_crash.sh` and `probe_repeat.sh` record the crashes, `measure_review.sh` records the JVM messages quoted here (`review_evidence.txt`), and `analyze.py` and `make_charts.py` compute every number.
+- Everything is in [`benchmarks/aot-agents`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/aot-agents): `agents.py` trains, checks and runs the rounds on the AOT cache post's harness (`results.jsonl`), `probe_crash.sh` and `probe_repeat.sh` record the crashes, `measure_noint.sh` the attempt with instrumentations switched off (`noint_evidence.txt`), `measure_review.sh` records the JVM messages quoted here (`review_evidence.txt`), and `analyze.py` and `make_charts.py` compute every number.
