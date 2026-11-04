@@ -48,6 +48,9 @@ def breakpoints(rows):
 
 
 SHARES = [1.0, 0.95, 0.9, 0.75, 0.5, 0.25]
+# The failures chart shades eager by severity: the more orders go to the partner, the sooner and hotter it fails.
+# The yellow is a dark amber so it stays readable on a white background.
+RED, ORANGE, YELLOW = "#d93636", "#ef7d22", "#d4a20a"
 
 
 def main():
@@ -83,9 +86,9 @@ def main():
                 "Each run stopped after three failing steps in a row."],
         "x": X, "y": {"label": "% failed", "min": 0, "max": 50, "ticks": [0, 10, 20, 30, 40, 50], "unit": "%"},
         "series": [
-            {"name": "Eager, 100% partner orders", "short": "Eager 100%", "cls": "s1", "points": series(by, "eager", 1.0, pct)},
-            {"name": "Eager, 50% partner orders", "short": "Eager 50%", "cls": "s2", "points": series(by, "eager", 0.5, pct)},
-            {"name": "Eager, 25% partner orders", "short": "Eager 25%", "cls": "s1", "dash": True, "points": series(by, "eager", 0.25, pct)},
+            {"name": "Eager, 100% partner orders", "short": "Eager 100%", "cls": "s1", "color": RED, "points": series(by, "eager", 1.0, pct)},
+            {"name": "Eager, 50% partner orders", "short": "Eager 50%", "cls": "s2", "color": ORANGE, "points": series(by, "eager", 0.5, pct)},
+            {"name": "Eager, 25% partner orders", "short": "Eager 25%", "cls": "s1", "color": YELLOW, "points": series(by, "eager", 0.25, pct)},
             {"name": "Lazy or writes-only, any share", "short": "Lazy/writes-only", "cls": "s3",
              "points": [[x, calm(x)] for x in RATES]},
         ],

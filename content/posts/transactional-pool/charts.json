@@ -195,6 +195,7 @@
     "name": "Eager, 100% partner orders",
     "short": "Eager 100%",
     "cls": "s1",
+    "color": "#d93636",
     "points": [
      [
       10,
@@ -226,6 +227,7 @@
     "name": "Eager, 50% partner orders",
     "short": "Eager 50%",
     "cls": "s2",
+    "color": "#ef7d22",
     "points": [
      [
       10,
@@ -269,7 +271,7 @@
     "name": "Eager, 25% partner orders",
     "short": "Eager 25%",
     "cls": "s1",
-    "dash": true,
+    "color": "#d4a20a",
     "points": [
      [
       10,

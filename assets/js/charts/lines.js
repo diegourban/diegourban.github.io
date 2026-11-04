@@ -1,6 +1,8 @@
 // Line chart for change over a run: {{< chart "lines" "key" >}} draws charts.json data[key]:
 // {title, sub[], x: {label, scale: "linear"|"log", min, max, ticks[]}, y: {label, min, max, ticks[], unit},
-//  series: [{name, short (end label and tooltip), cls: "s1"|"s2"|"s3"|"rest", dash?, points: [[x, y], ...]}]}.
+//  series: [{name, short (end label and tooltip), cls: "s1"|"s2"|"s3"|"rest", dash?, color?, points: [[x, y], ...]}]}.
+// An optional color overrides the class color for the line and its legend swatch, for a chart that needs more
+// than the three series slots or a color with a meaning (a severity ramp, say).
 // One y-axis only; values above y.max are clipped to the top edge. Each line is labelled at its end and in
 // the legend, so identity never rests on color alone, and a crosshair tooltip lists every series at a point.
 CPCharts.register("lines", (el, data, narrow) => {
@@ -24,7 +26,7 @@ CPCharts.register("lines", (el, data, narrow) => {
   d.series.forEach((s, i) => {
     const col = narrow ? 0 : i % 2, row = narrow ? i : Math.floor(i / 2);
     const lx = col * Math.max(260, (W - RIGHT) / 2), ly = legendTop + 20 * row;
-    svg.append("line").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`)
+    svg.append("line").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).style("stroke", s.color || null)
       .attr("x1", lx).attr("x2", lx + 22).attr("y1", ly - 4).attr("y2", ly - 4);
     text(svg, lx + 30, ly, s.name, "cp-t-val2");
   });
@@ -42,7 +44,8 @@ CPCharts.register("lines", (el, data, narrow) => {
   const line = d3.line().x((p) => x(p[0])).y((p) => y(clip(p[1])));
   // Draw the context series first, so colored lines sit on top of it.
   [...d.series].sort((a, b) => (a.cls === "rest" ? -1 : 0) - (b.cls === "rest" ? -1 : 0)).forEach((s) => {
-    svg.append("path").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).attr("d", line(s.points));
+    svg.append("path").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).style("stroke", s.color || null)
+      .attr("d", line(s.points));
   });
   if (!narrow) {
     // End labels, nudged apart upwards (from the lowest line end) so they never overlap or drop below the plot.
