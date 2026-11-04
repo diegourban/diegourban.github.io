@@ -8,7 +8,7 @@ ShowToc: true
 cover:
   image: cover.png
   relative: true
-  alt: "Startup against no agent and default CDS: the AOT cache and AppCDS without the agent are about 1.0 and 0.8 s faster, while the OpenTelemetry agent adds 1.6 s and an AppCDS archive trained without it wins back only about 0.15 s"
+  alt: "The JVM refusing to write an AOT cache with the OpenTelemetry agent attached: Critical class java.lang.Class has been excluded. Without the agent the AOT cache saves 1.0 s of startup; with it, 0 of 15 training runs wrote a cache and 13 crashed the JVM"
   hiddenInSingle: true
   hiddenInList: true
 ai_disclosure: ai-generated
