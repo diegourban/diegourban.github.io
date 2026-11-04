@@ -110,7 +110,7 @@ If you keep the agent, train AppCDS without it. It needs no diagnostic flags, an
 
 ## Caveats
 
-One demo app on one machine (Docker Desktop on an arm64 Mac, so no x86-64), G1 only, ten rounds per setup and one archive per setup. I tested a single agent, OpenTelemetry 2.23.0 with its defaults, and didn't try other agents or OpenTelemetry with instrumentations switched off.
+One demo app on one machine (Docker Desktop on an arm64 Mac, so no x86-64), G1 only, ten rounds per setup and one archive per setup. I tested a single agent, OpenTelemetry 2.23.0. The benchmark used its defaults, and only the AOT cache attempt above tried it with instrumentations switched off. I didn't try other agents.
 
 ## Method and data
 
