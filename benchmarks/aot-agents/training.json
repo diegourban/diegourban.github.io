@@ -1,0 +1,22 @@
+[
+ {
+  "image_set": "small",
+  "app": "small",
+  "base_image": "cdsdemo:base",
+  "archive": "appcds-g1-otel.jsa",
+  "flags": [
+   "-XX:+UseG1GC",
+   "-javaagent:/app/otel.jar",
+   "-Dotel.traces.exporter=none",
+   "-Dotel.metrics.exporter=none",
+   "-Dotel.logs.exporter=none",
+   "-XX:+UnlockDiagnosticVMOptions",
+   "-XX:+AllowArchivingWithJavaAgent",
+   "-XX:ArchiveClassesAtExit=/out/appcds-g1-otel.jsa"
+  ],
+  "requests": 5000,
+  "train_seconds": 14.3,
+  "bytes": 109379584,
+  "uptime_at_workload_start": 4.17
+ }
+]

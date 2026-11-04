@@ -1,0 +1,98 @@
+{
+ "cds_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 1438,
+  "classes_loaded": 15317,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes)",
+   "[info][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info][aot] initial full module graph: enabled"
+  ]
+ },
+ "appcds_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 14693,
+  "classes_loaded": 15139,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes, dynamic archive: no aot-linked classes)",
+   "[info][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info][aot] initial full module graph: enabled"
+  ]
+ },
+ "aot_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 17162,
+  "classes_loaded": 17593,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: true (static archive: has aot-linked classes)",
+   "[info][aot,codecache,init] Loaded 740 AOT code entries from AOT Code Cache",
+   "[info][aot] full module graph: enabled",
+   "[info][aot] initial full module graph: enabled",
+   "[warning][aot                ] Failed to link AdapterHandlerEntry (fp=LLLLLLLLLIILL) to its code in the AOT code cache",
+   "[warning][aot,codecache,stubs] Saved blob's name 'LLLLLLILLLILL' is different from the expected name 'LLLLLLLLLIILL'"
+  ]
+ },
+ "otel_cds_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 1453,
+  "classes_loaded": 19132,
+  "lines": [
+   "[info][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes)",
+   "[info][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info][aot] initial full module graph: disabled"
+  ]
+ },
+ "otel_appcds_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 5111,
+  "classes_loaded": 18918,
+  "lines": [
+   "[error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+   "[error  ][cds] Disabling optimized module handling",
+   "[error  ][cds] Mismatched values for property jdk.module.addmods: java.instrument specified during runtime but not during dump time",
+   "[info   ][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes, dynamic archive: no aot-linked classes)",
+   "[info   ][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info   ][aot] initial full module graph: disabled"
+  ]
+ },
+ "otel_appcds_noflag_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 1453,
+  "classes_loaded": 19136,
+  "lines": [
+   "[error  ][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+   "[error  ][cds] Disabling optimized module handling",
+   "[error  ][cds] Loading dynamic archive failed.",
+   "[error  ][cds] Mismatched values for property jdk.module.addmods: java.instrument specified during runtime but not during dump time",
+   "[info   ][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes)",
+   "[info   ][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info   ][aot] initial full module graph: disabled"
+  ]
+ },
+ "otel_appcds_untrained_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 2573,
+  "classes_loaded": 18941,
+  "lines": [
+   "[error][cds] An error has occurred while processing the shared archive file. Run with -Xlog:aot,cds for details.",
+   "[error][cds] Disabling optimized module handling",
+   "[error][cds] Mismatched values for property jdk.module.addmods: java.instrument specified during runtime but not during dump time",
+   "[info ][aot               ] Using AOT-linked classes: false (static archive: no aot-linked classes, dynamic archive: no aot-linked classes)",
+   "[info ][aot,codecache,init] AOT Code Cache is not used: AOTCache is not specified.",
+   "[info ][aot] initial full module graph: disabled"
+  ]
+ },
+ "otel_aot_untrained_g1": {
+  "exit_code": 0,
+  "classes_from_cache": 0,
+  "classes_loaded": 19124,
+  "lines": [
+   "[error][aot] AOT cache has aot-linked classes. It cannot be used when archived full module graph is not used.",
+   "[error][aot] An error has occurred while processing the AOT cache. Run with -Xlog:aot for details.",
+   "[error][aot] Disabling optimized module handling",
+   "[error][aot] Mismatched values for property jdk.module.addmods: java.instrument specified during runtime but not during dump time",
+   "[error][aot] Unable to map shared spaces",
+   "[info ][aot] full module graph: disabled"
+  ]
+ }
+}
