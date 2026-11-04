@@ -31,7 +31,7 @@ pagination.pagerSize = 10
 
   [params.homeInfoParams]
     Title = "Hi, I'm Diego"
-    Content = "Platform engineer. These are my notes on what I build and measure: the JVM, Spring Boot, PostgreSQL, CI/CD, caching and authorization. Every benchmark here ships with its scripts and raw data."
+    Content = "Software engineer. These are my notes on what I build and measure: the JVM, Spring Boot, CI/CD, caching and authorization. Every benchmark here ships with its scripts and raw data."
 
   [[params.socialIcons]]
     name = "linkedin"

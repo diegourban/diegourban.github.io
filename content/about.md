@@ -6,7 +6,9 @@ ShowReadingTime: false
 schemaType: "ProfilePage"
 ---
 
-I'm Diego Urban, a software engineer working on JVM services and platform engineering.
+I'm Diego, a software engineer who builds JVM services and keeps getting pulled into the platform underneath them.
+
+The tests and measurements behind these posts used to be scattered: some in my notes in Obsidian, some only in my head, some in conversations with Claude. I decided to give them a bit more TLC by gathering them in one place and sharing what I find.
 
 This blog is where I write up what I measure: startup time, memory, and the flags nobody can explain. Every benchmark here ships with its scripts and raw data, so you can check the numbers yourself.
 
@@ -20,9 +22,9 @@ I use AI as a writing tool, and each post tells you how much at the bottom:
 
 - `none`: no AI involved.
 - `ai-assisted`: I wrote it, and AI helped with editing and wording.
-- `ai-generated`: AI drafted it from my measurements and notes. I reviewed the draft and checked every number and command.
+- `ai-generated`: AI drafted it from my measurements and notes. I reviewed the draft and checked every number against the data.
 
-The measurements, benchmarks and commands are mine, whatever the label. I check every number before I publish, and the raw data and scripts sit next to each post so you can check them too. Each post's label also goes into a `<meta name="ai-disclosure">` tag, following the [AI Content Disclosure for HTML](https://github.com/dweekly/ai-content-disclosure) proposal.
+The measurements and benchmarks are mine, whatever the label. I check every number before I publish, and the raw data and scripts sit next to each post so you can check them too. Each post's label also goes into a `<meta name="ai-disclosure">` tag, following the [AI Content Disclosure for HTML](https://github.com/dweekly/ai-content-disclosure) proposal.
 
 Finding these posts through a search engine, or through an AI assistant that links back here, is fine by me. Training AI models on them isn't. The site's `robots.txt` says `ai-train=no` and blocks the known training crawlers, and [TDMRep](https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240510/) reserves text and data mining rights under EU law.
 
