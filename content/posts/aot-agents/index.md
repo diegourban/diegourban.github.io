@@ -5,6 +5,12 @@ draft: false
 description: "On JDK 25, training an AOT cache with the OpenTelemetry Java agent attached never produced a cache. The agent added 1.6 s to a Spring Boot app's startup, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
 tags: ["java", "jvm", "aot", "appcds", "opentelemetry", "spring-boot", "startup"]
 ShowToc: true
+cover:
+  image: cover.png
+  relative: true
+  alt: "Startup against no agent and default CDS: the AOT cache and AppCDS without the agent are about 1.0 and 0.8 s faster, while the OpenTelemetry agent adds 1.6 s and an AppCDS archive trained without it wins back only about 0.15 s"
+  hiddenInSingle: true
+  hiddenInList: true
 ai_disclosure: ai-generated
 references:
   - author: "OpenJDK"
