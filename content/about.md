@@ -6,7 +6,7 @@ ShowReadingTime: false
 schemaType: "ProfilePage"
 ---
 
-I'm Diego Urban, a software engineer working on JVM services and platform engineering.
+I'm Diego, a software engineer working on JVM services and platform engineering.
 
 The tests and measurements behind these posts used to be scattered: some in my notes in Obsidian, some only in my head, some in conversations with Claude. I decided to give them a bit more TLC by gathering them in one place and sharing what I find.
 
