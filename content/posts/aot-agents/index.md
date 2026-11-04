@@ -5,6 +5,12 @@ draft: false
 description: "On JDK 25, training an AOT cache with the OpenTelemetry Java agent attached never produced a cache. The agent added 1.6 s to a Spring Boot app's startup, and AppCDS won back only about 0.15 s, for 70 to 80 MB more memory."
 tags: ["java", "jvm", "aot", "appcds", "opentelemetry", "spring-boot", "startup"]
 ShowToc: true
+cover:
+  image: cover.png
+  relative: true
+  alt: "OpenTelemetry Java agent plus JDK 25 plus AOT cache equals SIGSEGV: the header of a real JVM crash report from an AOT cache training run, with the problematic frame SystemDictionaryShared::check_for_exclusion, stamped 13 of 15 training runs crashed"
+  hiddenInSingle: true
+  hiddenInList: true
 ai_disclosure: ai-generated
 references:
   - author: "OpenJDK"
