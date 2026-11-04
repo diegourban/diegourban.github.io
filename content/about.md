@@ -8,6 +8,8 @@ schemaType: "ProfilePage"
 
 I'm Diego Urban, a software engineer working on JVM services and platform engineering.
 
+The tests and measurements behind these posts used to be scattered: some in my notes in Obsidian, some only in my head, some in conversations with Claude. I decided to give them a bit more TLC by gathering them in one place and sharing what I find.
+
 This blog is where I write up what I measure: startup time, memory, and the flags nobody can explain. Every benchmark here ships with its scripts and raw data, so you can check the numbers yourself.
 
 Opinions are my own.
