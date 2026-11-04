@@ -32,7 +32,9 @@
 
 /* Beats PaperMod's bold `.md-content figure>figcaption`: captions are prose, not headings. */
 .md-content .cp-chart > figcaption,
-.cp-chart > figcaption {
+.cp-chart > figcaption,
+.md-content .cp-table > figcaption,
+.cp-table > figcaption {
     margin: 10px 0 0;
     color: var(--secondary);
     font-size: 0.9em;
@@ -93,6 +95,15 @@
 .cp-results-table {
     display: block;
     overflow-x: auto;
+}
+
+/* A captioned table (results-table with a "caption"): no extra figure margins, so it sits like a bare table. */
+.cp-table {
+    margin: 0 0 1.5em;
+}
+
+.cp-table > .cp-results-table {
+    margin-bottom: 0;
 }
 
 .cp-results-table td,
