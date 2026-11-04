@@ -74,7 +74,7 @@ public String placeOrder(String productId, int quantity) {
 
 An order for a product the shop stocks is two writes, the order and the stock, which is why the method is transactional. An order for a marketplace product goes to the partner's API and never touches the database. The catalog rule behind `isOwnStock` lives in memory, as a cache would; if it were a query, every order would run one before the partner call, which is the third case below.
 
-Calling a third-party API from inside a request like this isn't how I'd design it. Sending the order asynchronously, through an outbox or a queue, or at least making the call outside the transaction, is usually the better design. The example is here to show what the pool does with the code as many services have it.
+Calling a third-party API from inside a transaction like this isn't how I'd design it. Sending the order asynchronously, through an outbox or a queue, is usually the better design, and making the call outside the transaction is the next best (that's the narrowed setup below). A real client would also set a timeout, which the example doesn't. The example is here to show what the pool does with the code as many services have it.
 
 ## What I measured
 
@@ -89,22 +89,22 @@ k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 3
 Each combination ran three times, in random order. A step failed when more than 1% of its requests failed, and a run stopped after three failing steps in a row.
 
 {{< chart "lines" "breaks" >}}
-Each eager run failed first at the step just above the pool's capacity, and every round failed at the same step.
+Each eager run first failed at the step just above the capacity calculated from the hold times, and every round failed at the same step.
 {{< /chart >}}
 
 {{< results-table >}}
 
-With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and narrowed never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, they never had a single connection checked out during the run.
+With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and narrowed never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, the pool samples (every half second) never showed an active connection.
 
 {{< chart "lines" "failures" >}}
-The failures are the pool's 2-second timeout. Both kinds of order failed, at similar rates.
+The failures are the pool's 2-second timeout, plus, at a quarter partner orders from 200 req/s, requests k6 couldn't send in time. Both kinds of order failed, at similar rates.
 {{< /chart >}}
 
-Lazy and narrowed also matched in latency. The own-stock orders' p95 differed by about 0.3 ms (95% CI −0.04 to +0.8 ms over 15 paired runs), so they're indistinguishable here. As long as no thread waited for a connection, eager and lazy were within 1% of each other (95% CI −2.9% to +4.1%).
+Lazy and narrowed were close in latency too. Narrowed's own-stock orders were slower in 12 of 15 paired runs, by about 0.3 ms at p95 (95% CI −0.04 to +0.8 ms), which I'd ignore. Eager and lazy only compare fairly while no thread waits for a connection, which here means the first few, low-rate steps of each run, and there they were within a few percent of each other (95% CI −2.9% to +4.1%).
 
 ## The arithmetic behind it
 
-A partner order holds its connection for the whole call, about 309 ms measured, so 10 connections cover about 32 of them per second. Add the 3.5 ms an own-stock order holds one for its two writes, and the pool's capacity is 10 ÷ (share × 0.309 s + (1 − share) × 0.0035 s). That gives about 32 orders per second when they all go to the partner, 36 at 90%, 43 at 75%, 64 at half and 125 at a quarter. Every eager run failed at the first step above that: 40, 50, 70 and 150.
+A partner order holds its connection for the whole call, about 309 ms measured, so 10 connections cover about 32 of them per second. Add the 3.5 ms an own-stock order holds one for its two writes, and the pool's capacity is 10 ÷ (share × 0.309 s + (1 − share) × 0.0035 s). That gives about 32 orders per second when they all go to the partner, 36 at 90%, 43 at 75%, 64 at half and 125 at a quarter. Every eager run failed at the first step above that: 40, 50, 70 and 150. The hold times come from the same runs, so this shows the arithmetic is consistent rather than predicting anything, and at a quarter partner orders the capacity of about 125 sits right on the 125 req/s step that still passed.
 
 So the breakpoint depends mostly on the pool size, the partner's latency and the share of orders that go to it. The database work only matters when that share is small. By the same arithmetic, a partner that slows to 600 ms during an incident halves the breakpoint. I didn't test that.
 
@@ -120,15 +120,15 @@ The pool's waiting-threads gauge, `hikaricp.connections.pending`, warned earlier
 
 ## The flag
 
-`spring.datasource.connection-fetch=lazy` arrived in Spring Boot 4.1 ([issue #15480](https://github.com/spring-projects/spring-boot/issues/15480)). When a transaction begins, Spring's transaction managers switch off auto-commit on a connection (with JPA, Hibernate does it as its transaction begins), so the connection is taken as the method is entered. The flag wraps the auto-configured pool in Spring's [`LazyConnectionDataSourceProxy`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/datasource/LazyConnectionDataSourceProxy.html), which records those settings and applies them to a real connection only when the first statement needs one. Before 4.1 you wired the proxy yourself, as [Vlad Mihalcea describes](https://vladmihalcea.com/lazyconnectiondatasourceproxy-spring-data-jpa/). Hibernate also has its own setting to skip the auto-commit switch, `hibernate.connection.provider_disables_autocommit`, which I didn't test.
+`spring.datasource.connection-fetch=lazy` arrived in Spring Boot 4.1 ([issue #15480](https://github.com/spring-projects/spring-boot/issues/15480)). When a transaction begins, Spring's transaction managers switch off auto-commit on a connection (with JPA, Hibernate does it as its transaction begins), so the connection is taken as the method is entered. The flag wraps the auto-configured pool in Spring's [`LazyConnectionDataSourceProxy`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/datasource/LazyConnectionDataSourceProxy.html), which records those settings and applies them to a real connection only when the first statement needs one. Before 4.1 you wired the proxy yourself, as [Vlad Mihalcea describes](https://vladmihalcea.com/lazyconnectiondatasourceproxy-spring-data-jpa/).
 
 The [reference documentation](https://docs.spring.io/spring-boot/reference/data/sql.html) talks about JDBC transactions only, so I checked JPA too, by reading the pool's active connections during the downstream call on an idle app. A plain `@Transactional` method and a `readOnly = true` one each held one connection with eager fetching and none with lazy fetching, under `JpaTransactionManager` and the JDBC transaction manager alike.
 
-The property only applies when Spring Boot creates the pool. An app that defines its own `DataSource` bean, as every setup with more than one database does, gets no proxy and no warning, and still needs the manual wiring. Where it does apply, the `dataSource` bean becomes the proxy, so code that injects or casts to `HikariDataSource` breaks, while `DataSource.unwrap(HikariDataSource.class)` still reaches the pool.
+The property only applies to the pool Spring Boot creates. An app that replaces it with its own `DataSource` bean gets no proxy and no warning, and still needs the manual wiring. Spring Boot's own recipe for a second database keeps the auto-configured pool, so the flag covers that one, but not the second. Where it does apply, the `dataSource` bean becomes the proxy, so code that injects or casts to `HikariDataSource` breaks, while `DataSource.unwrap(HikariDataSource.class)` still reaches the pool.
 
 With lazy fetching, a pool timeout surfaces later in the method, after anything it did before its first query. I gave the pool a single connection, held it, and called a method that makes the slow call and then saves. Eager fetching failed before the call, with `CannotCreateTransactionException`. Under lazy fetching the method made the call and then failed at the save, with `DataAccessResourceFailureException`. Retry and error handling written for the first exception won't see the second, and a call that changes something on the other side has already happened.
 
-From 4.1.0 to 4.1.2, lazy fetching with JMX and Hikari's `register-mbeans` both on also stopped Hikari registering its pool MBeans ([#52373](https://github.com/spring-projects/spring-boot/pull/52373)). It's fixed in 4.1.3. My runs used 4.1.2 with JMX off, its default, and read the pool through Micrometer.
+From 4.1.0 to 4.1.2, lazy fetching with JMX and Hikari's `register-mbeans` both on also stopped Hikari registering its pool MBeans ([#52373](https://github.com/spring-projects/spring-boot/pull/52373)). The fix is planned for 4.1.3, which isn't out as I write this. My runs used 4.1.2 with JMX off, its default, and read the pool through Micrometer.
 
 ## What each kind of method holds
 
@@ -158,7 +158,7 @@ Open session in view keeps one `EntityManager` open for the whole request, and H
 
 ## What I'd do
 
-If a transactional method makes a slow call on some paths, and you can't move the call out, and Spring Boot creates your pool, turn on `spring.datasource.connection-fetch=lazy`, on 4.1.3 or later if you use JMX. Check your error handling for the later pool timeout. Then turn off open session in view, and look at the methods that query before a slow call. They need the call moved or the transaction narrowed, and the flag doesn't change that.
+If a transactional method makes a slow call on some paths, and you can't move the call out, and Spring Boot creates your pool, turn on `spring.datasource.connection-fetch=lazy`. If you also export Hikari's MBeans over JMX, wait for 4.1.3. Check your error handling for the later pool timeout. Then turn off open session in view, and look at the methods that query before a slow call. They need the call moved or the transaction narrowed, and the flag doesn't change that.
 
 ## Caveats
 
@@ -166,7 +166,9 @@ One small app on one machine (Docker Desktop on an arm64 Mac), PostgreSQL only, 
 
 k6 sent orders at perfectly even intervals with a fixed pattern. Real traffic is burstier, so waits and failures start somewhat below these rates, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
 
-The load test ran with open session in view off. With it on, the checks show the partner path holding the same connections (one with eager fetching, none with lazy), but an own-stock order would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. Tomcat's 200 threads were busy at one breakpoint, a quarter partner orders at 150 req/s, with about 190 waiting for a connection and 10 holding one, and past the breakpoints they filled up. Virtual threads wouldn't move the breakpoints, which the pool sets, but past them more requests would reach the pool and time out, where platform threads leave them waiting for a Tomcat thread.
+The load test ran with open session in view off. With it on, the checks show the partner path holding the same connections (one with eager fetching, none with lazy), but an own-stock order would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. I didn't measure Tomcat's threads directly, but the pool counters put about 200 requests in flight, all of Tomcat's 200 threads, only at a quarter partner orders from 150 req/s. Virtual threads wouldn't move the breakpoints, which the pool sets, but past them more requests would reach the pool and time out, where platform threads leave them waiting for a Tomcat thread.
+
+The partner client was the JDK's `HttpClient`, which doesn't limit connections per host. Apache HttpClient 5, which Spring Boot prefers when it's on the classpath, allows 5 per host by default, about 16 calls per second at 300 ms. With eager fetching, an order waiting for one of those would hold its database connection while it waits. I didn't test that.
 
 ## Method and data
 
