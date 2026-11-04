@@ -1,58 +1,72 @@
 <!doctype html>
-<!-- Social preview card (1200x630) for the OpenTelemetry agent post. make_cover.sh inlines charts.json into the DATA
-     placeholder and screenshots this page. The error line is the JVM's own output (review_evidence.txt, item 3b, JDK 26
-     with AOT class linking off); 0 of 15 and 13 crashes are probe_repeat.txt's totals. -->
+<!-- Alternative social preview card (1200x630) for the OpenTelemetry agent post: a logo row (the official OpenTelemetry
+     icon from cncf/artwork, used to refer to the project; drawn badges for JDK 25 and the AOT cache, which has no logo)
+     above the JVM's own crash report. The log lines are from a real hs_err file (Temurin 25.0.3, AOT cache training with
+     the agent's defaults, 4 Nov 2026), shortened only where marked with "…". "13 of 15" is probe_repeat.txt's total. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Cover</title>
 <style>
-  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
-          --theme: rgb(255, 255, 255); --term-bg: rgb(30, 31, 34); --term-fg: rgb(230, 230, 228);
-          --term-dim: rgb(150, 152, 158); --bad: rgb(176, 42, 42); --radius: 8px; }
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
+  :root { --bg: rgb(13, 15, 20); --fg: rgb(214, 218, 226); --dim: rgb(110, 116, 130); --hl: rgb(255, 92, 92);
+          --flag: rgb(255, 196, 92); --band: rgb(245, 245, 243); --ink: rgb(24, 24, 24); --ink2: rgb(100, 100, 100);
+          --chip: rgb(28, 32, 42); --chip-line: rgb(52, 58, 74); --jdk: rgb(96, 165, 250); --aot: rgb(52, 211, 153); }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--bg);
                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 44px 56px 28px; display: flex; flex-direction: column; }
-  h1 { margin: 0; font-size: 50px; line-height: 1.1; color: var(--primary); letter-spacing: -0.5px; }
-  .term { margin: 30px 0 30px; padding: 22px 28px; background: var(--term-bg); border-radius: var(--radius);
-          font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 21px; line-height: 1.5; color: var(--term-fg); }
-  .term .cmd { color: var(--term-dim); }
-  .tiles { display: flex; gap: 24px; }
-  .tile { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 28px; }
-  .tile .label { font-size: 21px; color: var(--secondary); }
-  .tile .value { margin-top: 8px; font-size: 52px; font-weight: 700; color: var(--primary); }
-  .tile .value.bad { color: var(--bad); }
-  .tile .note { font-size: 19px; color: var(--secondary); }
-  .site { margin-top: auto; font-size: 18px; color: var(--secondary); text-align: right; }
+  .card { position: relative; width: 1200px; height: 630px; display: flex; flex-direction: column; }
+  .logos { display: flex; align-items: center; gap: 18px; padding: 30px 48px 0; color: var(--fg); }
+  .chip { display: flex; align-items: center; gap: 14px; height: 68px; padding: 0 22px 0 14px; border-radius: 14px;
+          background: var(--chip); border: 1px solid var(--chip-line); font-size: 26px; font-weight: 700; }
+  .chip img, .chip svg { width: 46px; height: 46px; }
+  .chip small { display: block; font-size: 15px; font-weight: 500; color: var(--dim); letter-spacing: 0.5px; }
+  .op { font-size: 40px; font-weight: 800; color: var(--dim); }
+  .op.eq { color: var(--hl); }
+  .boom { font-size: 30px; font-weight: 900; color: var(--hl); letter-spacing: 1px; }
+  .log { flex: 1; padding: 22px 48px 0; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+         font-size: 19px; line-height: 1.4; color: var(--fg); white-space: pre; overflow: hidden; }
+  .log .d { color: var(--dim); }
+  .log .hl { color: var(--hl); font-weight: 700; }
+  .log .fl { color: var(--flag); }
+  .stamp { position: absolute; right: 60px; top: 408px; transform: rotate(-6deg); border: 5px solid var(--hl); color: var(--hl);
+           border-radius: 10px; padding: 8px 20px; text-align: center; background: rgba(13, 15, 20, 0.9); }
+  .stamp b { display: block; font-size: 52px; line-height: 1; font-weight: 900; letter-spacing: -1px; }
+  .stamp span { font-size: 19px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .band { background: var(--band); padding: 20px 48px 18px; display: flex; justify-content: space-between; align-items: baseline; }
+  .band h1 { margin: 0; font-size: 31px; line-height: 1.1; color: var(--ink); letter-spacing: -0.5px; }
+  .band .site { font-size: 19px; color: var(--ink2); }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>The OpenTelemetry agent and<br>JDK 25's AOT cache don't mix</h1>
-  <div class="term">
-    <div class="cmd"># JDK 26, AOT class linking off to get past the crash</div>
-    <div class="cmd">$ java -javaagent:otel.jar -XX:-AOTClassLinking -XX:AOTCacheOutput=app.aot …</div>
-    <div>Critical class java.lang.Class has been excluded.</div>
-    <div>AOT configuration file cannot be written.</div>
-  </div>
-  <div class="tiles">
-    <div class="tile">
-      <div class="label">AOT cache, no agent</div>
-      <div class="value" id="aot"></div>
-      <div class="note">startup vs the default archive, 10 rounds</div>
-    </div>
-    <div class="tile">
-      <div class="label">AOT cache, trained with the agent</div>
-      <div class="value bad">0 of 15</div>
-      <div class="note">training runs wrote a cache; 13 crashed the JVM</div>
-    </div>
-  </div>
-  <div class="site">platformnotes.dev</div>
+<div class="logos">
+  <div class="chip"><img src="logos/opentelemetry-icon-color.svg" alt=""><div>OpenTelemetry<small>JAVA AGENT</small></div></div>
+  <div class="op">+</div>
+  <div class="chip">
+    <svg viewBox="0 0 46 46" aria-hidden="true"><rect x="3" y="3" width="40" height="40" rx="9" fill="none" stroke="var(--jdk)" stroke-width="3"/>
+      <text x="23" y="30" text-anchor="middle" font-size="19" font-weight="800" fill="var(--jdk)" font-family="-apple-system, sans-serif">25</text></svg>
+    <div>JDK 25<small>OPENJDK</small></div></div>
+  <div class="op">+</div>
+  <div class="chip">
+    <svg viewBox="0 0 46 46" aria-hidden="true" fill="none" stroke="var(--aot)" stroke-width="3">
+      <ellipse cx="20" cy="11" rx="15" ry="6"/><path d="M5 11v24c0 3.3 6.7 6 15 6"/><path d="M35 11v9"/><path d="M5 23c0 3.3 6.7 6 15 6"/>
+      <path d="M33 22l-7 12h8l-3 10 9-14h-8l3-8z" fill="var(--aot)" stroke="none"/></svg>
+    <div>AOT cache<small>JEP 483</small></div></div>
+  <div class="op eq">=</div>
+  <div class="boom">SIGSEGV</div>
 </div>
-<script>
-  const DATA = /*DATA*/null;
-  const row = DATA.startup.rows.find((r) => r.setup === "AOT cache, no agent");
-  document.getElementById("aot").textContent = `${(row.shift.v / 1000).toFixed(1).replace("-", "−")} s`;
-</script>
+<div class="log"><span class="d">#</span>
+<span class="d">#</span> A fatal error has been detected by the Java Runtime Environment:
+<span class="d">#</span>
+<span class="d">#</span>  <span class="hl">SIGSEGV (0xb)</span> at pc=0x0000ffffb7d637f8, pid=1, tid=13
+<span class="d">#</span>
+<span class="d">#</span> JRE version: OpenJDK Runtime Environment Temurin-25.0.3+9
+<span class="d">#</span> Problematic frame:
+<span class="d">#</span> V  [libjvm.so+0xf737f8]  <span class="hl">SystemDictionaryShared::check_for_exclusion</span>…
+<span class="d">#</span>
+
+Command Line: <span class="fl">-javaagent:/app/otel.jar</span> … <span class="fl">-XX:AOTCacheOutput=/out/x.aot</span> …</div>
+<div class="stamp"><b>13 of 15</b><span>training runs crashed</span></div>
+<div class="band"><h1>The OpenTelemetry agent and JDK 25's AOT cache don't mix</h1><span class="site">platformnotes.dev</span></div>
+</div>
 </body>
 </html>
