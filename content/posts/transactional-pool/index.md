@@ -19,13 +19,22 @@ references:
     year: 2018
     url: "https://github.com/spring-projects/spring-boot/issues/15480"
   - author: "Spring Boot"
-    title: "Lazy connection fetching prevents Hikari from registering its MBeans (pull request #52373)"
+    title: "Hikari does not register its own MBeans when lazy connection fetching is used with JMX enabled (pull request #52373)"
     venue: "spring-projects/spring-boot, GitHub"
+    year: 2026
     url: "https://github.com/spring-projects/spring-boot/pull/52373"
   - author: "Spring Boot"
     title: "SQL Databases"
     venue: "Spring Boot reference documentation"
     url: "https://docs.spring.io/spring-boot/reference/data/sql.html"
+  - author: "Spring Boot"
+    title: "Calling REST Services: HTTP Client Detection"
+    venue: "Spring Boot reference documentation"
+    url: "https://docs.spring.io/spring-boot/reference/io/rest-client.html"
+  - author: "Apache HttpComponents"
+    title: "HttpClient 5.6: Constant Field Values"
+    venue: "Apache HttpComponents"
+    url: "https://hc.apache.org/httpcomponents-client-5.6.x/current/httpclient5/apidocs/constant-values.html"
   - author: "Spring Framework"
     title: "LazyConnectionDataSourceProxy"
     venue: "Spring Framework Javadoc"
@@ -80,11 +89,11 @@ Calling a third-party API from inside a transaction like this isn't how I'd desi
 
 The app is a small Spring Boot 4.1.2 service with Spring Data JPA and PostgreSQL 17.6, and a WireMock stub plays the partner API with a fixed 300 ms delay. HikariCP had 10 connections and gave up after 2 seconds of waiting for one. Each part ran in its own Docker container with 2 CPUs.
 
-k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would quietly slow down along with the app, and the pool would never run out. The share of orders sent to the partner was 100%, 95%, 90%, 75%, 50% or 25%, in a fixed pattern over every 20 orders, and the own-stock orders spread over 100 stock rows so they didn't queue on one row lock. I ran three setups:
+k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would quietly slow down along with the app, and the pool would never run out. The share of orders sent to the partner was 100%, 95%, 90%, 75%, 50% or 25%, in a fixed pattern, with the partner orders of every 20 sent first as one block, and the own-stock orders spread over 100 stock rows so they didn't queue on one row lock. I ran three setups:
 
 - **Eager**: the method above. Open session in view is off; everything else is at Spring Boot's defaults.
 - **Lazy**: the same code with `spring.datasource.connection-fetch=lazy`.
-- **Writes-only transaction**: `placeOrder` itself isn't transactional, and the own-stock branch calls a separate `@Transactional` bean for the two writes, so the partner call never runs inside a transaction. This is the refactor you'd do by hand:
+- **Writes-only transaction**: `placeOrder` itself isn't transactional, and the own-stock branch calls a separate `@Transactional` bean for the two writes, so the partner call never runs inside a transaction. This is the refactor you'd do by hand, and it ran with eager fetching, without the flag:
 
 ```java
 // no @Transactional on the method
@@ -115,10 +124,10 @@ Each eager run first failed at the step just above the capacity calculated from 
 With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and writes-only never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, the pool samples (every half second) never showed an active connection.
 
 {{< chart "lines" "failures" >}}
-The failures are the pool's 2-second timeout, plus, at a quarter partner orders from 200 req/s, requests k6 couldn't send in time. Both kinds of order failed, at similar rates.
+The failures are the pool's 2-second timeout, plus, at a quarter partner orders from 200 req/s, requests k6 couldn't send in time and, at 250, requests that hit k6's own 10-second timeout. Both kinds of order failed, at similar rates.
 {{< /chart >}}
 
-Lazy and writes-only were close in latency too. The writes-only setup's own-stock orders were slower in 12 of 15 paired runs, by about 0.3 ms at p95 (95% CI −0.04 to +0.8 ms), which I'd ignore. Eager and lazy only compare fairly while no thread waits for a connection, which here means the first few, low-rate steps of each run, and there they were within a few percent of each other (95% CI −2.9% to +4.1%).
+Lazy and writes-only were close in latency too. The writes-only setup's own-stock orders were slower in 12 of 15 paired runs, by about 0.3 ms at p95 (95% CI −0.04 to +0.8 ms), about 3% of a p95 around 9 ms, which I'd ignore. Eager and lazy only compare fairly while no thread waits for a connection, which here means the first few, low-rate steps of each run, and there they were within a few percent of each other (95% CI −2.9% to +4.1%).
 
 ## The arithmetic behind it
 
@@ -126,15 +135,7 @@ A partner order holds its connection for the whole call, about 309 ms measured, 
 
 So the breakpoint depends mostly on the pool size, the partner's latency and the share of orders that go to it. The database work only matters when that share is small. By the same arithmetic, a partner that slows to 600 ms during an incident halves the breakpoint. I didn't test that.
 
-And the own-stock orders, the ones that need the database, went from fine to failing within a few steps.
-
-{{< chart "lines" "latency" >}}
-The early fall in every line is the JVM warming up, because the rates always ran from low to high on a freshly started app.
-{{< /chart >}}
-
-With half the orders going to the partner, the own-stock orders' p95 was 11 ms at 30 req/s, 64 ms at 40 and 145 ms at 60. At 70 it was about 2 seconds, which is the pool timeout. From there on an own-stock order either got a connection or failed after two seconds, with about 140 threads queued for one (137 to 141 across the rounds).
-
-The pool's waiting-threads gauge, `hikaricp.connections.pending`, warned earlier the more own-stock orders there were. At half and at a quarter partner orders, threads waited three steps before the failures, and at 75% one step before. At 90% and above, nothing waited at 30 req/s and 40 already failed.
+The own-stock orders, the ones that actually need the database, failed along with the partner orders. With half the orders going to the partner, the own-stock p95 reached about 2 seconds at 70 req/s, which is the pool timeout. From there on an own-stock order either got a connection or failed after two seconds, with about 140 threads queued for one (137 to 141 across the rounds).
 
 ## The flag
 
@@ -150,7 +151,7 @@ From 4.1.0 to 4.1.2, lazy fetching with JMX and Hikari's `register-mbeans` both 
 
 ## What each kind of method holds
 
-These are all the single-request checks, on simpler methods than `placeOrder`. Each number is the pool's active connections during a 300 ms downstream call, on an otherwise idle app, three repeats each. Every repeat agreed. OSIV is open session in view.
+These are all the single-request checks, on simpler methods than `placeOrder`.
 
 {{< results-table "checks" >}}
 
@@ -182,11 +183,11 @@ If a transactional method makes a slow call on some paths, and you can't move th
 
 One small app on one machine (Docker Desktop on an arm64 Mac), PostgreSQL only, one fixed partner latency, a pool of 10, and three rounds. The rates scale with the pool size and the latency, so read the breakpoints as a ratio, not as numbers to expect in production. A real partner API also has jitter, which I left out to keep the arithmetic clean.
 
-k6 sent orders at perfectly even intervals with a fixed pattern. Real traffic is burstier, so waits and failures start somewhat below these rates, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
+k6 sent orders at perfectly even intervals, with the partner orders of every 20 in one block. Real traffic arrives at random, so threads start waiting for a connection well below these rates at every share, failures may start a step lower, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
 
 The load test ran with open session in view off. With it on, the checks show the partner path holding the same connections (one with eager fetching, none with lazy), but an own-stock order would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. I didn't measure Tomcat's threads directly, but the pool counters put about 200 requests in flight, all of Tomcat's 200 threads, only at a quarter partner orders from 150 req/s. Virtual threads wouldn't move the breakpoints, which the pool sets, but past them more requests would reach the pool and time out, where platform threads leave them waiting for a Tomcat thread.
 
-The partner client was the JDK's `HttpClient`, which doesn't limit connections per host. Apache HttpClient 5, which Spring Boot prefers when it's on the classpath, allows 5 per host by default, about 16 calls per second at 300 ms. With eager fetching, an order waiting for one of those would hold its database connection while it waits. I didn't test that.
+The partner client was the JDK's `HttpClient`, which doesn't limit connections per host. Apache HttpClient 5, which [Spring Boot prefers](https://docs.spring.io/spring-boot/reference/io/rest-client.html) for `RestClient` when it's on the classpath, allows [5 connections per host](https://hc.apache.org/httpcomponents-client-5.6.x/current/httpclient5/apidocs/constant-values.html) by default, about 16 calls per second at 300 ms. With eager fetching, an order waiting for one of those would hold its database connection while it waits. I didn't test that.
 
 ## Method and data
 

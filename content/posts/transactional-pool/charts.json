@@ -40,6 +40,7 @@
     "name": "Eager: first failing step",
     "short": "Eager",
     "cls": "s1",
+    "color": "#d93636",
     "points": [
      [
       25,
@@ -70,7 +71,7 @@
    {
     "name": "Pool capacity from the measured hold times",
     "short": "Capacity",
-    "cls": "s2",
+    "cls": "rest",
     "dash": true,
     "points": [
      [
@@ -402,226 +403,10 @@
    }
   ]
  },
- "latency": {
-  "title": "Own-stock orders wait for a connection",
-  "sub": [
-   "p95 of the own-stock orders, with half the orders sent to the partner. Median of 3 rounds.",
-   "Eager leaves the chart at 70 req/s: from there it is the 2 s pool timeout."
-  ],
-  "x": {
-   "label": "Requests per second",
-   "scale": "linear",
-   "min": 0,
-   "max": 300,
-   "ticks": [
-    0,
-    50,
-    100,
-    150,
-    200,
-    250,
-    300
-   ]
-  },
-  "y": {
-   "label": "p95 (ms)",
-   "title": "Own-stock order p95 (ms)",
-   "min": 0,
-   "max": 200,
-   "ticks": [
-    0,
-    50,
-    100,
-    150,
-    200
-   ],
-   "unit": "ms"
-  },
-  "series": [
-   {
-    "name": "Eager (default)",
-    "short": "Eager",
-    "cls": "s1",
-    "points": [
-     [
-      10,
-      15.5
-     ],
-     [
-      20,
-      11.7
-     ],
-     [
-      30,
-      11.0
-     ],
-     [
-      40,
-      64.3
-     ],
-     [
-      50,
-      115.1
-     ],
-     [
-      60,
-      145.2
-     ],
-     [
-      70,
-      1993.2
-     ],
-     [
-      80,
-      2008.0
-     ],
-     [
-      90,
-      2008.7
-     ]
-    ]
-   },
-   {
-    "name": "Lazy (connection-fetch=lazy)",
-    "short": "Lazy",
-    "cls": "s2",
-    "points": [
-     [
-      10,
-      15.9
-     ],
-     [
-      20,
-      11.5
-     ],
-     [
-      30,
-      10.8
-     ],
-     [
-      40,
-      8.0
-     ],
-     [
-      50,
-      7.3
-     ],
-     [
-      60,
-      6.5
-     ],
-     [
-      70,
-      5.8
-     ],
-     [
-      80,
-      5.5
-     ],
-     [
-      90,
-      5.3
-     ],
-     [
-      100,
-      5.2
-     ],
-     [
-      125,
-      4.9
-     ],
-     [
-      150,
-      4.8
-     ],
-     [
-      200,
-      4.2
-     ],
-     [
-      250,
-      4.4
-     ],
-     [
-      300,
-      4.4
-     ]
-    ]
-   },
-   {
-    "name": "Writes-only transaction",
-    "short": "Writes-only",
-    "cls": "s3",
-    "dash": true,
-    "points": [
-     [
-      10,
-      15.8
-     ],
-     [
-      20,
-      11.8
-     ],
-     [
-      30,
-      10.5
-     ],
-     [
-      40,
-      8.1
-     ],
-     [
-      50,
-      7.5
-     ],
-     [
-      60,
-      6.7
-     ],
-     [
-      70,
-      6.2
-     ],
-     [
-      80,
-      5.7
-     ],
-     [
-      90,
-      5.3
-     ],
-     [
-      100,
-      5.5
-     ],
-     [
-      125,
-      5.0
-     ],
-     [
-      150,
-      4.8
-     ],
-     [
-      200,
-      4.4
-     ],
-     [
-      250,
-      4.5
-     ],
-     [
-      300,
-      4.3
-     ]
-    ]
-   }
-  ]
- },
  "table": {
   "caption": "The first rate at which more than 1% of orders failed, the same step in all three rounds. \"none\": no step failed up to 300 req/s, the highest rate tested.",
   "headers": [
-   "First failing step, req/s (tested up to 300)",
+   "First failing step (req/s)",
    "100% partner",
    "95% partner",
    "90% partner",
@@ -749,8 +534,7 @@
   ]
  },
  "aria": {
-  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity the hold times predict. Lazy fetching and a writes-only transaction never failed up to 300 req/s.",
-  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a writes-only transaction, no request failed at any rate or share.",
-  "latency": "With half the orders sent to the partner, the own-stock orders' p95 stayed at or below 16 ms for lazy and writes-only at every rate. With eager fetching it was 64 ms at 40 req/s, 145 ms at 60 and about 2,000 ms, the pool timeout, at 70."
+  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity calculated from the hold times. Lazy fetching and a writes-only transaction never failed up to 300 req/s.",
+  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a writes-only transaction, no request failed at any rate or share."
  }
 }

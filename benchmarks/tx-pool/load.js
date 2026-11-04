@@ -16,7 +16,8 @@ export const options = {
       rate: RATE,
       timeUnit: '1s',
       duration: __ENV.DURATION || '30s',
-      // Enough VUs up front for every request to wait out the 2 s pool timeout, so k6 never drops one.
+      // Enough VUs up front for most requests to wait out the 2 s pool timeout; k6 still dropped some in the most
+      // overloaded steps (eager, 25% partner, 200 and 250 req/s), which bench.py counts as failures.
       preAllocatedVUs: Math.max(100, RATE * 4),
       maxVUs: 3000,
     },
