@@ -105,7 +105,9 @@ def main():
     }
     label = {"eager": "Eager (default)", "lazy": "Lazy (connection-fetch=lazy)", "narrowed": "Narrowed transaction"}
     fmt = lambda v: "none" if v is None else f"{v}"
-    table = {"headers": ["First failing step, req/s (tested up to 300)"] + [f"{round(100 * sh)}% partner" for sh in SHARES],
+    table = {"caption": "The first rate at which more than 1% of orders failed, the same step in all three rounds. "
+                        "\"none\": no step failed up to 300 req/s, the highest rate tested.",
+             "headers": ["First failing step, req/s (tested up to 300)"] + [f"{round(100 * sh)}% partner" for sh in SHARES],
              "rows": [[label[s]] + [", ".join(sorted({fmt(v) for v in bp[(s, sh)]})) for sh in SHARES]
                       for s in ["eager", "lazy", "narrowed"]]}
     calm_lat = max(p[1] for s in ("lazy", "narrowed") for p in lat[s])
@@ -145,7 +147,10 @@ def main():
         assert len(vals) == 1, (key, names, vals)  # every repeat and every variant in a row agree
         return str(vals.pop())
 
-    check_table = {"headers": ["Method (connections held during the call)", "Eager", "Lazy", "Eager + OSIV", "Lazy + OSIV"],
+    check_table = {"caption": "Pool connections checked out during a 300 ms downstream call, on an otherwise idle app, "
+                              "with eager or lazy connection fetching and open session in view (OSIV) off or on. Three "
+                              "repeats each, and every repeat agreed.",
+                   "headers": ["Method (connections held during the call)", "Eager", "Lazy", "Eager + OSIV", "Lazy + OSIV"],
                    "rows": [[name] + [held(k, n) for k in ["eager", "lazy", "eager_osiv", "lazy_osiv"]] for name, n in shapes]}
     out = {"generated_by": "benchmarks/tx-pool/make_charts.py", "breaks": breaks, "failures": failures,
            "latency": latency, "table": table, "checks": check_table, "aria": aria}
