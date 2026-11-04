@@ -141,7 +141,7 @@
    {
     "name": "Lazy or narrowed: no failures up to 300 (the highest rate tested)",
     "short": "Lazy/narrowed",
-    "cls": "rest",
+    "cls": "s3",
     "points": [
      [
       25,

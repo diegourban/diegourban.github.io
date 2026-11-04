@@ -74,7 +74,7 @@ def main():
             {"name": "Pool capacity from the measured hold times", "short": "Capacity", "cls": "s2", "dash": True,
              "points": [[x, round(capacity(x / 100), 1)] for x in range(25, 101, 5)]},
             {"name": "Lazy or narrowed: no failures up to 300 (the highest rate tested)", "short": "Lazy/narrowed",
-             "cls": "rest", "points": [[25, 300], [100, 300]]},
+             "cls": "s3", "points": [[25, 300], [100, 300]]},
         ],
     }
     failures = {
