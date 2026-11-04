@@ -613,6 +613,7 @@
   ]
  },
  "table": {
+  "caption": "The first rate at which more than 1% of orders failed, the same step in all three rounds. \"none\": no step failed up to 300 req/s, the highest rate tested.",
   "headers": [
    "First failing step, req/s (tested up to 300)",
    "100% partner",
@@ -653,6 +654,7 @@
   ]
  },
  "checks": {
+  "caption": "Pool connections checked out during a 300 ms downstream call, on an otherwise idle app, with eager or lazy connection fetching and open session in view (OSIV) off or on. Three repeats each, and every repeat agreed.",
   "headers": [
    "Method (connections held during the call)",
    "Eager",
