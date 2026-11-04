@@ -21,6 +21,7 @@
   },
   "y": {
    "label": "req/s",
+   "title": "First failing step (req/s)",
    "min": 0,
    "max": 300,
    "ticks": [
@@ -178,6 +179,7 @@
   },
   "y": {
    "label": "% failed",
+   "title": "Failed requests (%)",
    "min": 0,
    "max": 50,
    "ticks": [
@@ -423,6 +425,7 @@
   },
   "y": {
    "label": "p95 (ms)",
+   "title": "Own-stock order p95 (ms)",
    "min": 0,
    "max": 200,
    "ticks": [

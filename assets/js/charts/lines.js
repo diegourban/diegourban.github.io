@@ -3,12 +3,14 @@
 //  series: [{name, short (end label and tooltip), cls: "s1"|"s2"|"s3"|"rest", dash?, color?, points: [[x, y], ...]}]}.
 // An optional color overrides the class color for the line and its legend swatch, for a chart that needs more
 // than the three series slots or a color with a meaning (a severity ramp, say).
+// y.title, when set, is drawn as a rotated y-axis title (y.label is only a unit hint and stays undrawn), with a
+// wider left margin to make room; charts without one keep the old layout.
 // One y-axis only; values above y.max are clipped to the top edge. Each line is labelled at its end and in
 // the legend, so identity never rests on color alone, and a crosshair tooltip lists every series at a point.
 CPCharts.register("lines", (el, data, narrow) => {
   const { tooltip, svgFor, text } = CPCharts;
   const d = data[el.dataset.key];
-  const W = el.clientWidth, LEFT = 44, RIGHT = narrow ? 12 : 150;
+  const W = el.clientWidth, LEFT = d.y.title ? 64 : 44, RIGHT = narrow ? 12 : 150;
   const legendRows = narrow ? d.series.length : Math.ceil(d.series.length / 2);
   const TOP = 48 + 18 * d.sub.length + 20 * legendRows, PLOT = narrow ? 200 : 240, H = TOP + PLOT + 44;
   const x = (d.x.scale === "log" ? d3.scaleLog() : d3.scaleLinear()).domain([d.x.min, d.x.max]).range([LEFT, W - RIGHT]);
@@ -40,6 +42,10 @@ CPCharts.register("lines", (el, data, narrow) => {
     text(svg, x(t), TOP + PLOT + 18, fmt(t), "cp-t-tick").attr("text-anchor", "middle");
   });
   text(svg, LEFT, TOP + PLOT + 38, d.x.label, "cp-t-tick");
+  if (d.y.title) {
+    text(svg, 0, 0, d.y.title, "cp-t-tick").attr("text-anchor", "middle")
+      .attr("transform", `translate(12,${TOP + PLOT / 2}) rotate(-90)`);
+  }
 
   const line = d3.line().x((p) => x(p[0])).y((p) => y(clip(p[1])));
   // Draw the context series first, so colored lines sit on top of it.

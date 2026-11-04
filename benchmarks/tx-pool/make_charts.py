@@ -70,7 +70,7 @@ def main():
                 f"{hold['db_median_at_100_plus']:.1f} ms per own-stock order, weighted by the share)."],
         "x": {"label": "Orders sent to the partner (%)", "scale": "linear", "min": 25, "max": 100,
               "ticks": [25, 50, 75, 90, 100]},
-        "y": {"label": "req/s", "min": 0, "max": 300, "ticks": [0, 50, 100, 150, 200, 250, 300], "unit": "req/s"},
+        "y": {"label": "req/s", "title": "First failing step (req/s)", "min": 0, "max": 300, "ticks": [0, 50, 100, 150, 200, 250, 300], "unit": "req/s"},
         "series": [
             {"name": "Eager: first failing step", "short": "Eager", "cls": "s1",
              "points": [[round(100 * sh), med_bp[sh]] for sh in sorted(SHARES)]},
@@ -84,7 +84,7 @@ def main():
         "title": "Failed requests as the arrival rate rises",
         "sub": ["Pool of 10, 2 s timeout, 300 ms partner call. Median of 3 rounds.",
                 "Each run stopped after three failing steps in a row."],
-        "x": X, "y": {"label": "% failed", "min": 0, "max": 50, "ticks": [0, 10, 20, 30, 40, 50], "unit": "%"},
+        "x": X, "y": {"label": "% failed", "title": "Failed requests (%)", "min": 0, "max": 50, "ticks": [0, 10, 20, 30, 40, 50], "unit": "%"},
         "series": [
             {"name": "Eager, 100% partner orders", "short": "Eager 100%", "cls": "s1", "color": RED, "points": series(by, "eager", 1.0, pct)},
             {"name": "Eager, 50% partner orders", "short": "Eager 50%", "cls": "s2", "color": ORANGE, "points": series(by, "eager", 0.5, pct)},
@@ -99,7 +99,7 @@ def main():
         "title": "Own-stock orders wait for a connection",
         "sub": ["p95 of the own-stock orders, with half the orders sent to the partner. Median of 3 rounds.",
                 f"Eager leaves the chart at {med_bp[0.5]:.0f} req/s: from there it is the 2 s pool timeout."],
-        "x": X, "y": {"label": "p95 (ms)", "min": 0, "max": 200, "ticks": [0, 50, 100, 150, 200], "unit": "ms"},
+        "x": X, "y": {"label": "p95 (ms)", "title": "Own-stock order p95 (ms)", "min": 0, "max": 200, "ticks": [0, 50, 100, 150, 200], "unit": "ms"},
         "series": [
             {"name": "Eager (default)", "short": "Eager", "cls": "s1", "points": lat["eager"]},
             {"name": "Lazy (connection-fetch=lazy)", "short": "Lazy", "cls": "s2", "points": lat["lazy"]},
