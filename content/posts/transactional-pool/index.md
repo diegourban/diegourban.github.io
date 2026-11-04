@@ -89,7 +89,7 @@ Calling a third-party API from inside a transaction like this isn't how I'd desi
 
 The app is a small Spring Boot 4.1.2 service with Spring Data JPA and PostgreSQL 17.6, and a WireMock stub plays the partner API with a fixed 300 ms delay. HikariCP had 10 connections and gave up after 2 seconds of waiting for one. Each part ran in its own Docker container with 2 CPUs.
 
-k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would quietly slow down along with the app, and the pool would never run out. The share of orders sent to the partner was 100%, 95%, 90%, 75%, 50% or 25%, in a fixed pattern, with the partner orders of every 20 sent first as one block, and the own-stock orders spread over 100 stock rows so they didn't queue on one row lock. I ran three setups:
+k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 30-second steps. A tool that waits for each answer before sending the next request would slow down along with the app, and the pool would never run out. The share of orders sent to the partner was 100%, 95%, 90%, 75%, 50% or 25%. Out of every 20 orders, the partner ones were sent first, in one block. The own-stock orders spread over 100 stock rows, so they didn't queue on one row lock. I ran three setups:
 
 - **Eager**: the method above. Open session in view is off; everything else is at Spring Boot's defaults.
 - **Lazy**: the same code with `spring.datasource.connection-fetch=lazy`.
@@ -135,7 +135,7 @@ A partner order holds its connection for the whole call, about 309 ms measured, 
 
 So the breakpoint depends mostly on the pool size, the partner's latency and the share of orders that go to it. The database work only matters when that share is small. By the same arithmetic, a partner that slows to 600 ms during an incident halves the breakpoint. I didn't test that.
 
-The own-stock orders, the ones that actually need the database, failed along with the partner orders. With half the orders going to the partner, the own-stock p95 reached about 2 seconds at 70 req/s, which is the pool timeout. From there on an own-stock order either got a connection or failed after two seconds, with about 140 threads queued for one (137 to 141 across the rounds).
+The own-stock orders, the ones that need the database, failed along with the partner orders. With half the orders going to the partner, the own-stock p95 reached about 2 seconds at 70 req/s, which is the pool timeout. From there on an own-stock order either got a connection or failed at that timeout, with about 140 of Tomcat's request threads queued for a connection (137 to 141 across the rounds).
 
 ## The flag
 
@@ -183,11 +183,11 @@ If a transactional method makes a slow call on some paths, and you can't move th
 
 One small app on one machine (Docker Desktop on an arm64 Mac), PostgreSQL only, one fixed partner latency, a pool of 10, and three rounds. The rates scale with the pool size and the latency, so read the breakpoints as a ratio, not as numbers to expect in production. A real partner API also has jitter, which I left out to keep the arithmetic clean.
 
-k6 sent orders at perfectly even intervals, with the partner orders of every 20 in one block. Real traffic arrives at random, so threads start waiting for a connection well below these rates at every share, failures may start a step lower, and the cliff is less sharp. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out.
+Both the even spacing and the block of partner orders make this test tidier than production. Real traffic arrives at random, so I'd expect threads to start waiting for a connection well below these rates, and the failures to set in less abruptly. With a 30-second step and a 2-second timeout, a step also has to be a little above capacity before 1% of its requests time out, since only the requests that wait longer than 2 seconds fail.
 
 The load test ran with open session in view off. With it on, the checks show the partner path holding the same connections (one with eager fetching, none with lazy), but an own-stock order would keep its connection a little longer, until the response is written. I'd expect similar breakpoints, and I didn't measure them. All runs used platform threads. I didn't measure Tomcat's threads directly, but the pool counters put about 200 requests in flight, all of Tomcat's 200 threads, only at a quarter partner orders from 150 req/s. Virtual threads wouldn't move the breakpoints, which the pool sets, but past them more requests would reach the pool and time out, where platform threads leave them waiting for a Tomcat thread.
 
-The partner client was the JDK's `HttpClient`, which doesn't limit connections per host. Apache HttpClient 5, which [Spring Boot prefers](https://docs.spring.io/spring-boot/reference/io/rest-client.html) for `RestClient` when it's on the classpath, allows [5 connections per host](https://hc.apache.org/httpcomponents-client-5.6.x/current/httpclient5/apidocs/constant-values.html) by default, about 16 calls per second at 300 ms. With eager fetching, an order waiting for one of those would hold its database connection while it waits. I didn't test that.
+The partner client was the JDK's `HttpClient`, which doesn't limit connections per host. Apache HttpClient 5, which [Spring Boot prefers](https://docs.spring.io/spring-boot/reference/io/rest-client.html) for `RestClient` when it's on the classpath, allows [5 connections per host](https://hc.apache.org/httpcomponents-client-5.6.x/current/httpclient5/apidocs/constant-values.html) by default, about 16 calls per second at 300 ms. With eager fetching, an order waiting for one of those would hold its database connection while it waits, which I didn't test.
 
 ## Method and data
 
