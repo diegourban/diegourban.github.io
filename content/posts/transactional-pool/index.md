@@ -8,7 +8,7 @@ ShowToc: true
 cover:
   image: cover.png
   relative: true
-  alt: "Failed requests as the arrival rate rises: with eager connection fetching, an order service starts failing at 40 req/s when every order goes to a partner API, at 70 with half and at 150 with a quarter, while lazy fetching and a narrowed transaction never fail up to 300 req/s"
+  alt: "Failed requests as the arrival rate rises: with eager connection fetching, an order service starts failing at 40 req/s when every order goes to a partner API, at 70 with half and at 150 with a quarter, while lazy fetching and a writes-only transaction never fail up to 300 req/s"
   hiddenInSingle: true
   hiddenInList: true
 ai_disclosure: ai-generated
@@ -74,7 +74,7 @@ public String placeOrder(String productId, int quantity) {
 
 An order for a product the shop stocks is two writes, the order and the stock, which is why the method is transactional. An order for a marketplace product goes to the partner's API and never touches the database. The catalog rule behind `isOwnStock` lives in memory, as a cache would; if it were a query, every order would run one before the partner call, which is the third case below.
 
-Calling a third-party API from inside a transaction like this isn't how I'd design it. Sending the order asynchronously, through an outbox or a queue, is usually the better design, and making the call outside the transaction is the next best (that's the narrowed setup below). A real client would also set a timeout, which the example doesn't. The example is here to show what the pool does with the code as many services have it.
+Calling a third-party API from inside a transaction like this isn't how I'd design it. Sending the order asynchronously, through an outbox or a queue, is usually the better design, and making the call outside the transaction is the next best (that's the writes-only setup below). A real client would also set a timeout, which the example doesn't. The example is here to show what the pool does with the code as many services have it.
 
 ## What I measured
 
@@ -84,7 +84,25 @@ k6 sent the load at fixed arrival rates, from 10 to 300 requests per second in 3
 
 - **Eager**: the method above. Open session in view is off; everything else is at Spring Boot's defaults.
 - **Lazy**: the same code with `spring.datasource.connection-fetch=lazy`.
-- **Narrowed**: `placeOrder` itself isn't transactional, and the own-stock branch calls a separate `@Transactional` bean that does the two writes. This is the refactor you'd do by hand.
+- **Writes-only transaction**: `placeOrder` itself isn't transactional, and the own-stock branch calls a separate `@Transactional` bean for the two writes, so the partner call never runs inside a transaction. This is the refactor you'd do by hand:
+
+```java
+// no @Transactional on the method
+public String placeOrder(String productId, int quantity) {
+    if (isOwnStock(productId)) {
+        return "placed:" + writer.write(productId, quantity);
+    }
+    return "forwarded:" + forward(productId, quantity);  // no transaction
+}
+
+// in the writer bean
+@Transactional
+Long write(String productId, int quantity) {
+    Long id = orders.save(new PurchaseOrder(productId, quantity)).getId();
+    stock.decrement(productId, quantity);
+    return id;
+}
+```
 
 Each combination ran three times, in random order. A step failed when more than 1% of its requests failed, and a run stopped after three failing steps in a row.
 
@@ -94,13 +112,13 @@ Each eager run first failed at the step just above the capacity calculated from 
 
 {{< results-table >}}
 
-With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and narrowed never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, the pool samples (every half second) never showed an active connection.
+With eager fetching the pool ran out at 40 req/s whenever 90% or more of the orders went to the partner, at 50 with 75%, at 70 with half and at 150 with a quarter. Lazy and writes-only never failed, at any rate or share. With every order going to the partner, which is the method that never needs the database, the pool samples (every half second) never showed an active connection.
 
 {{< chart "lines" "failures" >}}
 The failures are the pool's 2-second timeout, plus, at a quarter partner orders from 200 req/s, requests k6 couldn't send in time. Both kinds of order failed, at similar rates.
 {{< /chart >}}
 
-Lazy and narrowed were close in latency too. Narrowed's own-stock orders were slower in 12 of 15 paired runs, by about 0.3 ms at p95 (95% CI −0.04 to +0.8 ms), which I'd ignore. Eager and lazy only compare fairly while no thread waits for a connection, which here means the first few, low-rate steps of each run, and there they were within a few percent of each other (95% CI −2.9% to +4.1%).
+Lazy and writes-only were close in latency too. The writes-only setup's own-stock orders were slower in 12 of 15 paired runs, by about 0.3 ms at p95 (95% CI −0.04 to +0.8 ms), which I'd ignore. Eager and lazy only compare fairly while no thread waits for a connection, which here means the first few, low-rate steps of each run, and there they were within a few percent of each other (95% CI −2.9% to +4.1%).
 
 ## The arithmetic behind it
 

@@ -139,8 +139,8 @@
     ]
    },
    {
-    "name": "Lazy or narrowed: no failures up to 300 (the highest rate tested)",
-    "short": "Lazy/narrowed",
+    "name": "Lazy or writes-only: no failures up to 300 (the highest rate tested)",
+    "short": "Lazy/writes-only",
     "cls": "s3",
     "points": [
      [
@@ -330,8 +330,8 @@
     ]
    },
    {
-    "name": "Lazy or narrowed, any share",
-    "short": "Lazy/narrowed",
+    "name": "Lazy or writes-only, any share",
+    "short": "Lazy/writes-only",
     "cls": "s3",
     "points": [
      [
@@ -544,8 +544,8 @@
     ]
    },
    {
-    "name": "Narrowed transaction",
-    "short": "Narrowed",
+    "name": "Writes-only transaction",
+    "short": "Writes-only",
     "cls": "s3",
     "dash": true,
     "points": [
@@ -644,7 +644,7 @@
     "none"
    ],
    [
-    "Narrowed transaction",
+    "Writes-only transaction",
     "none",
     "none",
     "none",
@@ -744,8 +744,8 @@
   ]
  },
  "aria": {
-  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity the hold times predict. Lazy fetching and a narrowed transaction never failed up to 300 req/s.",
-  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a narrowed transaction, no request failed at any rate or share.",
-  "latency": "With half the orders sent to the partner, the own-stock orders' p95 stayed at or below 16 ms for lazy and narrowed at every rate. With eager fetching it was 64 ms at 40 req/s, 145 ms at 60 and about 2,000 ms, the pool timeout, at 70."
+  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity the hold times predict. Lazy fetching and a writes-only transaction never failed up to 300 req/s.",
+  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a writes-only transaction, no request failed at any rate or share.",
+  "latency": "With half the orders sent to the partner, the own-stock orders' p95 stayed at or below 16 ms for lazy and writes-only at every rate. With eager fetching it was 64 ms at 40 req/s, 145 ms at 60 and about 2,000 ms, the pool timeout, at 70."
  }
 }
