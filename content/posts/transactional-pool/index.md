@@ -1,6 +1,6 @@
 ---
 title: "@Transactional holds a pool connection it may never use. Spring Boot 4.1 can fix that"
-date: 2026-11-10
+date: 2026-11-11
 draft: true
 description: "A @Transactional method takes a pool connection when it starts, even on a path that only calls another service. With a pool of 10 and a 300 ms partner API, an order service started failing at 40 req/s when 90% or more of its orders went to the partner. With Spring Boot 4.1's lazy connection fetching, nothing failed up to 300 req/s, the highest rate tested."
 tags: ["java", "spring-boot", "spring", "jpa", "hikaricp", "transactions", "performance"]
