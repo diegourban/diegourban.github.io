@@ -1,0 +1,540 @@
+{
+ "generated_by": "benchmarks/tx-pool/make_charts.py",
+ "breaks": {
+  "title": "Where the pool runs out",
+  "sub": [
+   "First failing step with eager fetching, by the share of orders sent to the partner. Same in all 3 rounds.",
+   "Capacity: 10 connections / (309 ms per partner order and 3.5 ms per own-stock order, weighted by the share)."
+  ],
+  "x": {
+   "label": "Orders sent to the partner (%)",
+   "scale": "linear",
+   "min": 25,
+   "max": 100,
+   "ticks": [
+    25,
+    50,
+    75,
+    90,
+    100
+   ]
+  },
+  "y": {
+   "label": "req/s",
+   "title": "First failing step (req/s)",
+   "min": 0,
+   "max": 300,
+   "ticks": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ],
+   "unit": "req/s"
+  },
+  "series": [
+   {
+    "name": "Eager: first failing step",
+    "short": "Eager",
+    "cls": "s1",
+    "color": "#d93636",
+    "points": [
+     [
+      25,
+      150
+     ],
+     [
+      50,
+      70
+     ],
+     [
+      75,
+      50
+     ],
+     [
+      90,
+      40
+     ],
+     [
+      95,
+      40
+     ],
+     [
+      100,
+      40
+     ]
+    ]
+   },
+   {
+    "name": "Pool capacity from the measured hold times",
+    "short": "Capacity",
+    "cls": "rest",
+    "dash": true,
+    "points": [
+     [
+      25,
+      125.3
+     ],
+     [
+      30,
+      105.1
+     ],
+     [
+      35,
+      90.6
+     ],
+     [
+      40,
+      79.6
+     ],
+     [
+      45,
+      71.0
+     ],
+     [
+      50,
+      64.0
+     ],
+     [
+      55,
+      58.3
+     ],
+     [
+      60,
+      53.5
+     ],
+     [
+      65,
+      49.5
+     ],
+     [
+      70,
+      46.0
+     ],
+     [
+      75,
+      43.0
+     ],
+     [
+      80,
+      40.3
+     ],
+     [
+      85,
+      38.0
+     ],
+     [
+      90,
+      35.9
+     ],
+     [
+      95,
+      34.0
+     ],
+     [
+      100,
+      32.4
+     ]
+    ]
+   },
+   {
+    "name": "Lazy or writes-only: no failures up to 300 (the highest rate tested)",
+    "short": "Lazy/writes-only",
+    "cls": "s3",
+    "points": [
+     [
+      25,
+      300
+     ],
+     [
+      100,
+      300
+     ]
+    ]
+   }
+  ]
+ },
+ "failures": {
+  "title": "Failed requests as the arrival rate rises",
+  "sub": [
+   "Pool of 10, 2 s timeout, 300 ms partner call. Median of 3 rounds.",
+   "Each run stopped after three failing steps in a row."
+  ],
+  "x": {
+   "label": "Requests per second",
+   "scale": "linear",
+   "min": 0,
+   "max": 300,
+   "ticks": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ]
+  },
+  "y": {
+   "label": "% failed",
+   "title": "Failed requests (%)",
+   "min": 0,
+   "max": 50,
+   "ticks": [
+    0,
+    10,
+    20,
+    30,
+    40,
+    50
+   ],
+   "unit": "%"
+  },
+  "series": [
+   {
+    "name": "Eager, 100% partner orders",
+    "short": "Eager 100%",
+    "cls": "s1",
+    "color": "#d93636",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      13.2
+     ],
+     [
+      50,
+      30.6
+     ],
+     [
+      60,
+      41.9
+     ]
+    ]
+   },
+   {
+    "name": "Eager, 50% partner orders",
+    "short": "Eager 50%",
+    "cls": "s2",
+    "color": "#ef7d22",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      3.2
+     ],
+     [
+      80,
+      16.6
+     ],
+     [
+      90,
+      25.1
+     ]
+    ]
+   },
+   {
+    "name": "Eager, 25% partner orders",
+    "short": "Eager 25%",
+    "cls": "s1",
+    "color": "#d4a20a",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      0.0
+     ],
+     [
+      80,
+      0.0
+     ],
+     [
+      90,
+      0.0
+     ],
+     [
+      100,
+      0.0
+     ],
+     [
+      125,
+      0.0
+     ],
+     [
+      150,
+      8.5
+     ],
+     [
+      200,
+      20.8
+     ],
+     [
+      250,
+      33.6
+     ]
+    ]
+   },
+   {
+    "name": "Lazy or writes-only, any share",
+    "short": "Lazy/writes-only",
+    "cls": "s3",
+    "points": [
+     [
+      10,
+      0.0
+     ],
+     [
+      20,
+      0.0
+     ],
+     [
+      30,
+      0.0
+     ],
+     [
+      40,
+      0.0
+     ],
+     [
+      50,
+      0.0
+     ],
+     [
+      60,
+      0.0
+     ],
+     [
+      70,
+      0.0
+     ],
+     [
+      80,
+      0.0
+     ],
+     [
+      90,
+      0.0
+     ],
+     [
+      100,
+      0.0
+     ],
+     [
+      125,
+      0.0
+     ],
+     [
+      150,
+      0.0
+     ],
+     [
+      200,
+      0.0
+     ],
+     [
+      250,
+      0.0
+     ],
+     [
+      300,
+      0.0
+     ]
+    ]
+   }
+  ]
+ },
+ "table": {
+  "caption": "The first rate at which more than 1% of orders failed, the same step in all three rounds. \"none\": no step failed up to 300 req/s, the highest rate tested.",
+  "headers": [
+   "First failing step (req/s)",
+   "100% partner",
+   "95% partner",
+   "90% partner",
+   "75% partner",
+   "50% partner",
+   "25% partner"
+  ],
+  "rows": [
+   [
+    "Eager (default)",
+    "40",
+    "40",
+    "40",
+    "50",
+    "70",
+    "150"
+   ],
+   [
+    "Lazy (connection-fetch=lazy)",
+    "none",
+    "none",
+    "none",
+    "none",
+    "none",
+    "none"
+   ],
+   [
+    "Writes-only transaction",
+    "none",
+    "none",
+    "none",
+    "none",
+    "none",
+    "none"
+   ]
+  ]
+ },
+ "checks": {
+  "caption": "Pool connections checked out during a 300 ms downstream call, on an otherwise idle app, with eager or lazy connection fetching and open session in view (OSIV) off or on. Three repeats each, and every repeat agreed.",
+  "headers": [
+   "Method (connections held during the call)",
+   "Eager",
+   "Lazy",
+   "Eager + OSIV",
+   "Lazy + OSIV"
+  ],
+  "rows": [
+   [
+    "No query: @Transactional",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: @Transactional(readOnly = true)",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: same, with the JDBC transaction manager",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "No query: NOT_SUPPORTED, NEVER, SUPPORTS or no annotation",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   [
+    "@Transactional, the call, then a query",
+    "1",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "@Transactional, a query, then the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "SUPPORTS or NOT_SUPPORTED, an EntityManager query, then the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "No annotation, an EntityManager query, then the call",
+    "0",
+    "0",
+    "1",
+    "1"
+   ],
+   [
+    "No transaction, a Spring Data repository call, then the call",
+    "0",
+    "0",
+    "1",
+    "1"
+   ],
+   [
+    "Outer @Transactional queried, inner NOT_SUPPORTED makes the call",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   [
+    "Outer @Transactional queried, inner REQUIRES_NEW queries and makes the call",
+    "2",
+    "2",
+    "2",
+    "2"
+   ]
+  ]
+ },
+ "aria": {
+  "breaks": "With eager connection fetching, the first failing step was 40 req/s at 100%, 40 req/s at 95%, 40 req/s at 90%, 50 req/s at 75%, 70 req/s at 50%, 150 req/s at 25% of orders sent to the partner, each just above the pool capacity calculated from the hold times. Lazy fetching and a writes-only transaction never failed up to 300 req/s.",
+  "failures": "With eager fetching, requests started failing at 40 req/s when every order went to the partner, at 70 with half, and at 150 with a quarter. With lazy fetching or a writes-only transaction, no request failed at any rate or share."
+ }
+}

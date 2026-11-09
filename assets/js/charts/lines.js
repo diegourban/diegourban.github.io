@@ -1,12 +1,16 @@
 // Line chart for change over a run: {{< chart "lines" "key" >}} draws charts.json data[key]:
 // {title, sub[], x: {label, scale: "linear"|"log", min, max, ticks[]}, y: {label, min, max, ticks[], unit},
-//  series: [{name, short (end label and tooltip), cls: "s1"|"s2"|"s3"|"rest", dash?, points: [[x, y], ...]}]}.
+//  series: [{name, short (end label and tooltip), cls: "s1"|"s2"|"s3"|"rest", dash?, color?, points: [[x, y], ...]}]}.
+// An optional color overrides the class color for the line and its legend swatch, for a chart that needs more
+// than the three series slots or a color with a meaning (a severity ramp, say).
+// y.title, when set, is drawn as a rotated y-axis title (y.label is only a unit hint and stays undrawn), with a
+// wider left margin to make room; charts without one keep the old layout.
 // One y-axis only; values above y.max are clipped to the top edge. Each line is labelled at its end and in
 // the legend, so identity never rests on color alone, and a crosshair tooltip lists every series at a point.
 CPCharts.register("lines", (el, data, narrow) => {
   const { tooltip, svgFor, text } = CPCharts;
   const d = data[el.dataset.key];
-  const W = el.clientWidth, LEFT = 44, RIGHT = narrow ? 12 : 150;
+  const W = el.clientWidth, LEFT = d.y.title ? 64 : 44, RIGHT = narrow ? 12 : 150;
   const legendRows = narrow ? d.series.length : Math.ceil(d.series.length / 2);
   const TOP = 48 + 18 * d.sub.length + 20 * legendRows, PLOT = narrow ? 200 : 240, H = TOP + PLOT + 44;
   const x = (d.x.scale === "log" ? d3.scaleLog() : d3.scaleLinear()).domain([d.x.min, d.x.max]).range([LEFT, W - RIGHT]);
@@ -24,7 +28,7 @@ CPCharts.register("lines", (el, data, narrow) => {
   d.series.forEach((s, i) => {
     const col = narrow ? 0 : i % 2, row = narrow ? i : Math.floor(i / 2);
     const lx = col * Math.max(260, (W - RIGHT) / 2), ly = legendTop + 20 * row;
-    svg.append("line").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`)
+    svg.append("line").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).style("stroke", s.color || null)
       .attr("x1", lx).attr("x2", lx + 22).attr("y1", ly - 4).attr("y2", ly - 4);
     text(svg, lx + 30, ly, s.name, "cp-t-val2");
   });
@@ -38,21 +42,32 @@ CPCharts.register("lines", (el, data, narrow) => {
     text(svg, x(t), TOP + PLOT + 18, fmt(t), "cp-t-tick").attr("text-anchor", "middle");
   });
   text(svg, LEFT, TOP + PLOT + 38, d.x.label, "cp-t-tick");
+  if (d.y.title) {
+    text(svg, 0, 0, d.y.title, "cp-t-tick").attr("text-anchor", "middle")
+      .attr("transform", `translate(12,${TOP + PLOT / 2}) rotate(-90)`);
+  }
 
   const line = d3.line().x((p) => x(p[0])).y((p) => y(clip(p[1])));
   // Draw the context series first, so colored lines sit on top of it.
   [...d.series].sort((a, b) => (a.cls === "rest" ? -1 : 0) - (b.cls === "rest" ? -1 : 0)).forEach((s) => {
-    svg.append("path").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).attr("d", line(s.points));
+    svg.append("path").attr("class", `cp-line cp-line-${s.cls}${s.dash ? " cp-dash" : ""}`).style("stroke", s.color || null)
+      .attr("d", line(s.points));
   });
   if (!narrow) {
     // End labels, nudged apart upwards (from the lowest line end) so they never overlap or drop below the plot.
-    const ends = d.series.map((s) => ({ s, y: y(clip(s.points[s.points.length - 1][1])) })).sort((a, b) => b.y - a.y);
+    // A line that stops before the end of the axis is labelled where it stops, not at the right edge.
+    const last = (s) => s.points[s.points.length - 1];
+    const early = (s) => last(s)[0] < d.x.max;
+    const ends = d.series.filter((s) => !early(s)).map((s) => ({ s, y: y(clip(last(s)[1])) })).sort((a, b) => b.y - a.y);
     ends.forEach((e, i) => { if (i > 0 && ends[i - 1].y - e.y < 15) e.y = ends[i - 1].y - 15; });
     ends.forEach((e) => text(svg, W - RIGHT + 8, e.y + 4, e.s.short || e.s.name, "cp-t-val2"));
+    d.series.filter(early).forEach((s) => text(svg, x(last(s)[0]) + 6, y(clip(last(s)[1])) + 4, s.short || s.name, "cp-t-val2"));
   }
 
-  // Crosshair: snap to the nearest x of the first series and list every series' value there.
-  const xs = d.series[0].points.map((p) => p[0]);
+  // Crosshair: snap to the nearest x of the longest series and list every series that has a value there
+  // (a series may stop early, e.g. a run that was cut off once it failed).
+  const xs = d3.greatest(d.series, (s) => s.points.length).points.map((p) => p[0]);
+  const at = (s, xv) => s.points.find((p) => p[0] === xv);
   const cross = svg.append("line").attr("class", "cp-zero").attr("y1", TOP).attr("y2", TOP + PLOT).style("opacity", 0);
   svg.append("rect").attr("x", LEFT).attr("y", TOP).attr("width", W - RIGHT - LEFT).attr("height", PLOT)
     .attr("fill", "transparent")
@@ -60,7 +75,8 @@ CPCharts.register("lines", (el, data, narrow) => {
       const mx = x.invert(d3.pointer(ev)[0]);
       const i = d3.minIndex(xs, (v) => Math.abs(v - mx));
       cross.attr("x1", x(xs[i])).attr("x2", x(xs[i])).style("opacity", 1);
-      tip.show(ev, `${d.x.label} ${fmt(xs[i])}: ` + d.series.map((s) => `${s.short || s.name} ${fmt(s.points[i][1])}${d.y.unit ? " " + d.y.unit : ""}`).join(" · "));
+      tip.show(ev, `${d.x.label} ${fmt(xs[i])}: ` + d.series.filter((s) => at(s, xs[i]))
+        .map((s) => `${s.short || s.name} ${fmt(at(s, xs[i])[1])}${d.y.unit ? " " + d.y.unit : ""}`).join(" · "));
     })
     .on("mouseleave", () => { cross.style("opacity", 0); tip.hide(); });
 });
