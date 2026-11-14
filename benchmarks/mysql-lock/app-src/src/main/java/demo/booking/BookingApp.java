@@ -55,6 +55,7 @@ public class BookingApp implements ApplicationRunner {
         variants.put("counterEventLoadedThenRefreshed", writer::counterEventLoadedThenRefreshed);
         variants.put("outerRead", facade::outerRead);
         variants.put("outerReadNewTransaction", facade::outerReadNewTransaction);
+        variants.put("outerReadThenReadCommitted", facade::outerReadThenReadCommitted);
         this.mysql = jdbc.execute((java.sql.Connection c) -> c.getMetaData().getDatabaseProductName()).toLowerCase().contains("mysql");
     }
 

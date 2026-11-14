@@ -3,7 +3,7 @@
  "arrivals": {
   "title": "Events overbooked as bookings arrive faster",
   "sub": [
-   "10 seats, 15 booking requests per event arriving at random. MySQL 8.4 at REPEATABLE READ.",
+   "10 seats, 15 booking requests per event arriving at random. MySQL 8.4 at REPEATABLE READ, PostgreSQL 17 at READ COMMITTED.",
    "300 events per rate (100 per round, 3 rounds)."
   ],
   "x": {
@@ -216,43 +216,43 @@
     "10",
     "10.7% (7.7–14.7)",
     "11% (7.9–15)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "20",
     "20.3% (16.2–25.2)",
     "20.7% (16.5–25.6)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "50",
     "45.7% (40.1–51.3)",
     "43% (37.5–48.7)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "100",
     "66.3% (60.8–71.4)",
     "63% (57.4–68.3)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "200",
     "65.3% (59.8–70.5)",
     "73% (67.7–77.7)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "500",
     "74.7% (69.5–79.3)",
     "59% (53.4–64.4)",
-    "0 of 1,200"
+    "0 of 300 each"
    ],
    [
     "1,000",
     "97.7% (95.3–98.9)",
     "96% (93.1–97.7)",
-    "0 of 1,200"
+    "0 of 300 each"
    ]
   ]
  },
@@ -322,6 +322,12 @@
    [
     "The same writer with REQUIRES_NEW",
     "safe",
+    "–",
+    "–"
+   ],
+   [
+    "The READ COMMITTED writer, inside a caller's transaction that already read",
+    "overbooked",
     "–",
     "–"
    ],

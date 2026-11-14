@@ -47,7 +47,7 @@ def main():
 
     arrivals = {
         "title": "Events overbooked as bookings arrive faster",
-        "sub": ["10 seats, 15 booking requests per event arriving at random. MySQL 8.4 at REPEATABLE READ.",
+        "sub": ["10 seats, 15 booking requests per event arriving at random. MySQL 8.4 at REPEATABLE READ, PostgreSQL 17 at READ COMMITTED.",
                 "300 events per rate (100 per round, 3 rounds)."],
         "x": {"label": "Booking requests per second, per event", "scale": "log", "min": 10, "max": 1000,
               "ticks": [10, 20, 50, 100, 200, 500, 1000]},
@@ -91,7 +91,7 @@ def main():
         "headers": ["Requests/s per event", "Plain read, then the lock", "Check in the lock's subquery",
                     "Every fix, PostgreSQL default"],
         "rows": [[f"{r:,}", cell("mysql", "plainReadFirst", r), cell("mysql", "subquery", r),
-                  f"{sum(over[(db, v, r)][0] for db, v in FIXES)} of {sum(over[(db, v, r)][1] for db, v in FIXES):,}"]
+                  "0 of 300 each" if all(over[(db, v, r)] == [0, 300] for db, v in FIXES) else "see results.jsonl"]
                  for r in RATES],
     }
 
@@ -117,6 +117,7 @@ def main():
         ("getReferenceById, then the lock", "referenceFirst"),
         ("Writer locks first, inside a caller's transaction that already read", "outerRead"),
         ("The same writer with REQUIRES_NEW", "outerReadNewTransaction"),
+        ("The READ COMMITTED writer, inside a caller's transaction that already read", "outerReadThenReadCommitted"),
         ("Counter fix, event loaded earlier in the transaction", "counterEventLoadedFirst"),
         ("The same, re-read with refresh(event, PESSIMISTIC_WRITE)", "counterEventLoadedThenRefreshed"),
     ]

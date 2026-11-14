@@ -196,6 +196,21 @@
  },
  {
   "mode": "check",
+  "db": "mysql",
+  "isolation": "REPEATABLE-READ",
+  "variant": "outerReadThenReadCommitted",
+  "capacity": 1,
+  "bookings": 2,
+  "seatsTaken": 0,
+  "overbooked": true,
+  "t1": "booked",
+  "t2": "booked",
+  "t2Blocked": true,
+  "t2WaitingFor": "event/PRIMARY X,REC_NOT_GAP",
+  "t2DoneBeforeT1Commit": false
+ },
+ {
+  "mode": "check",
   "db": "postgresql",
   "isolation": "read committed",
   "variant": "plainReadFirst",

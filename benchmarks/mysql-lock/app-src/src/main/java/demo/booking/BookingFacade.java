@@ -21,6 +21,13 @@ public class BookingFacade {
         return writer.lockFirst(eventId, customerId);
     }
 
+    /** The READ COMMITTED writer called from inside this transaction: does its isolation still apply? */
+    @Transactional
+    public boolean outerReadThenReadCommitted(long eventId, long customerId) {
+        customers.findById(customerId).orElseThrow();
+        return writer.readCommitted(eventId, customerId);
+    }
+
     /** The same, but the writer runs in a new transaction with its own snapshot. */
     @Transactional
     public boolean outerReadNewTransaction(long eventId, long customerId) {

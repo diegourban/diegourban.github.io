@@ -11,7 +11,7 @@ from common import HERE, build_jar, run_app, start_dbs, stop_dbs
 
 MYSQL_ALL = ["noLock", "plainReadFirst", "lockFirst", "readCommitted", "counter", "subquery", "subqueryFirst",
              "existsFirst", "referenceFirst", "counterEventLoadedFirst", "counterEventLoadedThenRefreshed", "outerRead",
-             "outerReadNewTransaction"]
+             "outerReadNewTransaction", "outerReadThenReadCommitted"]
 PG = ["plainReadFirst", "lockFirst", "counter", "subquery", "counterEventLoadedFirst", "counterEventLoadedThenRefreshed"]
 
 
