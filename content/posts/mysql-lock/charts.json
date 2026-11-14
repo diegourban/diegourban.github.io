@@ -257,7 +257,7 @@
   ]
  },
  "checks": {
-  "caption": "Two transactions on a 1-seat event: the first books and pauses before its commit, the second runs up to its lock and waits for it. \"Overbooked\" means both got the seat.",
+  "caption": "Two transactions on a 1-seat event: the first books and pauses before its commit, the second runs up to its lock and waits for it. \"Overbooked\" means both got the seat. Per-transaction READ COMMITTED wasn't run on PostgreSQL, where it's already the default.",
   "headers": [
    "Writer",
    "MySQL 8.4, REPEATABLE READ",
@@ -294,54 +294,6 @@
     "overbooked",
     "overbooked",
     "overbooked"
-   ],
-   [
-    "The same subquery as the first read",
-    "safe",
-    "–",
-    "–"
-   ],
-   [
-    "existsById, then the lock",
-    "overbooked",
-    "–",
-    "–"
-   ],
-   [
-    "getReferenceById, then the lock",
-    "safe",
-    "–",
-    "–"
-   ],
-   [
-    "Writer locks first, inside a caller's transaction that already read",
-    "overbooked",
-    "–",
-    "–"
-   ],
-   [
-    "The same writer with REQUIRES_NEW",
-    "safe",
-    "–",
-    "–"
-   ],
-   [
-    "The READ COMMITTED writer, inside a caller's transaction that already read",
-    "overbooked",
-    "–",
-    "–"
-   ],
-   [
-    "Counter fix, event loaded earlier in the transaction",
-    "overbooked",
-    "overbooked",
-    "serialization error"
-   ],
-   [
-    "The same, re-read with refresh(event, PESSIMISTIC_WRITE)",
-    "safe",
-    "safe",
-    "serialization error"
    ]
   ]
  },

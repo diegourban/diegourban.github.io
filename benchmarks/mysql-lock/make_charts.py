@@ -112,18 +112,12 @@ def main():
         ("Per-transaction READ COMMITTED", "readCommitted"),
         ("Counter on the locked row", "counter"),
         ("Capacity check in the lock's subquery, after a plain read", "subquery"),
-        ("The same subquery as the first read", "subqueryFirst"),
-        ("existsById, then the lock", "existsFirst"),
-        ("getReferenceById, then the lock", "referenceFirst"),
-        ("Writer locks first, inside a caller's transaction that already read", "outerRead"),
-        ("The same writer with REQUIRES_NEW", "outerReadNewTransaction"),
-        ("The READ COMMITTED writer, inside a caller's transaction that already read", "outerReadThenReadCommitted"),
-        ("Counter fix, event loaded earlier in the transaction", "counterEventLoadedFirst"),
-        ("The same, re-read with refresh(event, PESSIMISTIC_WRITE)", "counterEventLoadedThenRefreshed"),
     ]
+    # The other variants in checks.json (hidden reads, callers' transactions, refresh) are described in the text.
     check_table = {
         "caption": "Two transactions on a 1-seat event: the first books and pauses before its commit, the second runs up to "
-                   "its lock and waits for it. \"Overbooked\" means both got the seat.",
+                   "its lock and waits for it. \"Overbooked\" means both got the seat. Per-transaction READ COMMITTED "
+                   "wasn't run on PostgreSQL, where it's already the default.",
         "headers": ["Writer", "MySQL 8.4, REPEATABLE READ", "PostgreSQL 17, READ COMMITTED", "PostgreSQL 17, REPEATABLE READ"],
         "rows": [[name, verdict("mysql", "repeatable read", v), verdict("postgresql", "read committed", v),
                   verdict("postgresql", "repeatable read", v)] for name, v in shapes],
