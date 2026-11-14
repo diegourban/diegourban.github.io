@@ -1,0 +1,11 @@
+{{- /* An SVG diagram from the page bundle, inlined so it can use the theme's CSS variables in dark and light mode.
+  Usage: {{< diagram "sequence.svg" "Text for screen readers." >}}Caption, in markdown.{{< /diagram >}}
+  Style the SVG with the classes in assets/css/extended/charts.css (cp-t-*, cp-seq-*). */ -}}
+{{- $svg := .Page.Resources.Get (.Get 0) -}}
+{{- if not $svg }}{{ errorf "diagram: %s not found in %s" (.Get 0) .Page.File.Path }}{{ end -}}
+<figure class="cp-chart cp-diagram">
+  <div class="cp-plot" role="img" aria-label="{{ .Get 1 }}">{{ $svg.Content | safeHTML }}</div>
+  {{- with .Inner }}
+  <figcaption>{{ . | $.Page.RenderString }}</figcaption>
+  {{- end }}
+</figure>

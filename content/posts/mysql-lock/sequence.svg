@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 680" xmlns="http://www.w3.org/2000/svg" class="cp-seq" aria-hidden="true">
+<defs>
+<marker id="seq-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="cp-seq-head"/></marker>
+<marker id="seq-head-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="cp-seq-head-bad"/></marker>
+</defs>
+<line x1="92" y1="66" x2="92" y2="670" class="cp-seq-life"/>
+<rect x="28" y="26" width="128" height="40" rx="6" class="cp-seq-box"/>
+<text x="92" y="52" text-anchor="middle" class="cp-t-lab">Booking A</text>
+<line x1="360" y1="66" x2="360" y2="670" class="cp-seq-life"/>
+<rect x="296" y="26" width="128" height="40" rx="6" class="cp-seq-box"/>
+<text x="360" y="52" text-anchor="middle" class="cp-t-lab">MySQL</text>
+<line x1="628" y1="66" x2="628" y2="670" class="cp-seq-life"/>
+<rect x="564" y="26" width="128" height="40" rx="6" class="cp-seq-box"/>
+<text x="628" y="52" text-anchor="middle" class="cp-t-lab">Booking B</text>
+<rect x="87" y="182" width="10" height="280" rx="2" class="cp-seq-hold"/>
+<text x="78" y="322.0" text-anchor="end" class="cp-t-val2">holds</text>
+<text x="78" y="338.0" text-anchor="end" class="cp-t-val2">the lock</text>
+<line x1="628" y1="406" x2="628" y2="518" class="cp-seq-wait"/>
+<text x="642" y="466.0" class="cp-t-val2">waits</text>
+<line x1="100" y1="126" x2="352" y2="126" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="226.0" y="118" text-anchor="middle" class="cp-seq-code">select customer</text>
+<text x="226.0" y="144" text-anchor="middle" class="cp-seq-note">A's snapshot is taken</text>
+<line x1="100" y1="182" x2="352" y2="182" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="226.0" y="174" text-anchor="middle" class="cp-seq-code">select event ... for update</text>
+<text x="226.0" y="200" text-anchor="middle" class="cp-seq-note">A gets the event lock</text>
+<line x1="100" y1="238" x2="352" y2="238" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="226.0" y="230" text-anchor="middle" class="cp-seq-code">count bookings</text>
+<text x="226.0" y="256" text-anchor="middle" class="cp-seq-note">0, so a seat is free</text>
+<line x1="100" y1="294" x2="352" y2="294" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="226.0" y="286" text-anchor="middle" class="cp-seq-code">insert booking</text>
+<text x="226.0" y="312" text-anchor="middle" class="cp-seq-note">not committed yet</text>
+<line x1="620" y1="350" x2="368" y2="350" class="cp-seq-msg cp-seq-bad" marker-end="url(#seq-head-bad)"/>
+<text x="494.0" y="342" text-anchor="middle" class="cp-seq-code">select customer</text>
+<text x="494.0" y="368" text-anchor="middle" class="cp-seq-note cp-seq-note-bad">B's snapshot is taken: no booking in it</text>
+<line x1="620" y1="406" x2="368" y2="406" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="494.0" y="398" text-anchor="middle" class="cp-seq-code">select event ... for update</text>
+<text x="494.0" y="424" text-anchor="middle" class="cp-seq-note">waits for A's lock</text>
+<line x1="100" y1="462" x2="352" y2="462" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="226.0" y="454" text-anchor="middle" class="cp-seq-code">commit</text>
+<text x="226.0" y="480" text-anchor="middle" class="cp-seq-note">A's booking is committed, lock released</text>
+<line x1="368" y1="518" x2="620" y2="518" class="cp-seq-msg" marker-end="url(#seq-head)"/>
+<text x="494.0" y="510" text-anchor="middle" class="cp-seq-code">lock granted</text>
+<line x1="620" y1="574" x2="368" y2="574" class="cp-seq-msg cp-seq-bad" marker-end="url(#seq-head-bad)"/>
+<text x="494.0" y="566" text-anchor="middle" class="cp-seq-code">count bookings</text>
+<text x="494.0" y="592" text-anchor="middle" class="cp-seq-note cp-seq-note-bad">0 again, read from B's old snapshot</text>
+<line x1="620" y1="630" x2="368" y2="630" class="cp-seq-msg cp-seq-bad" marker-end="url(#seq-head-bad)"/>
+<text x="494.0" y="622" text-anchor="middle" class="cp-seq-code">insert booking</text>
+<text x="494.0" y="648" text-anchor="middle" class="cp-seq-note cp-seq-note-bad">2 bookings for 1 seat</text>
+</svg>

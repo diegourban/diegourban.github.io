@@ -59,13 +59,9 @@ MySQL's default isolation level is REPEATABLE READ. Under it, a transaction's pl
 
 I forced the interleaving on a 1-seat event with two transactions and a latch:
 
-| Step | Booking A | Booking B |
-|---|---|---|
-| 1 | Loads the customer, locks the event, counts 0, inserts | |
-| 2 | Pauses before its commit | Loads the customer. Its snapshot is fixed here, without A's booking |
-| 3 | | Asks for the event lock and waits |
-| 4 | Commits | Gets the lock |
-| 5 | | Counts 0 in its snapshot and inserts the second booking |
+{{< diagram "sequence.svg" "Booking A loads the customer, locks the event, counts 0 bookings and inserts one, then pauses before its commit. Booking B loads the customer, which takes its snapshot without A's booking, and waits for the event lock. A commits and releases the lock. B gets the lock, counts 0 bookings in its old snapshot and inserts a second booking for the only seat." >}}
+A 1-seat event. Booking A pauses before its commit, so booking B takes its snapshot while A's booking isn't committed yet.
+{{< /diagram >}}
 
 While B waited, MySQL's `performance_schema.data_lock_waits` showed it queued for the exclusive record lock on the event's primary key, so the lock worked, and the count still missed A's booking.
 
