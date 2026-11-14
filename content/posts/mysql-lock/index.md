@@ -24,6 +24,7 @@ references:
 ---
 
 On MySQL at its default isolation level, a query you run after `SELECT ... FOR UPDATE` still reads old data if the transaction read anything before it took the lock. In a small booking service with one plain read before the lock, 11% of events were overbooked at 10 booking requests per second per event, and 98% at 1,000.
+
 ## The booking
 
 An event has 10 seats. Booking one locks the event row, counts the bookings and inserts a new one if there's room. Before it locks, the method loads the customer:
