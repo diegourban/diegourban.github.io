@@ -123,6 +123,9 @@
 
 /* Sequence diagrams (layouts/shortcodes/diagram.html): ink for messages, red only for the step that goes wrong. */
 .cp-diagram { --c-bad: #d93636; }
+/* Below this width the labels would shrink past legible, so the diagram scrolls sideways instead. */
+.cp-diagram .cp-plot { overflow-x: auto; }
+.cp-diagram .cp-plot svg { min-width: 560px; }
 :root[data-theme="dark"] .cp-diagram { --c-bad: #ef5b5b; }
 .cp-diagram .cp-seq-life { stroke: var(--c-grid); stroke-width: 1.5; stroke-dasharray: 4 4; }
 .cp-diagram .cp-seq-box { fill: var(--c-surface); stroke: var(--c-ink2); stroke-width: 1.5; }

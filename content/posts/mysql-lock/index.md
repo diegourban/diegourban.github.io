@@ -2,7 +2,7 @@
 title: "A plain read before FOR UPDATE let MySQL sell the last seat twice"
 date: 2026-11-18
 draft: true
-description: "On MySQL at its default isolation level, a plain read before SELECT ... FOR UPDATE fixes the transaction's snapshot, so a query that checks a limit after the lock reads stale data. A booking demo overbooked 11% of events at 10 requests per second and 98% at 1,000. Three fixes brought it to zero."
+description: "On MySQL at its default isolation level, a plain read before SELECT ... FOR UPDATE fixes the transaction's snapshot, so a query that checks a limit after the lock reads stale data. A booking demo overbooked 11% of events at 10 requests per second per event and 98% at 1,000. Three fixes brought it to zero."
 tags: ["mysql", "postgresql", "java", "spring-boot", "jpa", "hibernate", "transactions", "concurrency"]
 ShowToc: true
 ai_disclosure: ai-generated
@@ -59,7 +59,7 @@ MySQL's default isolation level is REPEATABLE READ. Under it, a transaction's pl
 
 I forced the interleaving on a 1-seat event with two transactions and a latch:
 
-{{< diagram "sequence.svg" "Booking A loads the customer, locks the event, counts 0 bookings and inserts one, then pauses before its commit. Booking B loads the customer, which takes its snapshot without A's booking, and waits for the event lock. A commits and releases the lock. B gets the lock, counts 0 bookings in its old snapshot and inserts a second booking for the only seat." >}}
+{{< diagram "sequence.svg" "Booking A loads the customer, locks the event, counts 0 bookings and inserts one, then pauses before its commit. Booking B loads the customer, which takes its snapshot without A's booking, and waits for the event lock. A commits and releases the lock. MySQL then gives B the lock and the latest event row, but B counts 0 bookings in its old snapshot, inserts a second booking and commits: 2 bookings for 1 seat." >}}
 A 1-seat event. Booking A pauses before its commit, so booking B takes its snapshot while A's booking isn't committed yet.
 {{< /diagram >}}
 
@@ -87,7 +87,7 @@ All three held at zero overbooked events in every run:
 
 1. **Lock first.** Make the `FOR UPDATE` the transaction's first read. The snapshot is then taken by the first plain read after the lock is granted (here, loading the customer), so it includes the previous booking. This is the smallest change, though PostgreSQL at REPEATABLE READ still overbooks with it (see below).
 2. **READ COMMITTED for this transaction.** `@Transactional(isolation = Isolation.READ_COMMITTED)` gives every statement a fresh snapshot, so the count after the lock sees the latest commit, and the rest of the application keeps REPEATABLE READ. If your application already runs MySQL at READ COMMITTED, this bug doesn't apply.
-3. **A counter on the locked row.** Keep `seats_taken` on the event and update it under the lock. The count then comes from the row the `FOR UPDATE` returned, which is always the latest version. It doesn't matter which plain reads come before the lock, and it's what I'd pick when the schema can change.
+3. **A counter on the locked row.** Keep `seats_taken` on the event and update it under the lock. The count then comes from the row the `FOR UPDATE` returned, which is always the latest version. At the database level it doesn't matter which plain reads come before the lock, and it's what I'd pick when the schema can change.
 
    One catch with JPA: if the event entity was already loaded earlier in the transaction, Hibernate keeps that copy and ignores the newer values the `FOR UPDATE` returns. The counter is then stale, and the counter fix overbooked again, on MySQL and on PostgreSQL at its default. `entityManager.refresh(event, LockModeType.PESSIMISTIC_WRITE)` reloads the entity under the lock and fixed it.
 
@@ -130,6 +130,6 @@ One demo app on one machine (Docker on an arm64 Mac, 2 CPUs and 1 GB per databas
 ## Method and data
 
 - The app is Spring Boot 4.1.2 with Spring Data JPA 4.1.2, Hibernate 7.4.13 and HikariCP 7.0.2 (pool of 60), on JDK 25, against MySQL 8.4.13 (REPEATABLE READ) and PostgreSQL 17.6 (READ COMMITTED) in containers.
-- Two-transaction checks: A books the only seat and pauses before its commit; B runs up to its lock while A is open; the check records which lock B waits on (`performance_schema.data_lock_waits` on MySQL, `pg_locks` on PostgreSQL), then lets A commit. `checks.json`.
+- Two-transaction checks: A books the only seat and pauses before its commit; B runs up to its lock while A is open; the check records which lock B waits on (`performance_schema.data_lock_waits` on MySQL, `pg_locks` on PostgreSQL), then lets A commit. `checks.json` also holds the checks the text cites without a table: both fixes inside a caller's transaction, the event loaded before the lock, and `refresh`.
 - Arrivals: 100 events of 10 seats per rate and round, 15 requests per event with exponential gaps (a Poisson process), one attempt each, the same seeded pattern for every setup. Flash sale: 200 events per bookers count and round, each booker retrying until the event is full. Setups and rates ran in random order in 3 rounds. The PostgreSQL step at 10 requests per second in round 1 was rerun, because the host went to sleep during it. Intervals are Wilson 95% intervals. `results.jsonl`.
 - Everything is in [`benchmarks/mysql-lock`](https://github.com/diegourban/diegourban.github.io/tree/master/benchmarks/mysql-lock): `checks.py` runs the checks, `bench.py` runs the rounds, and `make_charts.py` computes every number.

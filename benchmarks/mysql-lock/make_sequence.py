@@ -22,9 +22,10 @@ STEPS = [
     ("B", "DB", "select customer", "B's snapshot is taken: no booking in it", True),
     ("B", "DB", "select event ... for update", "waits for A's lock", False),
     ("A", "DB", "commit", "A's booking is committed, lock released", False),
-    ("DB", "B", "lock granted", "", False),
-    ("B", "DB", "count bookings", "0 again, read from B's old snapshot", True),
-    ("B", "DB", "insert booking", "2 bookings for 1 seat", True),
+    ("DB", "B", "event row, latest version", "B gets the lock", False),
+    ("B", "DB", "count bookings", "0, read from B's old snapshot", True),
+    ("B", "DB", "insert booking", "a second booking", True),
+    ("B", "DB", "commit", "2 bookings for 1 seat", True),
 ]
 
 
