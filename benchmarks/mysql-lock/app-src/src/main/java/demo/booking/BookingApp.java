@@ -52,6 +52,7 @@ public class BookingApp implements ApplicationRunner {
         variants.put("existsFirst", writer::existsFirst);
         variants.put("referenceFirst", writer::referenceFirst);
         variants.put("counterEventLoadedFirst", writer::counterEventLoadedFirst);
+        variants.put("counterEventLoadedThenRefreshed", writer::counterEventLoadedThenRefreshed);
         variants.put("outerRead", facade::outerRead);
         variants.put("outerReadNewTransaction", facade::outerReadNewTransaction);
         this.mysql = jdbc.execute((java.sql.Connection c) -> c.getMetaData().getDatabaseProductName()).toLowerCase().contains("mysql");

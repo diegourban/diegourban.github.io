@@ -15,11 +15,14 @@ public class BookingWriter {
     private final CustomerRepository customers;
     private final EventRepository events;
     private final BookingRepository bookings;
+    private final jakarta.persistence.EntityManager entityManager;
 
-    BookingWriter(CustomerRepository customers, EventRepository events, BookingRepository bookings) {
+    BookingWriter(CustomerRepository customers, EventRepository events, BookingRepository bookings,
+            jakarta.persistence.EntityManager entityManager) {
         this.customers = customers;
         this.events = events;
         this.bookings = bookings;
+        this.entityManager = entityManager;
     }
 
     /** The bug: a plain read of the customer comes first, so the snapshot is fixed before the lock is taken. */
@@ -153,6 +156,22 @@ public class BookingWriter {
         if (bookings.countByEventId(eventId) >= event.capacity) {
             return false;
         }
+        bookings.save(new Booking(event, customer));
+        Hooks.at("beforeCommit");
+        return true;
+    }
+
+    /** The counter fix with the event already loaded, re-read with a lock by refresh instead of a query. */
+    @Transactional
+    public boolean counterEventLoadedThenRefreshed(long eventId, long customerId) {
+        Event event = events.findById(eventId).orElseThrow();
+        Customer customer = customers.findById(customerId).orElseThrow();
+        Hooks.at("beforeLock");
+        entityManager.refresh(event, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (event.seatsTaken >= event.capacity) {
+            return false;
+        }
+        event.seatsTaken++;
         bookings.save(new Booking(event, customer));
         Hooks.at("beforeCommit");
         return true;

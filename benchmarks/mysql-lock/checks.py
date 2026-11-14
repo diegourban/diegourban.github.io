@@ -10,8 +10,9 @@ import json, os, sys
 from common import HERE, build_jar, run_app, start_dbs, stop_dbs
 
 MYSQL_ALL = ["noLock", "plainReadFirst", "lockFirst", "readCommitted", "counter", "subquery", "subqueryFirst",
-             "existsFirst", "referenceFirst", "counterEventLoadedFirst", "outerRead", "outerReadNewTransaction"]
-PG = ["plainReadFirst", "lockFirst", "counter", "subquery", "counterEventLoadedFirst"]
+             "existsFirst", "referenceFirst", "counterEventLoadedFirst", "counterEventLoadedThenRefreshed", "outerRead",
+             "outerReadNewTransaction"]
+PG = ["plainReadFirst", "lockFirst", "counter", "subquery", "counterEventLoadedFirst", "counterEventLoadedThenRefreshed"]
 
 
 def main():
