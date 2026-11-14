@@ -56,8 +56,8 @@ def main():
         "series": [
             {"name": "Plain read, then the lock", "short": "Read, then lock", "cls": "s1", "color": RED,
              "points": [[r, pct(share("mysql", "plainReadFirst", r))] for r in RATES]},
-            {"name": "Lock first, READ COMMITTED, or a counter on the locked row; and PostgreSQL at its default",
-             "short": "Every fix", "cls": "s3", "points": [[r, pct(fix_max(r))] for r in RATES]},
+            {"name": "Every fix, and PostgreSQL at its default", "short": "Every fix", "cls": "s3",
+             "points": [[r, pct(fix_max(r))] for r in RATES]},
         ],
     }
 
@@ -83,16 +83,16 @@ def main():
     def cell(db, v, rate):
         k, n = over[(db, v, rate)]
         lo, hi = wilson(k, n)
-        return f"{pct(k / n):g}% ({pct(lo):g} to {pct(hi):g})"
+        return f"{pct(k / n):g}% ({pct(lo):g}–{pct(hi):g})"
 
     rate_table = {
-        "caption": "Share of events overbooked, with Wilson 95% intervals, 300 events per cell. Every fix and PostgreSQL "
-                   "at READ COMMITTED had 0 of 300 at every rate, which bounds their true rate below 1.3%.",
-        "headers": ["Requests/s per event"] + [str(r) for r in RATES],
-        "rows": [["Plain read, then the lock"] + [cell("mysql", "plainReadFirst", r) for r in RATES],
-                 ["Capacity check in the lock's subquery"] + [cell("mysql", "subquery", r) for r in RATES],
-                 ["Every fix, PostgreSQL default"] + [f"{sum(over[(db, v, r)][0] for db, v in FIXES)} of "
-                                                       f"{sum(over[(db, v, r)][1] for db, v in FIXES)}" for r in RATES]],
+        "caption": "Share of events overbooked, with Wilson 95% intervals in brackets, 300 events per cell. Each fix, and "
+                   "PostgreSQL at READ COMMITTED, had 0 of 300 at every rate, which puts its true rate below 1.3%.",
+        "headers": ["Requests/s per event", "Plain read, then the lock", "Check in the lock's subquery",
+                    "Every fix, PostgreSQL default"],
+        "rows": [[f"{r:,}", cell("mysql", "plainReadFirst", r), cell("mysql", "subquery", r),
+                  f"{sum(over[(db, v, r)][0] for db, v in FIXES)} of {sum(over[(db, v, r)][1] for db, v in FIXES):,}"]
+                 for r in RATES],
     }
 
     checks = json.load(open(os.path.join(HERE, "checks.json")))
