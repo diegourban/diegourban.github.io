@@ -120,3 +120,21 @@
 .cp-chart .cp-line-s3 { stroke: var(--c-s3); }
 .cp-chart .cp-line-rest { stroke: var(--c-ink2); stroke-opacity: 0.45; }
 .cp-chart .cp-dash { stroke-dasharray: 6 4; }
+
+/* Sequence diagrams (layouts/shortcodes/diagram.html): ink for messages, red only for the step that goes wrong. */
+.cp-diagram { --c-bad: #d93636; }
+/* Below this width the labels would shrink past legible, so the diagram scrolls sideways instead. */
+.cp-diagram .cp-plot { overflow-x: auto; }
+.cp-diagram .cp-plot svg { min-width: 560px; }
+:root[data-theme="dark"] .cp-diagram { --c-bad: #ef5b5b; }
+.cp-diagram .cp-seq-life { stroke: var(--c-grid); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.cp-diagram .cp-seq-box { fill: var(--c-surface); stroke: var(--c-ink2); stroke-width: 1.5; }
+.cp-diagram .cp-seq-hold { fill: var(--c-ink2); fill-opacity: 0.35; }
+.cp-diagram .cp-seq-wait { stroke: var(--c-ink2); stroke-width: 4; stroke-dasharray: 3 5; }
+.cp-diagram .cp-seq-msg { stroke: var(--c-ink); stroke-width: 1.5; }
+.cp-diagram .cp-seq-msg.cp-seq-bad { stroke: var(--c-bad); stroke-width: 2; }
+.cp-diagram .cp-seq-head { fill: var(--c-ink); }
+.cp-diagram .cp-seq-head-bad { fill: var(--c-bad); }
+.cp-diagram .cp-seq-code { fill: var(--c-ink); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; }
+.cp-diagram .cp-seq-note { fill: var(--c-ink2); font-size: 13px; }
+.cp-diagram .cp-seq-note-bad { fill: var(--c-bad); font-weight: 600; }
