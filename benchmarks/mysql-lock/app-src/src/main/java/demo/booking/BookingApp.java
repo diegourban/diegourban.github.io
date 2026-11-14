@@ -76,6 +76,15 @@ public class BookingApp implements ApplicationRunner {
             for (String name : names) {
                 System.out.println(check(name));
             }
+        } else if (mode.equals("arrivals")) {
+            String name = arg(args, "variant", "plainReadFirst");
+            int events = Integer.parseInt(arg(args, "events", "100"));
+            int capacity = Integer.parseInt(arg(args, "capacity", "10"));
+            int requests = Integer.parseInt(arg(args, "requests", "15"));
+            long seed = Long.parseLong(arg(args, "seed", "1"));
+            for (String r : arg(args, "rates", "50,100,200,500,1000").split(",")) {
+                System.out.println(arrivals(name, Integer.parseInt(r), events, capacity, requests, seed));
+            }
         } else {
             String name = arg(args, "variant", "plainReadFirst");
             int events = Integer.parseInt(arg(args, "events", "200"));
@@ -279,6 +288,79 @@ public class BookingApp implements ApplicationRunner {
         out.put("attempts", attempts.get());
         out.put("errors", errors.get());
         out.put("errorTypes", errorTypes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().get())));
+        out.put("seconds", Math.round(seconds * 1000) / 1000.0);
+        return json(out);
+    }
+
+    /**
+     * Open arrivals: each event gets {@code requests} booking requests (more than its capacity) at random times, a
+     * Poisson process at {@code rate} requests per second, each from a different customer and each a single attempt. The
+     * events run one after another. The arrival times depend only on the seed, the rate and the event, so every writer
+     * sees the same pattern.
+     */
+    private String arrivals(String name, int rate, int events, int capacity, int requests, long seed) throws Exception {
+        BiFunction<Long, Long, Boolean> variant = variants.get(name);
+        reset(events, capacity);
+        ExecutorService pool = Executors.newFixedThreadPool(requests);
+        AtomicInteger errors = new AtomicInteger();
+        Map<String, AtomicInteger> errorTypes = new java.util.concurrent.ConcurrentHashMap<>();
+        java.util.concurrent.atomic.LongAdder busyNanos = new java.util.concurrent.atomic.LongAdder();
+        long t0 = System.nanoTime();
+        try {
+            for (long e = 1; e <= events; e++) {
+                long eventId = e;
+                java.util.Random random = new java.util.Random(seed * 1_000_003L + rate * 10_007L + e);
+                List<Future<?>> all = new ArrayList<>();
+                long start = System.nanoTime();
+                double at = 0;
+                for (int i = 0; i < requests; i++) {
+                    at += -Math.log(1 - random.nextDouble()) / rate;
+                    long due = start + (long) (at * 1e9);
+                    while (System.nanoTime() < due) {
+                        java.util.concurrent.locks.LockSupport.parkNanos(Math.min(200_000, due - System.nanoTime()));
+                    }
+                    long customerId = i + 1;
+                    all.add(pool.submit(() -> {
+                        long s = System.nanoTime();
+                        try {
+                            variant.apply(eventId, customerId);
+                        } catch (RuntimeException ex) {
+                            errors.incrementAndGet();
+                            errorTypes.computeIfAbsent(ex.getClass().getSimpleName(), k -> new AtomicInteger()).incrementAndGet();
+                        } finally {
+                            busyNanos.add(System.nanoTime() - s);
+                        }
+                    }));
+                }
+                for (Future<?> f : all) {
+                    f.get(120, TimeUnit.SECONDS);
+                }
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+        double seconds = (System.nanoTime() - t0) / 1e9;
+        Map<Integer, Integer> sold = new TreeMap<>();
+        jdbc.query("select e.id, count(b.id) from event e left join booking b on b.event_id = e.id group by e.id",
+                rs -> {
+                    sold.merge(rs.getInt(2), 1, Integer::sum);
+                });
+        int overbooked = sold.entrySet().stream().filter(x -> x.getKey() > capacity).mapToInt(Map.Entry::getValue).sum();
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("mode", "arrivals");
+        out.put("db", mysql ? "mysql" : "postgresql");
+        out.put("isolation", isolation());
+        out.put("variant", name);
+        out.put("rate", rate);
+        out.put("requests", requests);
+        out.put("seed", seed);
+        out.put("events", events);
+        out.put("capacity", capacity);
+        out.put("overbooked", overbooked);
+        out.put("sold", sold);
+        out.put("errors", errors.get());
+        out.put("errorTypes", errorTypes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().get())));
+        out.put("meanRequestMs", Math.round(busyNanos.sum() / 1e6 / (events * (double) requests) * 1000) / 1000.0);
         out.put("seconds", Math.round(seconds * 1000) / 1000.0);
         return json(out);
     }
