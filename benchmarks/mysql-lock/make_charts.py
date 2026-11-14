@@ -113,7 +113,8 @@ def main():
         ("Counter on the locked row", "counter"),
         ("Capacity check in the lock's subquery, after a plain read", "subquery"),
     ]
-    # The other variants in checks.json (hidden reads, callers' transactions, refresh) are described in the text.
+    # checks.json holds more variants (existsById, getReferenceById, callers' transactions, refresh); the post's text
+    # cites the caller-transaction and refresh results, the rest are kept as data only.
     check_table = {
         "caption": "Two transactions on a 1-seat event: the first books and pauses before its commit, the second runs up to "
                    "its lock and waits for it. \"Overbooked\" means both got the seat. Per-transaction READ COMMITTED "
