@@ -5,6 +5,12 @@ draft: false
 description: "On MySQL at its default isolation level, a plain read before SELECT ... FOR UPDATE fixes the transaction's snapshot, so a query that checks a limit after the lock reads stale data. A booking demo overbooked 11% of events at 10 requests per second per event and 98% at 1,000. Three fixes brought it to zero."
 tags: ["mysql", "postgresql", "java", "spring-boot", "jpa", "hibernate", "transactions", "concurrency"]
 ShowToc: true
+cover:
+  image: cover.png
+  relative: true
+  alt: "Events overbooked as bookings arrive faster: with a plain read before the lock, MySQL overbooked 11% of 10-seat events at 10 booking requests per second per event and 98% at 1,000, while every fix and PostgreSQL at its default overbooked none"
+  hiddenInSingle: true
+  hiddenInList: true
 ai_disclosure: ai-generated
 references:
   - author: "Oracle"
