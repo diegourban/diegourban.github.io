@@ -9,7 +9,7 @@ ai_disclosure: ai-generated
 cover:
   image: cover.png
   relative: true
-  alt: "Startup change with AppCDS vs default CDS, per GC: about 800 ms faster on a small Spring Boot app, about one second on a heavier one"
+  alt: "AppCDS on JDK 25, 0.8 to 1 second off Spring Boot startup: median startup with default CDS and with AppCDS per setup, 1.94 to 1.12 s on ZGC down to 4.50 to 3.48 s on the heavy app. 97.1% of classes came from the archive, and AppCDS was faster in 50 of 50 paired boots"
   hiddenInSingle: true
   hiddenInList: true
 references:

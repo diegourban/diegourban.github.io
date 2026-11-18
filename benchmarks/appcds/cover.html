@@ -1,40 +1,75 @@
 <!doctype html>
-<!-- Social preview card (1200x630) for the AppCDS post. make_cover.sh inlines charts.json
-     into the DATA placeholder and screenshots this page; chart A is drawn by the site's own code. -->
+<!-- Cover and LinkedIn card (1200x630) for the AppCDS post, in the dark style of the later posts' cards.
+     make_cover.sh inlines charts.json into the DATA placeholder: the startup bars come from "table" (medians per
+     setup), the class coverage from "coverage", the range from "summary". -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Cover</title>
-<link rel="stylesheet" href="../../assets/css/extended/charts.css">
 <style>
-  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
-          --theme: rgb(255, 255, 255); --code-bg: rgb(245, 245, 245); --radius: 8px; }
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
-               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 44px 56px 32px; display: flex; flex-direction: column; }
-  h1 { margin: 0; font-size: 44px; line-height: 1.12; color: var(--primary); letter-spacing: -0.5px; }
-  .key { margin: 14px 0 6px; font-size: 24px; color: var(--secondary); }
-  .key b { color: var(--primary); }
-  .chart { flex: 1; margin: 0; }
-  .site { font-size: 18px; color: var(--secondary); text-align: right; }
+  :root { --bg: rgb(13, 15, 20); --fg: rgb(226, 230, 236); --dim: rgb(130, 136, 150); --line: rgb(48, 54, 68);
+          --ok: rgb(52, 211, 153); --base: rgb(110, 116, 132); --code: rgb(255, 196, 92);
+          --band: rgb(245, 245, 243); --ink: rgb(24, 24, 24); --ink2: rgb(100, 100, 100); }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--bg);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--fg); }
+  .card { width: 1200px; height: 630px; display: flex; flex-direction: column; }
+  .top { padding: 34px 52px 0; }
+  h1 { margin: 0; font-size: 42px; line-height: 1.1; letter-spacing: -0.8px; font-weight: 800; }
+  h1 .good { color: var(--ok); }
+  .main { flex: 1; display: grid; grid-template-columns: 620px 1fr; gap: 50px; padding: 22px 52px 0; align-items: center; }
+  .ctitle { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .legend { font-size: 16px; color: var(--dim); margin-bottom: 8px; }
+  .legend i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin: 0 6px 0 0; }
+  svg { display: block; }
+  .stats { display: flex; flex-direction: column; gap: 16px; }
+  .big { font-size: 46px; font-weight: 800; color: var(--ok); line-height: 1; letter-spacing: -1px; }
+  .big + div { font-size: 19px; color: var(--dim); margin-top: 6px; }
+  .fix { font-size: 20px; color: var(--dim); line-height: 1.35; border-top: 1px solid var(--line); padding-top: 14px; }
+  .fix b { color: var(--fg); }
+  .band { margin-top: 18px; background: var(--band); padding: 18px 52px 16px; display: flex; justify-content: space-between; align-items: baseline; }
+  .band h2 { margin: 0; font-size: 24px; color: var(--ink); letter-spacing: -0.4px; }
+  .band .site { font-size: 19px; color: var(--ink2); }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>AppCDS on JDK 25: 0.8 to 1 second<br>off Spring Boot startup</h1>
-  <p class="key">AppCDS vs default CDS: <b id="small"></b> faster on a small app, <b id="heavy"></b> on a heavier one</p>
-  <figure class="cp-chart chart"><div class="cp-plot" data-chart="paired-shift"></div></figure>
-  <div class="site">platformnotes.dev</div>
+  <div class="top">
+    <h1>AppCDS on JDK 25<br><span class="good">0.8 to 1 second off Spring Boot startup</span></h1>
+  </div>
+  <div class="main">
+    <div>
+      <div class="ctitle">Startup, median of 10 rounds</div>
+      <div class="legend"><i style="background: var(--base)"></i>default CDS&nbsp;&nbsp;&nbsp;<i style="background: var(--ok)"></i>AppCDS</div>
+      <svg id="bars" width="620" height="270" viewBox="0 0 620 270" aria-hidden="true"></svg>
+    </div>
+    <div class="stats">
+      <div><div class="big" id="cls"></div><div id="clssub"></div></div>
+      <div><div class="big">50 of 50</div><div>paired boots faster with AppCDS</div></div>
+      <div class="fix"><b>Train it in your image, with the same JVM options.</b> A different memory layout (compressed oops, compact headers) stops it loading.</div>
+    </div>
+  </div>
+  <div class="band"><h2>AppCDS on JDK 25: 0.8 to 1 second off Spring Boot startup</h2><span class="site">platformnotes.dev</span></div>
 </div>
-<script src="../../assets/js/vendor/d3-7.9.0.min.js"></script>
-<script src="../../assets/js/charts/common.js"></script>
-<script src="../../assets/js/charts/paired-shift.js"></script>
 <script>
   const DATA = /*DATA*/null;
-  document.getElementById("small").textContent = DATA.summary.small_ms_range;
-  document.getElementById("heavy").textContent = DATA.summary.heavy_ms;
-
-  CPCharts.renderAll(DATA);
+  const NS = "http://www.w3.org/2000/svg", svg = document.getElementById("bars");
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const el = (n, a, t) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (t) e.textContent = t; svg.appendChild(e); return e; };
+  const secs = (s) => parseFloat(s);            // "1.94 s" -> 1.94
+  const rows = DATA.table.rows;                  // [setup, default, appcds, shift, faster]
+  const L = 150, R = 560, max = 5, rowH = 52;
+  const x = (s) => L + (R - L) * s / max;
+  rows.forEach((r, i) => {
+    const y0 = 8 + i * rowH, d = secs(r[1]), a = secs(r[2]);
+    el("text", { x: L - 12, y: y0 + 25, "text-anchor": "end", "font-size": 17, fill: css("--fg") }, r[0].replace(" (ZGC)", ""));
+    el("rect", { x: L, y: y0, width: x(d) - L, height: 17, rx: 3, fill: css("--base") });
+    el("rect", { x: L, y: y0 + 20, width: x(a) - L, height: 17, rx: 3, fill: css("--ok") });
+    el("text", { x: x(d) + 8, y: y0 + 14, "font-size": 15, fill: css("--dim") }, r[1]);
+    el("text", { x: x(a) + 8, y: y0 + 34, "font-size": 15, "font-weight": 700, fill: css("--ok") }, r[2]);
+  });
+  const ap = DATA.coverage[1];                   // small app, AppCDS
+  document.getElementById("cls").textContent = ap.pct_label;
+  document.getElementById("clssub").textContent = `of classes from the archive (${ap.shared_label} of ${ap.loaded_label}), against ${DATA.coverage[0].pct_label} with default CDS`;
 </script>
 </body>
 </html>

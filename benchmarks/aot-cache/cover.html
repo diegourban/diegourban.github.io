@@ -1,39 +1,77 @@
 <!doctype html>
-<!-- Social preview card (1200x630) for the AOT cache post. make_cover.sh inlines charts.json
-     into the DATA placeholder and screenshots this page; the warm-up chart is drawn by the site's own code. -->
+<!-- Cover and LinkedIn card (1200x630) for the AOT cache post, in the dark style of the later posts' cards.
+     make_cover.sh inlines charts.json into the DATA placeholder: the lines are "warmup" (G1, median of 20-request
+     blocks over 10 rounds), the numbers come from "table" (the G1 row). -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Cover</title>
-<link rel="stylesheet" href="../../assets/css/extended/charts.css">
 <style>
-  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
-          --theme: rgb(255, 255, 255); --code-bg: rgb(245, 245, 245); --radius: 8px; }
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
-               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 40px 56px 28px; display: flex; flex-direction: column; }
-  h1 { margin: 0; font-size: 42px; line-height: 1.12; color: var(--primary); letter-spacing: -0.5px; }
-  .key { margin: 12px 0 14px; font-size: 23px; color: var(--secondary); }
-  .key b { color: var(--primary); }
-  .chart { flex: 1; margin: 0; }
-  .site { font-size: 18px; color: var(--secondary); text-align: right; }
+  :root { --bg: rgb(13, 15, 20); --fg: rgb(226, 230, 236); --dim: rgb(130, 136, 150); --line: rgb(48, 54, 68);
+          --ok: rgb(52, 211, 153); --base: rgb(150, 156, 172);
+          --band: rgb(245, 245, 243); --ink: rgb(24, 24, 24); --ink2: rgb(100, 100, 100); }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--bg);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--fg); }
+  .card { width: 1200px; height: 630px; display: flex; flex-direction: column; }
+  .top { padding: 34px 52px 0; }
+  h1 { margin: 0; font-size: 42px; line-height: 1.1; letter-spacing: -0.8px; font-weight: 800; }
+  h1 .good { color: var(--ok); }
+  .main { flex: 1; display: grid; grid-template-columns: 620px 1fr; gap: 50px; padding: 22px 52px 0; align-items: center; }
+  .ctitle { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .legend { font-size: 16px; color: var(--dim); margin-bottom: 6px; }
+  .legend .a { color: var(--ok); }
+  svg { display: block; }
+  .stats { display: flex; flex-direction: column; gap: 16px; }
+  .big { font-size: 46px; font-weight: 800; color: var(--ok); line-height: 1; letter-spacing: -1px; }
+  .big + div { font-size: 19px; color: var(--dim); margin-top: 6px; }
+  .fix { font-size: 20px; color: var(--dim); line-height: 1.35; border-top: 1px solid var(--line); padding-top: 14px; }
+  .fix b { color: var(--fg); }
+  .band { margin-top: 18px; background: var(--band); padding: 18px 52px 16px; display: flex; justify-content: space-between; align-items: baseline; }
+  .band h2 { margin: 0; font-size: 24px; color: var(--ink); letter-spacing: -0.4px; }
+  .band .site { font-size: 19px; color: var(--ink2); }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>JDK 25's AOT cache vs AppCDS: faster startup,<br>and a second off warm-up</h1>
-  <p class="key">vs AppCDS on G1: <b id="start"></b> ms startup, <b id="warm"></b> ms over the first 2,000 requests</p>
-  <figure class="cp-chart chart"><div class="cp-plot" data-chart="lines" data-key="warmup"></div></figure>
-  <div class="site">platformnotes.dev</div>
+  <div class="top">
+    <h1>JDK 25's AOT cache vs AppCDS<br><span class="good">faster startup, and a second off warm-up</span></h1>
+  </div>
+  <div class="main">
+    <div>
+      <div class="ctitle">Latency over the first 2,000 requests (G1)</div>
+      <div class="legend"><span class="a">━ AOT cache, trained with requests</span>&nbsp;&nbsp;&nbsp;━ AppCDS</div>
+      <svg id="lines" width="620" height="270" viewBox="0 0 620 270" aria-hidden="true"></svg>
+    </div>
+    <div class="stats">
+      <div><div class="big" id="st"></div><div>startup vs AppCDS on G1</div></div>
+      <div><div class="big" id="wu"></div><div>over the first 2,000 requests</div></div>
+      <div class="fix"><b>Train it with real requests.</b> A cache trained only up to Spring's onRefresh warmed up like AppCDS. ZGC needed JDK 26.</div>
+    </div>
+  </div>
+  <div class="band"><h2>JDK 25's AOT cache vs AppCDS: faster startup, and a second off warm-up</h2><span class="site">platformnotes.dev</span></div>
 </div>
-<script src="../../assets/js/vendor/d3-7.9.0.min.js"></script>
-<script src="../../assets/js/charts/common.js"></script>
-<script src="../../assets/js/charts/lines.js"></script>
 <script>
   const DATA = /*DATA*/null;
-  document.getElementById("start").textContent = DATA.startup.rows[0].shift.label;
-  document.getElementById("warm").textContent = DATA.warm_rows[0].shift.label;
-  CPCharts.renderAll(DATA);
+  const NS = "http://www.w3.org/2000/svg", svg = document.getElementById("lines");
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const el = (n, a, t) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (t) e.textContent = t; svg.appendChild(e); return e; };
+  const L = 52, R = 585, T = 10, B = 230, YMAX = 3;
+  const x = (n) => L + (R - L) * n / 2000;
+  const y = (ms) => B - (B - T) * ms / YMAX;
+  for (const ms of [0, 1, 2, 3]) {
+    el("line", { x1: L, x2: R, y1: y(ms), y2: y(ms), stroke: css("--line"), "stroke-width": 1 });
+    el("text", { x: L - 8, y: y(ms) + 5, "text-anchor": "end", "font-size": 15, fill: css("--dim") }, ms ? `${ms} ms` : "0");
+  }
+  for (const n of [0, 1000, 2000]) el("text", { x: x(n), y: B + 22, "text-anchor": "middle", "font-size": 15, fill: css("--dim") }, n.toLocaleString("en"));
+  el("text", { x: R, y: B + 40, "text-anchor": "end", "font-size": 15, fill: css("--dim") }, "request number");
+  const series = (name) => DATA.warmup.series.find((s) => s.name === name).points;
+  const line = (pts, color, width) => el("polyline", { points: pts.map(([n, ms]) => `${x(n)},${y(Math.min(ms, YMAX))}`).join(" "),
+                                                      fill: "none", stroke: color, "stroke-width": width, "stroke-linejoin": "round" });
+  line(series("AppCDS"), css("--base"), 2);
+  line(series("AOT cache, trained with requests"), css("--ok"), 3);
+  const g1 = DATA.table.rows.find((r) => r[0] === "G1");   // [setup, default, appcds, aot, startup shift, 2,000 requests shift]
+  document.getElementById("st").textContent = g1[4].split(" (")[0];
+  document.getElementById("wu").textContent = g1[5].split(" (")[0];
 </script>
 </body>
 </html>

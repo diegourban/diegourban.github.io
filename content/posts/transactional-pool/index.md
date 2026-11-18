@@ -8,7 +8,7 @@ ShowToc: true
 cover:
   image: cover.png
   relative: true
-  alt: "Failed requests as the arrival rate rises: with eager connection fetching, an order service starts failing at 40 req/s when every order goes to a partner API, at 70 with half and at 150 with a quarter, while lazy fetching and a writes-only transaction never fail up to 300 req/s"
+  alt: "A slow API call inside @Transactional starves other flows that need the pool: operations that call an external API hold all ten connections while database-only operations queue and time out after 2 s; their p95 jumps to the 2 s timeout past about 32 API calls per second with eager fetching, and stays low with lazy fetching"
   hiddenInSingle: true
   hiddenInList: true
 ai_disclosure: ai-generated
