@@ -8,7 +8,7 @@ ShowToc: true
 cover:
   image: cover.png
   relative: true
-  alt: "Events overbooked as bookings arrive faster: with a plain read before the lock, MySQL overbooked 11% of 10-seat events at 10 booking requests per second per event and 98% at 1,000, while every fix and PostgreSQL at its default overbooked none"
+  alt: "One plain read before FOR UPDATE and MySQL sells the last seat twice: booking B reads the customer while booking A's booking is uncommitted, waits for A's lock, then counts 0 bookings in its old snapshot and books the seat too. With a plain read before the lock, 11% of 10-seat events were overbooked at 10 booking requests per second per event and 98% at 1,000; every fix overbooked none"
   hiddenInSingle: true
   hiddenInList: true
 ai_disclosure: ai-generated
