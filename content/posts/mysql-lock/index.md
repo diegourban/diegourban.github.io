@@ -1,7 +1,7 @@
 ---
 title: "A plain read before FOR UPDATE let MySQL sell the last seat twice"
 date: 2026-11-18
-draft: true
+draft: false
 description: "On MySQL at its default isolation level, a plain read before SELECT ... FOR UPDATE fixes the transaction's snapshot, so a query that checks a limit after the lock reads stale data. A booking demo overbooked 11% of events at 10 requests per second per event and 98% at 1,000. Three fixes brought it to zero."
 tags: ["mysql", "postgresql", "java", "spring-boot", "jpa", "hibernate", "transactions", "concurrency"]
 ShowToc: true
