@@ -9,7 +9,7 @@ ai_disclosure: ai-generated
 cover:
   image: cover.png
   relative: true
-  alt: "Startup change after removing -Xshare:off, per GC: about 2% faster, 5–7 MB less private memory"
+  alt: "A leftover -Xshare:off switches off the JVM's free startup optimisation: with the flag no class comes from the JDK's default CDS archive, without it 1,439 of 15,313 do. Removing it made startup 2.0% faster, in 39 of 50 paired boots, with 5 to 7 MB less private memory per JVM"
   hiddenInSingle: true
   hiddenInList: true
 references:

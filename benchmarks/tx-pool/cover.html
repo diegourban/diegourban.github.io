@@ -1,37 +1,146 @@
 <!doctype html>
-<!-- Social preview card (1200x630) for the transaction pool post. make_cover.sh inlines charts.json
-     into the DATA placeholder and screenshots this page; the failures chart is drawn by the site's own code. -->
+<!-- Cover and LinkedIn card (1200x630) for the transaction post, LinkedIn option 7: option 5 plus three API operations waiting for a connection, a label
+     under the database-only queue, and red crosses for queued operations that hit HikariCP's 2 s timeout.
+     Based on the fifth option: option 4 with ten API operations, one per pool
+     connection, and a longer queue of database-only operations. The knock-on effect. Operations that call an
+     external API hold the pool's connections, so operations that only need the database queue behind them. The chart
+     plots every eager and lazy step below 50 API calls/s (requests/s x share, all shares under 100%), the database-only
+     p95 as the median of the 3 rounds (results.jsonl). The capacity line is the post's arithmetic, 10 connections /
+     0.309 s per call; the timeout is HikariCP's 2 s. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Cover</title>
-<link rel="stylesheet" href="../../assets/css/extended/charts.css">
+<title>Card</title>
 <style>
-  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
-          --theme: rgb(255, 255, 255); --code-bg: rgb(245, 245, 245); --radius: 8px; }
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
-               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 40px 56px 28px; display: flex; flex-direction: column; }
-  h1 { margin: 0; font-size: 42px; line-height: 1.12; color: var(--primary); letter-spacing: -0.5px; }
-  .key { margin: 12px 0 14px; font-size: 23px; color: var(--secondary); }
-  .key b { color: var(--primary); }
-  .chart { flex: 1; margin: 0; }
-  .site { font-size: 18px; color: var(--secondary); text-align: right; }
+  :root { --bg: rgb(13, 15, 20); --fg: rgb(226, 230, 236); --dim: rgb(130, 136, 150); --line: rgb(48, 54, 68);
+          --conn: rgb(255, 92, 92); --api: rgb(255, 196, 92); --db: rgb(96, 165, 250); --ok: rgb(52, 211, 153);
+          --band: rgb(245, 245, 243); --ink: rgb(24, 24, 24); --ink2: rgb(100, 100, 100); --spring: rgb(109, 179, 63); }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--bg);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--fg); }
+  .card { width: 1200px; height: 630px; display: flex; flex-direction: column; }
+  .top { padding: 34px 52px 0; }
+  h1 { margin: 0; font-size: 42px; line-height: 1.1; letter-spacing: -0.8px; font-weight: 800; }
+  h1 code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 38px; color: var(--spring); }
+  h1 .hot { color: var(--conn); }
+  .main { flex: 1; display: grid; grid-template-columns: 640px 1fr; gap: 36px; padding: 22px 52px 0; align-items: center; }
+  svg.flow { width: 640px; height: 300px; display: block; }
+  .stats { display: flex; flex-direction: column; gap: 14px; }
+  .chartwrap { margin-top: -6px; }
+  .ctitle { font-size: 20px; color: var(--fg); font-weight: 700; }
+  svg.mini { width: 420px; height: 240px; display: block; }
+  .legend { font-size: 18px; color: var(--dim); margin-top: 6px; }
+  .legend .e { color: var(--conn); } .legend .l { color: var(--ok); }
+  .fix { font-size: 21px; color: var(--dim); }
+  .fix b { color: var(--ok); }
+  .fix code { font-family: ui-monospace, monospace; color: var(--ok); font-size: 18px; }
+  .band { margin-top: 18px; background: var(--band); padding: 18px 52px 16px; display: flex; justify-content: space-between; align-items: baseline; }
+  .band h2 { margin: 0; font-size: 24px; color: var(--ink); letter-spacing: -0.4px; }
+  .band .site { font-size: 19px; color: var(--ink2); }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>@Transactional holds a pool connection it may never use.<br>Spring Boot 4.1 can fix that</h1>
-  <p class="key">Pool of 10, 300 ms partner API: eager failed from <b>40 req/s</b> at 90%+ partner orders; lazy, <b>never up to 300</b></p>
-  <figure class="cp-chart chart"><div class="cp-plot" data-chart="lines" data-key="failures"></div></figure>
-  <div class="site">platformnotes.dev</div>
+  <div class="top">
+    <h1>A slow API call inside <code>@Transactional</code><br><span class="hot">starves other flows that need the pool</span></h1>
+  </div>
+  <div class="main">
+    <svg class="flow" viewBox="0 0 640 300" aria-hidden="true">
+      <!-- lane labels -->
+      <text x="0" y="40" font-size="19" font-weight="800" fill="var(--api)">Operations that call an external API</text>
+      <text x="0" y="64" font-size="18" fill="var(--dim)">hold a connection for the whole 300 ms call</text>
+      <text x="0" y="168" font-size="19" font-weight="800" fill="var(--db)">Operations that only</text>
+      <text x="0" y="192" font-size="19" font-weight="800" fill="var(--db)">need the database</text>
+      <text x="0" y="218" font-size="18" fill="var(--dim)">need a connection for</text>
+      <text x="0" y="240" font-size="18" fill="var(--dim)">about 3.5 ms, and wait</text>
+      <!-- ten api operations, each holding one of the ten connections -->
+      <line x1="388" y1="112" x2="424" y2="112" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="112" r="6" fill="var(--api)"/>
+      <line x1="388" y1="125" x2="424" y2="125" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="125" r="6" fill="var(--api)"/>
+      <line x1="388" y1="138" x2="424" y2="138" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="138" r="6" fill="var(--api)"/>
+      <line x1="388" y1="151" x2="424" y2="151" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="151" r="6" fill="var(--api)"/>
+      <line x1="388" y1="164" x2="424" y2="164" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="164" r="6" fill="var(--api)"/>
+      <line x1="388" y1="177" x2="424" y2="177" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="177" r="6" fill="var(--api)"/>
+      <line x1="388" y1="190" x2="424" y2="190" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="190" r="6" fill="var(--api)"/>
+      <line x1="388" y1="203" x2="424" y2="203" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="203" r="6" fill="var(--api)"/>
+      <line x1="388" y1="216" x2="424" y2="216" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="216" r="6" fill="var(--api)"/>
+      <line x1="388" y1="229" x2="424" y2="229" stroke="var(--api)" stroke-width="2" opacity="0.8"/>
+      <circle cx="380" cy="229" r="6" fill="var(--api)"/>
+      <!-- three more api operations waiting for a connection -->
+      <g fill="var(--api)"><circle cx="318" cy="92" r="6"/><circle cx="338" cy="92" r="6"/><circle cx="358" cy="92" r="6"/></g>
+      <path d="M370 92 C 388 92, 396 96, 406 102" stroke="var(--api)" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+      <!-- database-only operations queued in front of the pool -->
+      <g fill="var(--db)">
+        <circle cx="112" cy="268" r="7"/>
+        <circle cx="134" cy="268" r="7"/>
+        <circle cx="178" cy="268" r="7"/>
+        <circle cx="200" cy="268" r="7"/>
+        <circle cx="222" cy="268" r="7"/>
+        <circle cx="266" cy="268" r="7"/>
+        <circle cx="288" cy="268" r="7"/>
+        <circle cx="332" cy="268" r="7"/>
+        <circle cx="354" cy="268" r="7"/>
+      </g>
+      <g stroke="var(--conn)" stroke-width="3.5" stroke-linecap="round"><line x1="150" y1="262" x2="162" y2="274"/><line x1="150" y1="274" x2="162" y2="262"/></g>
+      <g stroke="var(--conn)" stroke-width="3.5" stroke-linecap="round"><line x1="238" y1="262" x2="250" y2="274"/><line x1="238" y1="274" x2="250" y2="262"/></g>
+      <g stroke="var(--conn)" stroke-width="3.5" stroke-linecap="round"><line x1="304" y1="262" x2="316" y2="274"/><line x1="304" y1="274" x2="316" y2="262"/></g>
+      <text x="112" y="294" font-size="15" fill="var(--dim)">waiting for a connection, <tspan fill="var(--conn)" font-weight="700">✕</tspan> timed out after 2 s</text>
+      <path d="M376 268 C 392 268, 400 256, 410 246" stroke="var(--db)" stroke-width="3" fill="none" stroke-dasharray="5 5"/>
+      <!-- the pool: ten connections, all held by the api orders -->
+      <rect x="410" y="96" width="150" height="150" rx="10" fill="none" stroke="var(--line)" stroke-width="2"/>
+      <text x="420" y="88" font-size="15" font-weight="700" fill="var(--dim)">POOL OF 10</text>
+      <g stroke="var(--conn)" stroke-width="6" stroke-linecap="round">
+        <line x1="424" y1="112" x2="566" y2="112"/><line x1="424" y1="125" x2="566" y2="125"/><line x1="424" y1="138" x2="566" y2="138"/>
+        <line x1="424" y1="151" x2="566" y2="151"/><line x1="424" y1="164" x2="566" y2="164"/><line x1="424" y1="177" x2="566" y2="177"/>
+        <line x1="424" y1="190" x2="566" y2="190"/><line x1="424" y1="203" x2="566" y2="203"/><line x1="424" y1="216" x2="566" y2="216"/>
+        <line x1="424" y1="229" x2="566" y2="229"/>
+      </g>
+      <!-- database -->
+      <path d="M576 108 v128 c0 8 14 13 32 13 s32 -5 32 -13 v-128" fill="var(--bg)" stroke="var(--conn)" stroke-width="3"/>
+      <ellipse cx="608" cy="108" rx="32" ry="11" fill="var(--bg)" stroke="var(--conn)" stroke-width="3"/>
+      <path d="M576 152 c0 8 14 13 32 13 s32 -5 32 -13 M576 196 c0 8 14 13 32 13 s32 -5 32 -13" fill="none" stroke="var(--conn)" stroke-width="2" opacity="0.6"/>
+    </svg>
+    <div class="stats">
+      <div class="chartwrap">
+        <div class="ctitle">Database-only operations, p95</div>
+        <svg class="mini" viewBox="0 0 420 240" aria-hidden="true"></svg>
+        <div class="legend"><span class="e">○ eager (default)</span>&nbsp;&nbsp;<span class="l">● lazy fetching</span></div>
+      </div>
+      <div class="fix">Fix: <code>connection-fetch=lazy</code>, so the API path<br>never takes a connection.<br><b>0 failures up to 300 req/s.</b></div>
+    </div>
+  </div>
+  <div class="band"><h2>@Transactional holds a pool connection it may never use. Spring Boot 4.1 can fix that</h2><span class="site">platformnotes.dev</span></div>
 </div>
-<script src="../../assets/js/vendor/d3-7.9.0.min.js"></script>
-<script src="../../assets/js/charts/common.js"></script>
-<script src="../../assets/js/charts/lines.js"></script>
 <script>
-  const DATA = /*DATA*/null;
-  CPCharts.renderAll(DATA);
+  // Database-only p95 against external API calls per second, all shares, eager vs lazy (results.jsonl medians).
+  const DATA = {"eager": [[2.5, 14.9], [5.0, 10.7], [5.0, 15.5], [7.5, 8.6], [7.5, 15.6], [9.0, 17.8], [9.5, 19.4], [10.0, 7.4], [10.0, 11.7], [12.5, 6.4], [15.0, 5.9], [15.0, 11.0], [15.0, 13.2], [17.5, 5.2], [18.0, 15.5], [19.0, 16.5], [20.0, 5.0], [20.0, 64.3], [22.5, 13.1], [22.5, 30.6], [25.0, 59.5], [25.0, 115.1], [27.0, 14.5], [28.5, 15.1], [30.0, 67.6], [30.0, 145.2], [31.2, 122.6], [35.0, 1993.2], [36.0, 2000.2], [37.5, 2008.0], [37.5, 2016.4], [38.0, 2010.5], [40.0, 2008.0], [45.0, 2008.7], [45.0, 2008.9], [45.0, 2010.5], [47.5, 2013.2]], "lazy": [[2.5, 14.9], [5.0, 10.6], [5.0, 15.9], [7.5, 8.2], [7.5, 17.5], [9.0, 18.6], [9.5, 18.4], [10.0, 7.4], [10.0, 11.5], [12.5, 6.3], [15.0, 5.7], [15.0, 10.8], [15.0, 14.2], [17.5, 5.0], [18.0, 16.5], [19.0, 16.3], [20.0, 4.7], [20.0, 8.0], [22.5, 4.7], [22.5, 13.6], [25.0, 4.4], [25.0, 7.3], [27.0, 15.1], [28.5, 15.3], [30.0, 6.5], [30.0, 10.6], [31.2, 4.1], [35.0, 5.8], [36.0, 13.6], [37.5, 4.1], [37.5, 11.3], [38.0, 15.0], [40.0, 5.5], [45.0, 5.3], [45.0, 7.9], [45.0, 13.4], [47.5, 13.9]]};
+  const NS = "http://www.w3.org/2000/svg", svg = document.querySelector("svg.mini");
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const el = (n, a, t) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (t) e.textContent = t; svg.appendChild(e); return e; };
+  const L = 62, R = 414, T = 28, B = 200;
+  const x = (v) => L + (R - L) * v / 50;
+  const y = (ms) => B - (B - T) * (Math.log10(ms) - 0) / (Math.log10(5000) - 0);
+  for (const [ms, lab] of [[1, "1 ms"], [10, "10 ms"], [100, "100 ms"]]) {
+    el("line", { x1: L, x2: R, y1: y(ms), y2: y(ms), stroke: css("--line"), "stroke-width": 1 });
+    el("text", { x: L - 8, y: y(ms) + 5, "text-anchor": "end", "font-size": 16, fill: css("--dim") }, lab);
+  }
+  el("line", { x1: L, x2: R, y1: y(2000), y2: y(2000), stroke: css("--conn"), "stroke-width": 1, opacity: 0.6 });
+  el("text", { x: L - 8, y: y(2000) + 5, "text-anchor": "end", "font-size": 16, "font-weight": 700, fill: css("--conn") }, "2 s");
+  el("text", { x: L + 6, y: y(2000) - 8, "font-size": 15, "font-weight": 700, fill: css("--conn") }, "pool timeout");
+  for (const v of [0, 10, 20, 30, 40]) el("text", { x: x(v), y: B + 20, "text-anchor": "middle", "font-size": 16, fill: css("--dim") }, v);
+  el("text", { x: R, y: B + 38, "text-anchor": "end", "font-size": 16, fill: css("--dim") }, "API calls/s (requests/s × share)");
+  el("line", { x1: x(32.4), x2: x(32.4), y1: T, y2: B, stroke: css("--fg"), "stroke-width": 2, "stroke-dasharray": "4 5", opacity: 0.7 });
+  el("text", { x: x(32.4) + 6, y: y(300), "font-size": 15, "font-weight": 700, fill: css("--fg") }, "pool capacity");
+  el("text", { x: x(32.4) + 6, y: y(300) + 18, "font-size": 15, fill: css("--fg") }, "≈ 32 calls/s");
+  for (const [v, ms] of DATA.eager) el("circle", { cx: x(v), cy: y(ms), r: 5.5, fill: "none", stroke: css("--conn"), "stroke-width": 2.2 });
+  for (const [v, ms] of DATA.lazy) el("circle", { cx: x(v), cy: y(ms), r: 4, fill: css("--ok") });
 </script>
 </body>
 </html>

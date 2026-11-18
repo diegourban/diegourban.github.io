@@ -9,7 +9,7 @@ ai_disclosure: ai-generated
 cover:
   image: cover.png
   relative: true
-  alt: "Latency over the first 2,000 requests on G1: the AOT cache trained with requests drops below 1 ms within about 400 requests, while AppCDS, default CDS and a cache trained only up to onRefresh stay above it"
+  alt: "JDK 25's AOT cache vs AppCDS: on G1 the cache trained with requests drops below 1 ms per request within about 400 requests while AppCDS stays above it, 220 ms faster startup and 890 ms less over the first 2,000 requests"
   hiddenInSingle: true
   hiddenInList: true
 references:

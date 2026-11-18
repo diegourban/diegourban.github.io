@@ -1,38 +1,72 @@
 <!doctype html>
-<!-- Social preview card (1200x630) for the default-CDS post. make_cover.sh inlines charts.json
-     into the DATA placeholder and screenshots this page; chart A is drawn by the site's own code. -->
+<!-- Cover and LinkedIn card (1200x630) for the default CDS post, in the dark style of the later posts' cards.
+     make_cover.sh inlines charts.json into the DATA placeholder: the class bars come from "coverage" and the
+     paired result from "pooled". With -Xshare:off the JVM maps no archive, so no class comes from it. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Cover</title>
-<link rel="stylesheet" href="../../assets/css/extended/charts.css">
 <style>
-  :root { --primary: rgb(30, 30, 30); --secondary: rgb(108, 108, 108); --border: rgb(230, 230, 228);
-          --theme: rgb(255, 255, 255); --code-bg: rgb(245, 245, 245); --radius: 8px; }
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--theme);
-               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card { box-sizing: border-box; width: 1200px; height: 630px; padding: 44px 56px 32px; display: flex; flex-direction: column; }
-  h1 { margin: 0; font-size: 44px; line-height: 1.12; color: var(--primary); letter-spacing: -0.5px; }
-  .key { margin: 14px 0 6px; font-size: 24px; color: var(--secondary); }
-  .key b { color: var(--primary); }
-  .chart { flex: 1; margin: 0; }
-  .site { font-size: 18px; color: var(--secondary); text-align: right; }
+  :root { --bg: rgb(13, 15, 20); --fg: rgb(226, 230, 236); --dim: rgb(130, 136, 150); --line: rgb(48, 54, 68);
+          --bad: rgb(255, 92, 92); --ok: rgb(52, 211, 153); --code: rgb(255, 196, 92); --panel: rgb(22, 25, 33);
+          --band: rgb(245, 245, 243); --ink: rgb(24, 24, 24); --ink2: rgb(100, 100, 100); }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--bg);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--fg); }
+  .card { width: 1200px; height: 630px; display: flex; flex-direction: column; }
+  .top { padding: 34px 52px 0; }
+  h1 { margin: 0; font-size: 42px; line-height: 1.1; letter-spacing: -0.8px; font-weight: 800; }
+  h1 code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 38px; color: var(--code); }
+  h1 .hot { color: var(--bad); }
+  .main { flex: 1; display: grid; grid-template-columns: 600px 1fr; gap: 56px; padding: 26px 52px 0; align-items: center; }
+  .term { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px;
+          font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 19px; color: var(--fg); }
+  .term .p { color: var(--dim); }
+  .term .off { color: var(--bad); font-weight: 700; }
+  .label { margin: 22px 0 10px; font-size: 19px; font-weight: 700; }
+  .bar { display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 12px; margin: 10px 0; font-size: 17px; color: var(--dim); }
+  .track { position: relative; height: 26px; border-radius: 5px; background: rgba(130, 136, 150, 0.18); }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }
+  .track span { position: absolute; left: 10px; top: 3px; font-size: 16px; color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stats { display: flex; flex-direction: column; gap: 18px; }
+  .big { font-size: 46px; font-weight: 800; color: var(--ok); line-height: 1; letter-spacing: -1px; }
+  .big + div { font-size: 19px; color: var(--dim); margin-top: 6px; }
+  .fix { font-size: 20px; color: var(--dim); line-height: 1.35; border-top: 1px solid var(--line); padding-top: 14px; }
+  .fix b { color: var(--fg); }
+  .band { margin-top: 18px; background: var(--band); padding: 18px 52px 16px; display: flex; justify-content: space-between; align-items: baseline; }
+  .band h2 { margin: 0; font-size: 24px; color: var(--ink); letter-spacing: -0.4px; }
+  .band .site { font-size: 19px; color: var(--ink2); }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>Is anything switching off your JVM's<br>free startup optimisation?</h1>
-  <p class="key">Removing <b>-Xshare:off</b>: <b id="pooled"></b> faster startup, <b>5–7 MB</b> less private memory per JVM</p>
-  <figure class="cp-chart chart"><div class="cp-plot" data-chart="paired-shift"></div></figure>
-  <div class="site">platformnotes.dev</div>
+  <div class="top">
+    <h1>A leftover <code>-Xshare:off</code><br><span class="hot">switches off the JVM's free startup optimisation</span></h1>
+  </div>
+  <div class="main">
+    <div>
+      <div class="term"><span class="p">$</span> java <span class="off">-Xshare:off</span> -jar app.jar</div>
+      <div class="label">Classes from the JDK's default CDS archive</div>
+      <div class="bar"><div>With the flag</div><div class="track"><span id="off"></span></div></div>
+      <div class="bar"><div>Flag removed</div><div class="track"><div class="fill" id="onfill" style="background: var(--ok)"></div><span id="on"></span></div></div>
+    </div>
+    <div class="stats">
+      <div><div class="big" id="pct"></div><div id="pctsub"></div></div>
+      <div><div class="big">5 to 7 MB</div><div>less private memory per JVM</div></div>
+      <div class="fix"><b>Fix: remove the flag.</b> The archive ships with the JDK, nothing to train or build.</div>
+    </div>
+  </div>
+  <div class="band"><h2>Is anything switching off your JVM's free startup optimisation?</h2><span class="site">platformnotes.dev</span></div>
 </div>
-<script src="../../assets/js/vendor/d3-7.9.0.min.js"></script>
-<script src="../../assets/js/charts/common.js"></script>
-<script src="../../assets/js/charts/paired-shift.js"></script>
 <script>
   const DATA = /*DATA*/null;
-  document.getElementById("pooled").textContent = "about " + DATA.pooled.shift_label;
-  CPCharts.renderAll(DATA);
+  const small = DATA.coverage[0];
+  document.getElementById("off").textContent = `0 of ${small.loaded_label}`;
+  document.getElementById("on").textContent = `${small.shared_label} of ${small.loaded_label} (${small.pct_label})`;
+  const share = 100 * small.shared / small.loaded;
+  document.getElementById("onfill").style.width = `${share}%`;
+  document.getElementById("on").style.left = `calc(${share}% + 10px)`;
+  document.getElementById("pct").textContent = `${DATA.pooled.shift_label} faster`;
+  document.getElementById("pctsub").textContent = `startup, faster in ${DATA.pooled.faster} of ${DATA.pooled.n} paired boots`;
 </script>
 </body>
 </html>
